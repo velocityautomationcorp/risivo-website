@@ -50,13 +50,13 @@ export function BaseLayout({
       <meta name="twitter:description" content="${description}">
       <meta name="twitter:image" content="https://www.risivo.com/og-image.png">
       
-      <!-- Favicon -->
-      <link rel="icon" type="image/x-icon" href="/favicon.ico">
+      <!-- Favicon - Official Risivo Icon -->
+      <link rel="icon" type="image/png" href="/favicon.png">
       
-      <!-- Fonts -->
+      <!-- Fonts - JOST (Official Brand Font) -->
       <link rel="preconnect" href="https://fonts.googleapis.com">
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+      <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700&display=swap" rel="stylesheet">
       
       <!-- Global Styles -->
       <style>

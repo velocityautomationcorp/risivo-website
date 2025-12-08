@@ -1,14 +1,24 @@
 /**
  * Risivo Design System
- * Based on requirements document specifications
+ * Based on OFFICIAL Brand Guidelines (Dec 2025)
+ * 
+ * CRITICAL: These colors, fonts, and styles must match the official brand
+ * guidelines used across all platforms (social media, marketing, etc.)
+ * 
+ * Official Brand Colors:
+ * - Purple: #683FE9
+ * - Coral: #ED632F
+ * - Light Purple: #7C3AED
+ * 
+ * Official Font: JOST (all weights)
  */
 
 export const colors = {
-  // Primary Brand Colors (From Risivo Logo & Template)
-  primary: '#7B1FE4',      // Risivo Purple
-  primaryDark: '#6419C5',  // Darker purple
-  primaryLight: '#A121CA', // Lighter purple for gradients
-  secondary: '#FF6B35',    // Orange from logo
+  // PRIMARY BRAND COLORS (OFFICIAL - From Brand Guidelines Dec 2025)
+  primary: '#683FE9',      // Risivo Purple (OFFICIAL)
+  primaryLight: '#7C3AED', // Light Purple (OFFICIAL)
+  secondary: '#ED632F',    // Coral/Pink Accent (OFFICIAL)
+  primaryDark: '#5530C7',  // Darker purple (derived)
   
   // Supporting Colors
   success: '#4caf50',
@@ -16,32 +26,33 @@ export const colors = {
   error: '#f44336',
   info: '#2196f3',
   
-  // Neutral Colors (From Template)
+  // NEUTRAL COLORS (OFFICIAL - From Brand Guidelines)
   white: '#ffffff',
-  lightGray: '#FAFAFA',      // Template background
-  mediumGray: '#6D6B7B',     // Template text
-  darkGray: '#1A192E',       // Template header
+  lightGray: '#f8fafc',      // Background Light (OFFICIAL)
+  mediumGray: '#6b7280',     // Text Gray (OFFICIAL)
+  darkGray: '#1f2937',       // Text Dark (OFFICIAL)
   black: '#000000',
-  border: '#CCCBD13D',       // Template border
+  border: 'rgba(107, 114, 128, 0.2)',  // Derived from text gray
   
-  // Gradients
-  heroGradient: 'linear-gradient(270deg, #A121CA 0%, #7B1FE4 100%)',  // Template gradient
-  buttonGradient: 'linear-gradient(135deg, #7B1FE4 0%, #A121CA 100%)',
-  cardGradient: 'linear-gradient(to bottom, #ffffff, #f8f9fa)',
+  // GRADIENTS (Using Official Brand Colors)
+  heroGradient: 'linear-gradient(135deg, #683FE9 0%, #7C3AED 100%)',  // Purple gradient
+  buttonGradient: 'linear-gradient(135deg, #683FE9 0%, #ED632F 100%)', // Purple to coral
+  accentGradient: 'linear-gradient(135deg, #7C3AED 0%, #ED632F 100%)', // Light purple to coral
+  cardGradient: 'linear-gradient(to bottom, #ffffff, #f8fafc)',
 }
 
 export const typography = {
-  // Font Family
-  fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+  // FONT FAMILY (OFFICIAL - From Brand Guidelines)
+  fontFamily: "'Jost', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
   monospaceFontFamily: "'Courier New', monospace",
   
-  // Font Sizes
-  h1: '3rem',      // 48px - Hero headlines
-  h2: '2.25rem',   // 36px - Section headlines
-  h3: '1.875rem',  // 30px - Subsection headlines
-  h4: '1.5rem',    // 24px - Card titles
-  h5: '1.25rem',   // 20px - Small headings
-  body: '1rem',    // 16px - Regular text
+  // FONT SIZES (Aligned with Brand Guidelines)
+  h1: '2rem',      // 32px - Jost Bold (OFFICIAL)
+  h2: '1.5rem',    // 24px - Jost Semibold (OFFICIAL)
+  h3: '1.25rem',   // 20px - Jost Medium (OFFICIAL)
+  h4: '1.125rem',  // 18px - Card titles
+  h5: '1rem',      // 16px - Small headings
+  body: '1rem',    // 16px - Jost Regular (OFFICIAL, line-height 1.5)
   small: '0.875rem', // 14px - Captions, labels
   tiny: '0.75rem', // 12px - Fine print
   
