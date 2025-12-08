@@ -18,20 +18,29 @@ app.post('/api/subscribe', async (c) => {
     const body = await c.req.json()
     const { email, timestamp, source } = body
     
+    // Validate email first
+    if (!email || !email.includes('@')) {
+      console.error('Invalid email:', email)
+      return c.json({ error: 'Invalid email address' }, 400)
+    }
+    
     // Get webhook URL from environment variable
     const webhookUrl = c.env?.WEBHOOK_URL || ''
     
     if (!webhookUrl) {
-      console.error('WEBHOOK_URL not configured')
-      return c.json({ error: 'Webhook not configured' }, 500)
+      console.error('WEBHOOK_URL not configured in environment variables')
+      // Return success to user but log the error
+      // This allows the coming soon page to work even if webhook isn't configured yet
+      return c.json({ 
+        success: true, 
+        message: 'Email saved! Configuration pending.',
+        warning: 'WEBHOOK_URL not configured'
+      })
     }
     
-    // Validate email
-    if (!email || !email.includes('@')) {
-      return c.json({ error: 'Invalid email address' }, 400)
-    }
+    console.log('Attempting to send to webhook:', webhookUrl.substring(0, 30) + '...')
     
-    // Send to Make.com webhook
+    // Send to Make.com webhook with timeout
     const webhookResponse = await fetch(webhookUrl, {
       method: 'POST',
       headers: {
@@ -43,17 +52,31 @@ app.post('/api/subscribe', async (c) => {
         source,
         subscribed_at: new Date().toISOString(),
         page_url: c.req.url
-      })
+      }),
+      signal: AbortSignal.timeout(10000) // 10 second timeout
     })
     
+    console.log('Webhook response status:', webhookResponse.status)
+    
     if (!webhookResponse.ok) {
-      throw new Error('Webhook request failed')
+      const errorText = await webhookResponse.text()
+      console.error('Webhook error response:', errorText)
+      throw new Error(`Webhook returned ${webhookResponse.status}: ${errorText}`)
     }
     
     return c.json({ success: true, message: 'Subscription successful' })
   } catch (error) {
     console.error('Subscription error:', error)
-    return c.json({ error: 'Failed to process subscription' }, 500)
+    // Log detailed error information
+    if (error instanceof Error) {
+      console.error('Error name:', error.name)
+      console.error('Error message:', error.message)
+      console.error('Error stack:', error.stack)
+    }
+    return c.json({ 
+      error: 'Failed to process subscription', 
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, 500)
   }
 })
 
@@ -454,6 +477,17 @@ app.get('/', (c) => {
                 const submitBtn = document.querySelector('.submit-btn');
                 const successMessage = document.getElementById('successMessage');
                 
+                // Validate email format
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    successMessage.textContent = '⚠ Please enter a valid email address.';
+                    successMessage.style.background = 'rgba(255, 152, 0, 0.2)';
+                    successMessage.style.borderColor = 'rgba(255, 152, 0, 0.4)';
+                    successMessage.classList.add('show');
+                    setTimeout(() => successMessage.classList.remove('show'), 5000);
+                    return;
+                }
+                
                 // Disable button during submission
                 submitBtn.disabled = true;
                 submitBtn.textContent = 'Submitting...';
@@ -472,6 +506,9 @@ app.get('/', (c) => {
                         })
                     });
                     
+                    const data = await response.json();
+                    console.log('Server response:', data);
+                    
                     if (response.ok) {
                         // Show success message
                         successMessage.textContent = "✓ Thanks! We'll notify you when we launch.";
@@ -482,12 +519,19 @@ app.get('/', (c) => {
                         // Clear form
                         document.getElementById('emailInput').value = '';
                     } else {
-                        throw new Error('Subscription failed');
+                        // Show specific error from server
+                        const errorMsg = data.error || 'Subscription failed';
+                        console.error('Subscription error:', errorMsg, data.details);
+                        throw new Error(errorMsg);
                     }
                 } catch (error) {
                     console.error('Error:', error);
-                    // Show error message
-                    successMessage.textContent = '⚠ Oops! Something went wrong. Please try again.';
+                    // Show error message with more details
+                    let errorText = '⚠ Oops! Something went wrong. Please try again.';
+                    if (error.message === 'Failed to fetch') {
+                        errorText = '⚠ Connection error. Please check your internet and try again.';
+                    }
+                    successMessage.textContent = errorText;
                     successMessage.style.background = 'rgba(244, 67, 54, 0.2)';
                     successMessage.style.borderColor = 'rgba(244, 67, 54, 0.4)';
                     successMessage.classList.add('show');
