@@ -4,10 +4,11 @@
  */
 
 export const colors = {
-  // Primary Colors
-  primary: '#667eea',
-  primaryDark: '#5568d3',
-  secondary: '#764ba2',
+  // Primary Brand Colors (From Risivo Logo & Template)
+  primary: '#7B1FE4',      // Risivo Purple
+  primaryDark: '#6419C5',  // Darker purple
+  primaryLight: '#A121CA', // Lighter purple for gradients
+  secondary: '#FF6B35',    // Orange from logo
   
   // Supporting Colors
   success: '#4caf50',
@@ -15,15 +16,17 @@ export const colors = {
   error: '#f44336',
   info: '#2196f3',
   
-  // Neutral Colors
+  // Neutral Colors (From Template)
   white: '#ffffff',
-  lightGray: '#f5f5f5',
-  mediumGray: '#9e9e9e',
-  darkGray: '#333333',
+  lightGray: '#FAFAFA',      // Template background
+  mediumGray: '#6D6B7B',     // Template text
+  darkGray: '#1A192E',       // Template header
   black: '#000000',
+  border: '#CCCBD13D',       // Template border
   
   // Gradients
-  heroGradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+  heroGradient: 'linear-gradient(270deg, #A121CA 0%, #7B1FE4 100%)',  // Template gradient
+  buttonGradient: 'linear-gradient(135deg, #7B1FE4 0%, #A121CA 100%)',
   cardGradient: 'linear-gradient(to bottom, #ffffff, #f8f9fa)',
 }
 
@@ -93,8 +96,9 @@ export const borderRadius = {
 export const animations = {
   transition: {
     fast: '150ms ease-in-out',
-    base: '200ms ease-in-out',
-    slow: '300ms ease-in-out',
+    base: '300ms ease-in-out',
+    slow: '500ms ease-in-out',
+    verySlow: '800ms ease-in-out',
   },
   keyframes: {
     fadeIn: `
@@ -103,16 +107,60 @@ export const animations = {
         to { opacity: 1; transform: translateY(0); }
       }
     `,
+    fadeInUp: `
+      @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+    `,
+    fadeInLeft: `
+      @keyframes fadeInLeft {
+        from { opacity: 0; transform: translateX(-30px); }
+        to { opacity: 1; transform: translateX(0); }
+      }
+    `,
+    fadeInRight: `
+      @keyframes fadeInRight {
+        from { opacity: 0; transform: translateX(30px); }
+        to { opacity: 1; transform: translateX(0); }
+      }
+    `,
     float: `
       @keyframes float {
         0%, 100% { transform: translateY(0px); }
         50% { transform: translateY(-20px); }
       }
     `,
+    floatBob: `
+      @keyframes floatBob {
+        0%, 100% { transform: translateY(0) rotate(0deg); }
+        25% { transform: translateY(-10px) rotate(1deg); }
+        50% { transform: translateY(-15px) rotate(0deg); }
+        75% { transform: translateY(-10px) rotate(-1deg); }
+      }
+    `,
     pulse: `
       @keyframes pulse {
         0%, 100% { opacity: 1; }
         50% { opacity: 0.5; }
+      }
+    `,
+    slideUp: `
+      @keyframes slideUp {
+        from { transform: translateY(100%); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+      }
+    `,
+    scaleIn: `
+      @keyframes scaleIn {
+        from { transform: scale(0.9); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+      }
+    `,
+    spin: `
+      @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
       }
     `,
   }
