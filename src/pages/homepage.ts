@@ -12,6 +12,11 @@ import { designSystem } from '../styles/design-system'
 const { colors, spacing } = designSystem
 
 export function Homepage(): string {
+  // Pre-calculate spacing values to avoid bracket notation in template literals
+  const spacing2xl = spacing['2xl']
+  const spacing3xl = spacing['3xl']
+  const spacing4xl = spacing['4xl']
+  
   const heroSection = Hero({
     subtitle: 'Modern CRM Software',
     title: 'Transform How You Manage Customer Relationships',
@@ -41,12 +46,12 @@ export function Homepage(): string {
           <h2 style="font-size: 2.5rem; margin-bottom: ${spacing.lg};">
             Tired of juggling multiple tools?
           </h2>
-          <p style="font-size: 1.25rem; color: ${colors.mediumGray}; margin-bottom: ${spacing['2xl']};">
+          <p style="font-size: 1.25rem; color: ${colors.mediumGray}; margin-bottom: ${spacing2xl};">
             Most businesses waste time switching between spreadsheets, email, calendars, and separate CRM tools. 
             There's a better way.
           </p>
           
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: ${spacing['2xl']}; margin-top: ${spacing['3xl']};">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: ${spacing2xl}; margin-top: ${spacing3xl};">
             <div class="card">
               <h3 style="color: ${colors.error}; margin-bottom: ${spacing.md};">❌ Before Risivo</h3>
               <ul style="text-align: left; color: ${colors.darkGray}; line-height: 1.8;">
@@ -76,7 +81,7 @@ export function Homepage(): string {
     <!-- Solution Overview -->
     <section class="section" style="background: ${colors.lightGray};">
       <div class="container">
-        <div class="text-center" style="margin-bottom: ${spacing['3xl']};">
+        <div class="text-center" style="margin-bottom: ${spacing3xl};">
           <h2 style="font-size: 2.5rem; margin-bottom: ${spacing.lg};">
             One Platform for All Your Customer Relationships
           </h2>
@@ -109,13 +114,13 @@ export function Homepage(): string {
     <!-- How It Works -->
     <section class="section">
       <div class="container">
-        <div class="text-center" style="margin-bottom: ${spacing['3xl']};">
+        <div class="text-center" style="margin-bottom: ${spacing3xl};">
           <h2 style="font-size: 2.5rem; margin-bottom: ${spacing.lg};">
             Get Started in 3 Simple Steps
           </h2>
         </div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: ${spacing['2xl']};">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: ${spacing2xl};">
           ${[
             { 
               step: '1', 
@@ -210,7 +215,7 @@ export function Homepage(): string {
         </div>
 
         <!-- Stats -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: ${spacing.xl}; margin-top: ${spacing['3xl']}; text-align: center;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: ${spacing.xl}; margin-top: ${spacing3xl}; text-align: center;">
           ${[
             { number: '1,000+', label: 'Active Users' },
             { number: '$10M+', label: 'Deals Closed' },
@@ -241,7 +246,7 @@ export function Homepage(): string {
             Start with a 14-day free trial. No credit card required. Cancel anytime.
           </p>
 
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: ${spacing.xl}; margin: ${spacing['2xl']} 0;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: ${spacing.xl}; margin: ${spacing2xl} 0;">
             <div class="card">
               <h3 style="font-size: 1.5rem; margin-bottom: ${spacing.md};">Starter</h3>
               <div style="font-size: 3rem; font-weight: 800; color: ${colors.primary}; margin-bottom: ${spacing.md};">
@@ -325,5 +330,8 @@ export function Homepage(): string {
       columns: footerColumns,
       socialLinks,
     },
+  })
+}
+
   })
 }
