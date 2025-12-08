@@ -418,7 +418,8 @@ app.get('/', (c) => {
         
         <script>
             // Countdown Timer - March 1st, 2026 at 00:00 UTC
-            const launchDate = new Date('2026-03-01T00:00:00Z').getTime();
+            // Using Date.UTC for better browser compatibility
+            const launchDate = Date.UTC(2026, 2, 1, 0, 0, 0); // Note: Month is 0-indexed (2 = March)
             
             function updateCountdown() {
                 const now = new Date().getTime();
