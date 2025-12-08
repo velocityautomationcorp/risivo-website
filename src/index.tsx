@@ -351,11 +351,10 @@ app.get('/', (c) => {
                 <img src="data:image/png;base64,${LOGO_BASE64}" alt="Risivo" />
             </div>
             
-            <div class="subtitle">The Future of CRM is Coming</div>
+            <div class="subtitle">No. 1 CRM 100% Powered by AI</div>
             
             <p class="description">
-                Transform how you manage customers, close deals, and grow your business. 
-                The all-in-one CRM platform built for modern teams is launching soon.
+                The world's first AI-powered CRM with built-in translation, voice automation, and intelligent workflows. Reach customers in 15+ languages, automate follow-ups, and scale globally—launching soon.
             </p>
             
             <div class="countdown" id="countdown">
@@ -412,7 +411,7 @@ app.get('/', (c) => {
             </div>
             
             <div class="footer">
-                © 2024 Risivo. All rights reserved.
+                © <span id="currentYear"></span> Risivo. All rights reserved.
             </div>
         </div>
         
@@ -443,6 +442,9 @@ app.get('/', (c) => {
             
             updateCountdown();
             setInterval(updateCountdown, 1000);
+            
+            // Set current year dynamically
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
             
             // Email Form with Webhook Integration
             document.getElementById('emailForm').addEventListener('submit', async function(e) {
