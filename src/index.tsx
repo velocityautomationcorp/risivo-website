@@ -417,8 +417,8 @@ app.get('/', (c) => {
         </div>
         
         <script>
-            // Countdown Timer
-            const launchDate = ${launchDate};
+            // Countdown Timer - March 1st, 2026 at 00:00 UTC
+            const launchDate = new Date('2026-03-01T00:00:00Z').getTime();
             
             function updateCountdown() {
                 const now = new Date().getTime();
