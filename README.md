@@ -1,20 +1,33 @@
-# Risivo - Coming Soon Page
+# 🚀 Risivo - Coming Soon Page
 
-A beautiful, minimal coming soon page for Risivo CRM.
+A beautiful, professional coming soon page for Risivo CRM with email capture and automation.
 
 **Live Demo:** www.risivo.com (after deployment)
 
 ---
 
+## ⚡ Quick Links
+
+- **Deploy in 10 minutes:** [QUICK_START.md](QUICK_START.md)
+- **Complete deployment guide:** [DEPLOYMENT_COMPLETE_GUIDE.md](DEPLOYMENT_COMPLETE_GUIDE.md)
+- **Handoff summary:** [HANDOFF_SUMMARY.md](HANDOFF_SUMMARY.md)
+
+---
+
 ## 🚀 Features
 
-- ✅ Real-time countdown timer to launch date (February 8, 2025)
-- ✅ Email capture form
+- ✅ Real-time countdown timer to launch date (March 1st, 2026)
+- ✅ Email capture form with validation
+- ✅ Webhook integration (Make.com)
+- ✅ Automatic email responses
+- ✅ Google Sheets integration
 - ✅ Animated gradient background
 - ✅ Fully responsive design
 - ✅ Social media links
 - ✅ Clean, modern UI
 - ✅ Fast loading (Cloudflare Pages CDN)
+- ✅ Free SSL certificate
+- ✅ Auto-deployment support
 
 ---
 
