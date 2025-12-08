@@ -105,7 +105,7 @@ export function Homepage(): string {
           `).join('')}
         </div>
 
-        <div class="text-center" style="margin-top: ${spacing['2xl'}};">
+        <div class="text-center" style="margin-top: ${spacing2xl};">
           ${Button({ text: 'Explore All Features', href: '/features', variant: 'primary', size: 'lg' })}
         </div>
       </div>
@@ -169,7 +169,7 @@ export function Homepage(): string {
     <!-- Social Proof / Testimonials -->
     <section class="section" style="background: ${colors.heroGradient}; color: white;">
       <div class="container">
-        <div class="text-center" style="margin-bottom: ${spacing['3xl'}};">
+        <div class="text-center" style="margin-bottom: ${spacing3xl};">
           <h2 style="font-size: 2.5rem; margin-bottom: ${spacing.lg}; color: white;">
             Trusted by Growing Businesses Worldwide
           </h2>
@@ -242,7 +242,7 @@ export function Homepage(): string {
           <h2 style="font-size: 2.5rem; margin-bottom: ${spacing.lg};">
             Simple, Transparent Pricing
           </h2>
-          <p style="font-size: 1.25rem; color: ${colors.mediumGray}; margin-bottom: ${spacing['2xl'}};">
+          <p style="font-size: 1.25rem; color: ${colors.mediumGray}; margin-bottom: ${spacing2xl};">
             Start with a 14-day free trial. No credit card required. Cancel anytime.
           </p>
 
@@ -286,7 +286,7 @@ export function Homepage(): string {
         <h2 style="font-size: 2.5rem; margin-bottom: ${spacing.lg};">
           Ready to Transform Your Business?
         </h2>
-        <p style="font-size: 1.25rem; color: ${colors.mediumGray}; margin-bottom: ${spacing['2xl'}}; max-width: 600px; margin-left: auto; margin-right: auto;">
+        <p style="font-size: 1.25rem; color: ${colors.mediumGray}; margin-bottom: ${spacing2xl}; max-width: 600px; margin-left: auto; margin-right: auto;">
           Join thousands of businesses that chose Risivo to manage customer relationships and close more deals.
         </p>
 
@@ -330,8 +330,5 @@ export function Homepage(): string {
       columns: footerColumns,
       socialLinks,
     },
-  })
-}
-
   })
 }
