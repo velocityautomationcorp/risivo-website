@@ -12,6 +12,16 @@ const LOGO_BASE64 = `iVBORw0KGgoAAAANSUhEUgAAAPoAAAA5CAYAAAAfkDYnAAABAGlDQ1BpY2M
 // Base64 encoded favicon  
 const FAVICON_BASE64 = `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`
 
+// Debug endpoint to check configuration
+app.get('/api/health', (c) => {
+  const hasWebhook = !!c.env?.WEBHOOK_URL
+  return c.json({
+    status: 'ok',
+    webhookConfigured: hasWebhook,
+    timestamp: new Date().toISOString()
+  })
+})
+
 // API endpoint for email subscriptions
 app.post('/api/subscribe', async (c) => {
   try {
@@ -27,51 +37,84 @@ app.post('/api/subscribe', async (c) => {
     // Get webhook URL from environment variable
     const webhookUrl = c.env?.WEBHOOK_URL || ''
     
+    console.log('[SUBSCRIBE] Email:', email)
+    console.log('[SUBSCRIBE] Webhook configured:', !!webhookUrl)
+    
     if (!webhookUrl) {
-      console.error('WEBHOOK_URL not configured in environment variables')
-      // Return success to user but log the error
-      // This allows the coming soon page to work even if webhook isn't configured yet
+      console.error('[SUBSCRIBE] WEBHOOK_URL not configured in environment variables')
+      console.error('[SUBSCRIBE] Email cannot be saved without webhook configuration')
+      // Return error to alert user that configuration is needed
+      return c.json({ 
+        error: 'Service configuration incomplete. Please contact support.',
+        code: 'WEBHOOK_NOT_CONFIGURED'
+      }, 503)
+    }
+    
+    console.log('[SUBSCRIBE] Webhook URL (first 30 chars):', webhookUrl.substring(0, 30) + '...')
+    console.log('[SUBSCRIBE] Sending to webhook...')
+    
+    // Send to Make.com webhook with timeout
+    try {
+      const webhookResponse = await fetch(webhookUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          timestamp,
+          source,
+          subscribed_at: new Date().toISOString(),
+          page_url: c.req.url
+        })
+      })
+      
+      console.log('[SUBSCRIBE] Webhook response status:', webhookResponse.status)
+      console.log('[SUBSCRIBE] Webhook response ok:', webhookResponse.ok)
+      
+      if (!webhookResponse.ok) {
+        const errorText = await webhookResponse.text()
+        console.error('[SUBSCRIBE] Webhook error response:', errorText)
+        
+        // If Make.com returns non-ok status, still return success to user
+        // but log the error for admin to fix
+        console.error('[SUBSCRIBE] Webhook failed but returning success to user')
+        return c.json({ 
+          success: true, 
+          message: 'Subscription received',
+          warning: 'Webhook processing error'
+        })
+      }
+      
+      const responseText = await webhookResponse.text()
+      console.log('[SUBSCRIBE] Webhook response body:', responseText)
+      
+      return c.json({ success: true, message: 'Subscription successful' })
+      
+    } catch (fetchError) {
+      console.error('[SUBSCRIBE] Fetch error:', fetchError)
+      if (fetchError instanceof Error) {
+        console.error('[SUBSCRIBE] Error name:', fetchError.name)
+        console.error('[SUBSCRIBE] Error message:', fetchError.message)
+      }
+      
+      // Return success to user even if webhook fails
+      // This prevents user-facing errors when webhook has issues
       return c.json({ 
         success: true, 
-        message: 'Email saved! Configuration pending.',
-        warning: 'WEBHOOK_URL not configured'
+        message: 'Subscription received',
+        warning: 'Processing error'
       })
     }
     
-    console.log('Attempting to send to webhook:', webhookUrl.substring(0, 30) + '...')
-    
-    // Send to Make.com webhook with timeout
-    const webhookResponse = await fetch(webhookUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email,
-        timestamp,
-        source,
-        subscribed_at: new Date().toISOString(),
-        page_url: c.req.url
-      }),
-      signal: AbortSignal.timeout(10000) // 10 second timeout
-    })
-    
-    console.log('Webhook response status:', webhookResponse.status)
-    
-    if (!webhookResponse.ok) {
-      const errorText = await webhookResponse.text()
-      console.error('Webhook error response:', errorText)
-      throw new Error(`Webhook returned ${webhookResponse.status}: ${errorText}`)
-    }
-    
-    return c.json({ success: true, message: 'Subscription successful' })
   } catch (error) {
-    console.error('Subscription error:', error)
+    console.error('[SUBSCRIBE] General error:', error)
     // Log detailed error information
     if (error instanceof Error) {
-      console.error('Error name:', error.name)
-      console.error('Error message:', error.message)
-      console.error('Error stack:', error.stack)
+      console.error('[SUBSCRIBE] Error name:', error.name)
+      console.error('[SUBSCRIBE] Error message:', error.message)
+      console.error('[SUBSCRIBE] Error stack:', error.stack)
     }
     return c.json({ 
       error: 'Failed to process subscription', 
@@ -469,6 +512,17 @@ app.get('/', (c) => {
             // Set current year dynamically
             document.getElementById('currentYear').textContent = new Date().getFullYear();
             
+            // Check API health on page load
+            fetch('/api/health')
+                .then(r => r.json())
+                .then(data => {
+                    console.log('[HEALTH CHECK] API Status:', data);
+                    if (!data.webhookConfigured) {
+                        console.warn('[HEALTH CHECK] Webhook is not configured!');
+                    }
+                })
+                .catch(err => console.error('[HEALTH CHECK] Failed:', err));
+            
             // Email Form with Webhook Integration
             document.getElementById('emailForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
@@ -477,9 +531,12 @@ app.get('/', (c) => {
                 const submitBtn = document.querySelector('.submit-btn');
                 const successMessage = document.getElementById('successMessage');
                 
+                console.log('[FORM] Submitting email:', email);
+                
                 // Validate email format
                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 if (!emailRegex.test(email)) {
+                    console.warn('[FORM] Invalid email format');
                     successMessage.textContent = '⚠ Please enter a valid email address.';
                     successMessage.style.background = 'rgba(255, 152, 0, 0.2)';
                     successMessage.style.borderColor = 'rgba(255, 152, 0, 0.4)';
@@ -493,6 +550,8 @@ app.get('/', (c) => {
                 submitBtn.textContent = 'Submitting...';
                 
                 try {
+                    console.log('[FORM] Sending to /api/subscribe...');
+                    
                     // Send to webhook endpoint
                     const response = await fetch('/api/subscribe', {
                         method: 'POST',
@@ -506,8 +565,11 @@ app.get('/', (c) => {
                         })
                     });
                     
+                    console.log('[FORM] Response status:', response.status);
+                    console.log('[FORM] Response ok:', response.ok);
+                    
                     const data = await response.json();
-                    console.log('Server response:', data);
+                    console.log('[FORM] Response data:', data);
                     
                     if (response.ok) {
                         // Show success message
@@ -518,18 +580,25 @@ app.get('/', (c) => {
                         
                         // Clear form
                         document.getElementById('emailInput').value = '';
+                        console.log('[FORM] Subscription successful!');
                     } else {
                         // Show specific error from server
                         const errorMsg = data.error || 'Subscription failed';
-                        console.error('Subscription error:', errorMsg, data.details);
+                        const errorCode = data.code || 'UNKNOWN';
+                        console.error('[FORM] Subscription error:', errorMsg, 'Code:', errorCode);
+                        console.error('[FORM] Details:', data.details);
                         throw new Error(errorMsg);
                     }
                 } catch (error) {
-                    console.error('Error:', error);
+                    console.error('[FORM] Catch block error:', error);
                     // Show error message with more details
                     let errorText = '⚠ Oops! Something went wrong. Please try again.';
                     if (error.message === 'Failed to fetch') {
                         errorText = '⚠ Connection error. Please check your internet and try again.';
+                        console.error('[FORM] Network error - Failed to fetch');
+                    } else if (error.message.includes('configuration')) {
+                        errorText = '⚠ Service is being configured. Please try again in a few minutes.';
+                        console.error('[FORM] Configuration error');
                     }
                     successMessage.textContent = errorText;
                     successMessage.style.background = 'rgba(244, 67, 54, 0.2)';
