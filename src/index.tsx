@@ -59,7 +59,7 @@ app.post('/api/subscribe', async (c) => {
 
 // Coming Soon Page
 app.get('/', (c) => {
-  const launchDate = new Date('2026-03-01T00:00:00').getTime()
+  const launchDate = new Date('2026-03-01T00:00:00Z').getTime()
   
   return c.html(`
     <!DOCTYPE html>
