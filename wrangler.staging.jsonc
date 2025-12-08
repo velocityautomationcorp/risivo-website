@@ -1,0 +1,21 @@
+// Cloudflare Pages configuration for STAGING environment
+{
+  "name": "risivo-staging",
+  "pages_build_output_dir": "dist",
+  "compatibility_date": "2024-12-01",
+  "compatibility_flags": ["nodejs_compat"],
+  
+  // Staging-specific settings
+  "routes": [
+    {
+      "pattern": "*",
+      "custom_domain": false
+    }
+  ],
+  
+  // Environment variables for staging
+  "vars": {
+    "ENVIRONMENT": "staging",
+    "ENABLE_FULL_SITE": "true"
+  }
+}
