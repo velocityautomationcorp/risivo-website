@@ -472,7 +472,7 @@ app.get('/', (c) => {
                     
                     if (response.ok) {
                         // Show success message
-                        successMessage.textContent = '✓ Thanks! We\'ll notify you when we launch.';
+                        successMessage.textContent = "✓ Thanks! We'll notify you when we launch.";
                         successMessage.style.background = 'rgba(76, 175, 80, 0.2)';
                         successMessage.style.borderColor = 'rgba(76, 175, 80, 0.4)';
                         successMessage.classList.add('show');
