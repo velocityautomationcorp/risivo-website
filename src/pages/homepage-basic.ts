@@ -33,7 +33,7 @@ export const HomepageBasic = () => {
     </head>
     <body>
       ${Navigation({
-        logoSrc: '/images/risivo-logo.png',
+        logoSrc: '/risivo-logo.png',
         items: navigationItems,
         ctaText: 'Start Free Trial',
         ctaHref: 'https://app.risivo.com/signup'
