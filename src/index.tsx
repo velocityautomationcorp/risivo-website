@@ -107,8 +107,8 @@ app.get('/', (c) => {
   const enableFullSite = c.env?.ENABLE_FULL_SITE === 'true'
   
   if (enableFullSite) {
-    console.log('[ROUTING] Serving step 5 - With simplified TestimonialsSection')
-    return c.html(HomepageStep5())
+    console.log('[ROUTING] Serving step 4 - PricingCards (no testimonials)')
+    return c.html(HomepageStep4())
   }
   
   console.log('[ROUTING] Redirecting to coming soon')
