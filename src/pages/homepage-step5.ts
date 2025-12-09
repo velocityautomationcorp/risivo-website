@@ -116,8 +116,39 @@ export const HomepageStep5 = () => {
         <!-- Pricing Cards -->
         ${PricingCards()}
 
-        <!-- Testimonials Section (NEW) -->
-        ${TestimonialsClientSide()}
+        <!-- Testimonials Section (INLINE - NO COMPONENT) -->
+        <section style="background: white; padding: 80px 20px;">
+          <div style="max-width: 1200px; margin: 0 auto;">
+            <div style="text-align: center; margin-bottom: 60px;">
+              <span style="color: #683FE9; font-size: 0.875rem; font-weight: 600; text-transform: uppercase;">SUCCESS STORIES</span>
+              <h2 style="font-size: 2.5rem; font-weight: 700; color: #1f2937; margin-top: 16px;">Success Stories From Our Users</h2>
+            </div>
+            <div style="display: flex; gap: 32px; flex-wrap: wrap; justify-content: center;">
+              <div style="flex: 1; max-width: 500px; min-width: 300px; background: #f8fafc; padding: 32px; border-radius: 12px; border: 1px solid #e5e7eb;">
+                <div style="color: #fbbf24; font-size: 1.25rem; margin-bottom: 16px;">⭐⭐⭐⭐⭐</div>
+                <p style="font-size: 1.125rem; color: #1f2937; line-height: 1.7; margin-bottom: 24px; font-style: italic;">"Risivo transformed how we manage our campaigns. We've seen a 200% increase in conversions."</p>
+                <div style="display: flex; align-items: center; gap: 16px;">
+                  <div style="width: 50px; height: 50px; border-radius: 50%; background: #683FE9; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 1.25rem;">S</div>
+                  <div>
+                    <div style="font-weight: 600; color: #1f2937;">Sarah Chen</div>
+                    <div style="font-size: 0.875rem; color: #6b7280;">Marketing Director, TechStart Inc</div>
+                  </div>
+                </div>
+              </div>
+              <div style="flex: 1; max-width: 500px; min-width: 300px; background: #f8fafc; padding: 32px; border-radius: 12px; border: 1px solid #e5e7eb;">
+                <div style="color: #fbbf24; font-size: 1.25rem; margin-bottom: 16px;">⭐⭐⭐⭐⭐</div>
+                <p style="font-size: 1.125rem; color: #1f2937; line-height: 1.7; margin-bottom: 24px; font-style: italic;">"The automation features are incredible. What used to take hours now happens automatically."</p>
+                <div style="display: flex; align-items: center; gap: 16px;">
+                  <div style="width: 50px; height: 50px; border-radius: 50%; background: #683FE9; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 1.25rem;">M</div>
+                  <div>
+                    <div style="font-weight: 600; color: #1f2937;">Michael Rodriguez</div>
+                    <div style="font-size: 0.875rem; color: #6b7280;">CEO, GrowthLabs</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
 
         <!-- Dark CTA Section -->
         <section style="
