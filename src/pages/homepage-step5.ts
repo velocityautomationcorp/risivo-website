@@ -8,7 +8,7 @@ import { PartnerLogos } from '../components/PartnerLogos';
 import { SimplifiedFeatures } from '../components/SimplifiedFeatures';
 import { MarketingMadeSimple } from '../components/MarketingMadeSimple';
 import { PricingCards } from '../components/PricingCards';
-import { TestimonialsMinimal } from '../components/TestimonialsMinimal';
+import { TestimonialsClientSide } from '../components/TestimonialsClientSide';
 import { designSystem } from '../styles/design-system';
 
 const { colors, spacing } = designSystem;
@@ -117,7 +117,7 @@ export const HomepageStep5 = () => {
         ${PricingCards()}
 
         <!-- Testimonials Section (NEW) -->
-        ${TestimonialsMinimal()}
+        ${TestimonialsClientSide()}
 
         <!-- Dark CTA Section -->
         <section style="
