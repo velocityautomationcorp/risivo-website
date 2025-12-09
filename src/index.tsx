@@ -527,15 +527,15 @@ app.get('/', (c) => {
             document.getElementById('emailForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
-                const email = document.getElementById('emailInput').value;
+                const email = document.getElementById('emailInput').value.trim();
                 const submitBtn = document.querySelector('.submit-btn');
                 const successMessage = document.getElementById('successMessage');
                 
                 console.log('[FORM] Submitting email:', email);
                 
-                // Validate email format
+                // Validate email format - simple and permissive
                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!emailRegex.test(email)) {
+                if (!email || !emailRegex.test(email)) {
                     console.warn('[FORM] Invalid email format');
                     successMessage.textContent = '⚠ Please enter a valid email address.';
                     successMessage.style.background = 'rgba(255, 152, 0, 0.2)';
