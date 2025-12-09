@@ -1,5 +1,5 @@
 import { Hono } from 'hono'
-import { HomepageStep3 } from './pages/homepage-step3'
+import { HomepageStep4 } from './pages/homepage-step4'
 
 type Bindings = {
   WEBHOOK_URL?: string
@@ -108,7 +108,7 @@ app.get('/', (c) => {
   
   if (enableFullSite) {
     console.log('[ROUTING] Serving step 2 - + SimplifiedFeatures')
-    return c.html(HomepageStep3())
+    return c.html(HomepageStep4())
   }
   
   console.log('[ROUTING] Redirecting to coming soon')
