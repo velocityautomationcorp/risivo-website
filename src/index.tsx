@@ -1,5 +1,5 @@
 import { Hono } from 'hono'
-import { HomepageStep5 } from './pages/homepage-step5'
+import { HomepageStep4 } from './pages/homepage-step4'
 
 type Bindings = {
   WEBHOOK_URL?: string
@@ -107,8 +107,8 @@ app.get('/', (c) => {
   const enableFullSite = c.env?.ENABLE_FULL_SITE === 'true'
   
   if (enableFullSite) {
-    console.log('[ROUTING] Serving step 5 - + TestimonialsSection')
-    return c.html(HomepageStep5())
+    console.log('[ROUTING] Serving step 4 - PricingCards (TestimonialsSection temporarily disabled)')
+    return c.html(HomepageStep4())
   }
   
   console.log('[ROUTING] Redirecting to coming soon')
