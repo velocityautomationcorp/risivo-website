@@ -40,10 +40,10 @@ export const SimplifiedFeatures = () => {
             OUR MARKETING SOLUTIONS
           </span>
           <h2 style="
-            font-family: ${typography.fontFamily.heading};
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: ${colors.textDark};
+            font-family: ${typography.fontFamily};
+            font-size: ${typography.h2};
+            font-weight: ${typography.semibold};
+            color: ${colors.darkGray};
             margin-top: ${spacing.md};
             margin-bottom: ${spacing.lg};
           ">
@@ -51,7 +51,7 @@ export const SimplifiedFeatures = () => {
           </h2>
           <p style="
             font-size: 1.125rem;
-            color: ${colors.textGray};
+            color: ${colors.mediumGray};
             max-width: 700px;
             margin: 0 auto;
             line-height: 1.6;
@@ -87,10 +87,10 @@ export const SimplifiedFeatures = () => {
 
               <!-- Title -->
               <h3 style="
-                font-family: ${typography.fontFamily.heading};
-                font-size: 1.5rem;
-                font-weight: 600;
-                color: ${colors.textDark};
+                font-family: ${typography.fontFamily};
+                font-size: ${typography.h3};
+                font-weight: ${typography.medium};
+                color: ${colors.darkGray};
                 margin-bottom: ${spacing.md};
               ">
                 ${feature.title}
@@ -99,7 +99,7 @@ export const SimplifiedFeatures = () => {
               <!-- Description -->
               <p style="
                 font-size: 1rem;
-                color: ${colors.textGray};
+                color: ${colors.mediumGray};
                 line-height: 1.6;
                 margin-bottom: ${spacing.lg};
               ">

@@ -31,10 +31,10 @@ export const MarketingMadeSimple = () => {
             </span>
 
             <h2 style="
-              font-family: ${typography.fontFamily.heading};
+              font-family: ${typography.fontFamily};
               font-size: 2.75rem;
               font-weight: 700;
-              color: ${colors.textDark};
+              color: ${colors.darkGray};
               margin-top: ${spacing.md};
               margin-bottom: ${spacing.lg};
               line-height: 1.2;
@@ -44,7 +44,7 @@ export const MarketingMadeSimple = () => {
 
             <p style="
               font-size: 1.125rem;
-              color: ${colors.textGray};
+              color: ${colors.mediumGray};
               line-height: 1.7;
               margin-bottom: ${spacing['2xl']};
             ">
@@ -64,14 +64,14 @@ export const MarketingMadeSimple = () => {
                     font-size: 2.5rem;
                     font-weight: 700;
                     color: ${colors.primary};
-                    font-family: ${typography.fontFamily.heading};
+                    font-family: ${typography.fontFamily};
                     margin-bottom: ${spacing.xs};
                   ">
                     ${stat.value}
                   </div>
                   <div style="
                     font-size: 0.875rem;
-                    color: ${colors.textGray};
+                    color: ${colors.mediumGray};
                     line-height: 1.4;
                   ">
                     ${stat.label}
@@ -149,13 +149,13 @@ export const MarketingMadeSimple = () => {
                     font-size: 3rem;
                     font-weight: 700;
                     color: ${colors.primary};
-                    font-family: ${typography.fontFamily.heading};
+                    font-family: ${typography.fontFamily};
                   ">
                     85%
                   </div>
                   <div style="
                     font-size: 1rem;
-                    color: ${colors.textGray};
+                    color: ${colors.mediumGray};
                     margin-top: ${spacing.xs};
                   ">
                     Time Saved
@@ -180,7 +180,7 @@ export const MarketingMadeSimple = () => {
                   </div>
                   <div style="
                     font-size: 0.875rem;
-                    color: ${colors.textGray};
+                    color: ${colors.mediumGray};
                     margin-top: ${spacing.xs};
                   ">
                     User Rating
@@ -196,7 +196,7 @@ export const MarketingMadeSimple = () => {
                   </div>
                   <div style="
                     font-size: 0.875rem;
-                    color: ${colors.textGray};
+                    color: ${colors.mediumGray};
                     margin-top: ${spacing.xs};
                   ">
                     Uptime

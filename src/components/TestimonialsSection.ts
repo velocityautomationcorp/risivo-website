@@ -37,10 +37,10 @@ export const TestimonialsSection = () => {
             SUCCESS STORIES
           </span>
           <h2 style="
-            font-family: ${typography.fontFamily.heading};
+            font-family: ${typography.fontFamily};
             font-size: 2.5rem;
             font-weight: 700;
-            color: ${colors.textDark};
+            color: ${colors.darkGray};
             margin-top: ${spacing.md};
             margin-bottom: ${spacing.lg};
           ">
@@ -76,7 +76,7 @@ export const TestimonialsSection = () => {
               <!-- Quote -->
               <p style="
                 font-size: 1.125rem;
-                color: ${colors.textDark};
+                color: ${colors.darkGray};
                 line-height: 1.7;
                 margin-bottom: ${spacing.lg};
                 font-style: italic;
@@ -108,14 +108,14 @@ export const TestimonialsSection = () => {
                 <div>
                   <div style="
                     font-weight: 600;
-                    color: ${colors.textDark};
+                    color: ${colors.darkGray};
                     font-size: 1rem;
                   ">
                     ${testimonial.author}
                   </div>
                   <div style="
                     font-size: 0.875rem;
-                    color: ${colors.textGray};
+                    color: ${colors.mediumGray};
                   ">
                     ${testimonial.role}, ${testimonial.company}
                   </div>

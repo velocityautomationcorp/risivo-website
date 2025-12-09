@@ -30,7 +30,7 @@ export const HeroWithDashboard = () => {
         </div>
 
         <h1 style="
-          font-family: ${typography.fontFamily.heading};
+          font-family: ${typography.fontFamily};
           font-size: 3.5rem;
           font-weight: 700;
           color: white;
@@ -135,17 +135,17 @@ export const HeroWithDashboard = () => {
                   <!-- Right side - Metrics -->
                   <div style="flex: 1; display: flex; flex-direction: column; gap: ${spacing.md};">
                     <div style="background: white; border-radius: 8px; padding: ${spacing.lg}; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-                      <div style="color: ${colors.textGray}; font-size: 0.875rem; margin-bottom: ${spacing.xs};">Total Revenue</div>
+                      <div style="color: ${colors.mediumGray}; font-size: 0.875rem; margin-bottom: ${spacing.xs};">Total Revenue</div>
                       <div style="color: ${colors.primary}; font-size: 2rem; font-weight: 700;">$127,500</div>
                       <div style="color: #10b981; font-size: 0.875rem; margin-top: ${spacing.xs};">↑ 23.5%</div>
                     </div>
                     <div style="background: white; border-radius: 8px; padding: ${spacing.lg}; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-                      <div style="color: ${colors.textGray}; font-size: 0.875rem; margin-bottom: ${spacing.xs};">Active Campaigns</div>
+                      <div style="color: ${colors.mediumGray}; font-size: 0.875rem; margin-bottom: ${spacing.xs};">Active Campaigns</div>
                       <div style="color: ${colors.primary}; font-size: 2rem; font-weight: 700;">42</div>
                       <div style="color: #10b981; font-size: 0.875rem; margin-top: ${spacing.xs};">↑ 12.3%</div>
                     </div>
                     <div style="background: white; border-radius: 8px; padding: ${spacing.lg}; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-                      <div style="color: ${colors.textGray}; font-size: 0.875rem; margin-bottom: ${spacing.xs};">Conversion Rate</div>
+                      <div style="color: ${colors.mediumGray}; font-size: 0.875rem; margin-bottom: ${spacing.xs};">Conversion Rate</div>
                       <div style="color: ${colors.primary}; font-size: 2rem; font-weight: 700;">8.4%</div>
                       <div style="color: #10b981; font-size: 0.875rem; margin-top: ${spacing.xs};">↑ 5.2%</div>
                     </div>
