@@ -22,6 +22,32 @@ app.get('/api/health', (c) => {
   })
 })
 
+// Debug endpoint to inspect webhook URL for hidden characters
+app.get('/api/debug-webhook', (c) => {
+  const webhookUrl = c.env?.WEBHOOK_URL || ''
+  
+  if (!webhookUrl) {
+    return c.json({ error: 'WEBHOOK_URL not set' })
+  }
+  
+  // Show character codes to find hidden characters
+  const charCodes = Array.from(webhookUrl.substring(0, 60)).map((char, i) => ({
+    index: i,
+    char: char,
+    code: char.charCodeAt(0),
+    hex: '0x' + char.charCodeAt(0).toString(16).padStart(2, '0'),
+    isPrintable: char.charCodeAt(0) >= 32 && char.charCodeAt(0) <= 126
+  }))
+  
+  return c.json({
+    length: webhookUrl.length,
+    first60chars: webhookUrl.substring(0, 60),
+    charCodes: charCodes,
+    hasControlChars: charCodes.some(c => !c.isPrintable),
+    controlChars: charCodes.filter(c => !c.isPrintable)
+  })
+})
+
 // API endpoint for email subscriptions
 app.post('/api/subscribe', async (c) => {
   try {
