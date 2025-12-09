@@ -37,8 +37,10 @@ app.post('/api/subscribe', async (c) => {
     // Get webhook URL from environment variable
     const webhookUrl = c.env?.WEBHOOK_URL || ''
     
-    console.log('[SUBSCRIBE] Email:', email)
-    console.log('[SUBSCRIBE] Webhook configured:', !!webhookUrl)
+    console.log('[SUBSCRIBE] ========================================')
+    console.log('[SUBSCRIBE] 📧 Email:', email)
+    console.log('[SUBSCRIBE] 🔗 Webhook configured:', !!webhookUrl)
+    console.log('[SUBSCRIBE] ========================================')
     
     if (!webhookUrl) {
       console.error('[SUBSCRIBE] WEBHOOK_URL not configured in environment variables')
@@ -50,8 +52,15 @@ app.post('/api/subscribe', async (c) => {
       }, 503)
     }
     
-    console.log('[SUBSCRIBE] Webhook URL (first 30 chars):', webhookUrl.substring(0, 30) + '...')
-    console.log('[SUBSCRIBE] Sending to webhook...')
+    console.log('[SUBSCRIBE] 🚀 Webhook URL (first 40 chars):', webhookUrl.substring(0, 40) + '...')
+    console.log('[SUBSCRIBE] 📤 Sending data to Make.com...')
+    console.log('[SUBSCRIBE] 📦 Data being sent:', JSON.stringify({
+      email,
+      timestamp,
+      source,
+      subscribed_at: new Date().toISOString(),
+      page_url: c.req.url
+    }, null, 2))
     
     // Send to Make.com webhook with timeout
     try {
@@ -70,27 +79,39 @@ app.post('/api/subscribe', async (c) => {
         })
       })
       
+      console.log('[SUBSCRIBE] ========================================')
       console.log('[SUBSCRIBE] Webhook response status:', webhookResponse.status)
       console.log('[SUBSCRIBE] Webhook response ok:', webhookResponse.ok)
+      console.log('[SUBSCRIBE] ========================================')
       
       if (!webhookResponse.ok) {
         const errorText = await webhookResponse.text()
-        console.error('[SUBSCRIBE] Webhook error response:', errorText)
+        console.error('[SUBSCRIBE] ❌ WEBHOOK ERROR - Status:', webhookResponse.status)
+        console.error('[SUBSCRIBE] ❌ Error response:', errorText)
+        console.error('[SUBSCRIBE] ❌ This means Make.com rejected the data')
+        console.error('[SUBSCRIBE] ========================================')
         
-        // If Make.com returns non-ok status, still return success to user
-        // but log the error for admin to fix
-        console.error('[SUBSCRIBE] Webhook failed but returning success to user')
+        // Return more detailed error to help debug
         return c.json({ 
-          success: true, 
-          message: 'Subscription received',
-          warning: 'Webhook processing error'
-        })
+          success: false,
+          error: 'Webhook processing failed',
+          details: {
+            status: webhookResponse.status,
+            message: errorText,
+            hint: 'Check Make.com scenario - it might be off, in error state, or expecting different data format'
+          }
+        }, 502)
       }
       
       const responseText = await webhookResponse.text()
-      console.log('[SUBSCRIBE] Webhook response body:', responseText)
+      console.log('[SUBSCRIBE] ✅ SUCCESS - Make.com accepted the data')
+      console.log('[SUBSCRIBE] ✅ Response body:', responseText)
+      console.log('[SUBSCRIBE] ========================================')
       
-      return c.json({ success: true, message: 'Subscription successful' })
+      return c.json({ 
+        success: true, 
+        message: 'Email subscription successful! Check Make.com to verify.'
+      })
       
     } catch (fetchError) {
       console.error('[SUBSCRIBE] Fetch error:', fetchError)
