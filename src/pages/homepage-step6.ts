@@ -46,7 +46,7 @@ export const HomepageStep6 = () => {
         ctaHref: 'https://app.risivo.com/signup'
       })}
 
-      <main style="padding-top: 80px;">
+      <main>
         <!-- Enhanced Hero with Dashboard -->
         ${HeroWithDashboardClean()}
 
