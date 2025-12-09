@@ -1,5 +1,5 @@
 import { Hono } from 'hono'
-import { Homepage } from './pages/homepage'
+import { HomepageModern } from './pages/homepage-modern'
 
 type Bindings = {
   WEBHOOK_URL?: string
@@ -107,8 +107,8 @@ app.get('/', (c) => {
   const enableFullSite = c.env?.ENABLE_FULL_SITE === 'true'
   
   if (enableFullSite) {
-    console.log('[ROUTING] Serving full homepage')
-    return c.html(Homepage())
+    console.log('[ROUTING] Serving modern homepage')
+    return c.html(HomepageModern())
   }
   
   console.log('[ROUTING] Redirecting to coming soon')
