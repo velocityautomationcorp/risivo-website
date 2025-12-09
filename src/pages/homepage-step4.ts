@@ -29,6 +29,8 @@ export const HomepageStep4 = () => {
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Risivo - Step 4 Test</title>
       <link rel="icon" type="image/png" href="/favicon.png">
+      <link rel="shortcut icon" type="image/png" href="/favicon.png">
+      <link rel="apple-touch-icon" href="/favicon.png">
       <link rel="preconnect" href="https://fonts.googleapis.com">
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
       <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -227,7 +229,7 @@ export const HomepageStep4 = () => {
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px; margin-bottom: 40px;">
               <!-- Company -->
               <div>
-                <img src="/risivo-logo-white.png" alt="Risivo" style="height: 32px; margin-bottom: 16px;">
+                <img src="/images/risivo-logo-white.png" alt="Risivo" style="height: 32px; margin-bottom: 16px;" onerror="this.src='/risivo-logo-white.png'">
                 <p style="opacity: 0.7; line-height: 1.6;">
                   Powerful marketing automation made simple for everyone.
                 </p>
