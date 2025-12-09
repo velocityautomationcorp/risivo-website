@@ -227,7 +227,7 @@ export const HomepageStep4 = () => {
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px; margin-bottom: 40px;">
               <!-- Company -->
               <div>
-                <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 16px;">Risivo</h3>
+                <img src="/risivo-logo-white.png" alt="Risivo" style="height: 32px; margin-bottom: 16px;">
                 <p style="opacity: 0.7; line-height: 1.6;">
                   Powerful marketing automation made simple for everyone.
                 </p>
