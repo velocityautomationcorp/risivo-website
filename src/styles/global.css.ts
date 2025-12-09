@@ -239,4 +239,10 @@ export const globalStyles = `
   @keyframes spin {
     to { transform: rotate(360deg); }
   }
+
+  /* Testimonial cards */
+  .testimonial-card:hover {
+    box-shadow: 0 8px 24px rgba(104, 63, 233, 0.12);
+    transform: translateY(-4px);
+  }
 `

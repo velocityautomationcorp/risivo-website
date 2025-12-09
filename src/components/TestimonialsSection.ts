@@ -60,8 +60,9 @@ export const TestimonialsSection = () => {
               border-radius: 12px;
               padding: ${spacing['2xl']};
               border: 1px solid #e5e7eb;
+              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
               transition: all 0.3s ease;
-            " onmouseover="this.style.boxShadow='0 8px 24px rgba(104, 63, 233, 0.12)'; this.style.transform='translateY(-4px)'" onmouseout="this.style.boxShadow='none'; this.style.transform='translateY(0)'">
+            " class="testimonial-card">
               
               <!-- Stars -->
               <div style="
