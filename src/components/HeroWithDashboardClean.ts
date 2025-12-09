@@ -6,7 +6,7 @@ export const HeroWithDashboardClean = () => {
   return `
     <section style="
       background: linear-gradient(135deg, #683FE9 0%, #7C3AED 100%);
-      padding: 120px 20px 80px;
+      padding: 180px 20px 80px;
       text-align: center;
       position: relative;
       overflow: hidden;
