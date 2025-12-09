@@ -55,6 +55,7 @@ export const HomepageStep3 = () => {
               font-weight: 700;
               margin-bottom: 24px;
               line-height: 1.2;
+              color: white;
             ">
               Powerful Marketing Meets Seamless Design
             </h1>
@@ -63,6 +64,7 @@ export const HomepageStep3 = () => {
               margin-bottom: 40px;
               opacity: 0.95;
               line-height: 1.6;
+              color: white;
             ">
               Create stunning campaigns, automate workflows, and grow your business with AI-powered insights.
             </p>
@@ -135,10 +137,10 @@ export const HomepageStep3 = () => {
           color: white;
         ">
           <div style="max-width: 600px; margin: 0 auto;">
-            <h2 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 20px;">
+            <h2 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 20px; color: white;">
               Ready to Transform Your Marketing?
             </h2>
-            <p style="font-size: 1.1rem; margin-bottom: 40px; opacity: 0.9;">
+            <p style="font-size: 1.1rem; margin-bottom: 40px; opacity: 0.9; color: white;">
               Join thousands of businesses already using Risivo
             </p>
             <a href="https://app.risivo.com/signup" style="
