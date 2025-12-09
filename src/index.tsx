@@ -1,5 +1,5 @@
 import { Hono } from 'hono'
-import { HomepageStep4 } from './pages/homepage-step4'
+import { HomepageStep6 } from './pages/homepage-step6'
 
 type Bindings = {
   WEBHOOK_URL?: string
@@ -107,8 +107,8 @@ app.get('/', (c) => {
   const enableFullSite = c.env?.ENABLE_FULL_SITE === 'true'
   
   if (enableFullSite) {
-    console.log('[ROUTING] Serving step 4 - PricingCards (no testimonials)')
-    return c.html(HomepageStep4())
+    console.log('[ROUTING] Serving step 6 - Complete homepage with HeroWithDashboard')
+    return c.html(HomepageStep6())
   }
   
   console.log('[ROUTING] Redirecting to coming soon')
