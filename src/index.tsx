@@ -532,10 +532,11 @@ app.get('/', (c) => {
                 const successMessage = document.getElementById('successMessage');
                 
                 console.log('[FORM] Submitting email:', email);
+                console.log('[FORM] Email length:', email.length);
+                console.log('[FORM] Email includes @:', email.includes('@'));
                 
-                // Validate email format - simple and permissive
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!email || !emailRegex.test(email)) {
+                // Very simple email validation - just check for @ and .
+                if (!email || email.length < 5 || !email.includes('@') || !email.includes('.')) {
                     console.warn('[FORM] Invalid email format');
                     successMessage.textContent = '⚠ Please enter a valid email address.';
                     successMessage.style.background = 'rgba(255, 152, 0, 0.2)';
