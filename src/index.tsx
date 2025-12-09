@@ -114,19 +114,26 @@ app.post('/api/subscribe', async (c) => {
       })
       
     } catch (fetchError) {
-      console.error('[SUBSCRIBE] Fetch error:', fetchError)
+      console.error('[SUBSCRIBE] ========================================')
+      console.error('[SUBSCRIBE] 🔥 FETCH EXCEPTION (not HTTP error)')
+      console.error('[SUBSCRIBE] 🔥 This means network timeout, DNS failure, or connection refused')
+      console.error('[SUBSCRIBE] 🔥 Fetch error:', fetchError)
       if (fetchError instanceof Error) {
-        console.error('[SUBSCRIBE] Error name:', fetchError.name)
-        console.error('[SUBSCRIBE] Error message:', fetchError.message)
+        console.error('[SUBSCRIBE] 🔥 Error name:', fetchError.name)
+        console.error('[SUBSCRIBE] 🔥 Error message:', fetchError.message)
       }
+      console.error('[SUBSCRIBE] ========================================')
       
-      // Return success to user even if webhook fails
-      // This prevents user-facing errors when webhook has issues
+      // Return detailed error to help debug
       return c.json({ 
-        success: true, 
-        message: 'Subscription received',
-        warning: 'Processing error'
-      })
+        success: false,
+        error: 'Failed to connect to webhook',
+        details: {
+          type: 'network_error',
+          message: fetchError instanceof Error ? fetchError.message : 'Unknown fetch error',
+          hint: 'This is a network/connection issue, not an HTTP error. Check if webhook URL is accessible.'
+        }
+      }, 503)
     }
     
   } catch (error) {
