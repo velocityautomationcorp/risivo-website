@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "include": ["/*"],
+  "exclude": [
+    "/favicon.ico",
+    "/favicon.png",
+    "/favicon-correct.png",
+    "/icon.png",
+    "/risivo-logo.png",
+    "/risivo-logo-white.png",
+    "/images/*",
+    "/static/*"
+  ]
+}

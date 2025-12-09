@@ -1,5 +1,4 @@
 import { Hono } from 'hono'
-import { serveStatic } from 'hono/cloudflare-workers'
 import { HomepageStep4 } from './pages/homepage-step4'
 
 type Bindings = {
@@ -9,14 +8,6 @@ type Bindings = {
 }
 
 const app = new Hono<{ Bindings: Bindings }>()
-
-// Serve static files (logos, favicon, images)
-app.get('/favicon.ico', serveStatic({ path: './favicon.ico' }))
-app.get('/favicon.png', serveStatic({ path: './favicon.png' }))
-app.get('/icon.png', serveStatic({ path: './icon.png' }))
-app.get('/risivo-logo.png', serveStatic({ path: './risivo-logo.png' }))
-app.get('/risivo-logo-white.png', serveStatic({ path: './risivo-logo-white.png' }))
-app.get('/images/*', serveStatic({ root: './' }))
 
 // Debug endpoint to check configuration
 app.get('/api/health', (c) => {
