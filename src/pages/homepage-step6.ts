@@ -39,6 +39,22 @@ export const HomepageStep6 = () => {
       <style>${globalStyles}</style>
     </head>
     <body>
+      <!-- FIXED MOBILE MENU BUTTON - INDEPENDENT OF NAVIGATION -->
+      <button 
+        id="fixedMobileMenuBtn"
+        onclick="document.getElementById('navMenu').classList.toggle('open')"
+        style="display: none; position: fixed; right: 20px; top: 16px; width: 50px; height: 50px; background: #683FE9; color: white; border: none; border-radius: 8px; font-size: 24px; cursor: pointer; z-index: 9999; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"
+      >
+        ☰
+      </button>
+      <style>
+        @media (max-width: 768px) {
+          #fixedMobileMenuBtn {
+            display: block !important;
+          }
+        }
+      </style>
+
       ${Navigation({
         logoSrc: '/risivo-logo.png',
         items: navigationItems,
