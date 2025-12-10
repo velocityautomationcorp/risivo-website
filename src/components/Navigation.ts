@@ -263,13 +263,6 @@ export function Navigation({
           ${logoSrc ? `<img src="${logoSrc}" alt="Risivo" />` : 'RISIVO'}
         </a>
 
-        <div class="nav-actions">
-          <a href="https://app.risivo.com/login" class="btn btn-outline btn-sm">Login</a>
-          ${Button({ text: ctaText, href: ctaHref, variant: 'primary', size: 'sm' })}
-        </div>
-
-        <!-- Mobile menu button removed - using fixed button in page instead -->
-
         <ul class="nav-menu" id="navMenu">
           ${items.map(item => `
             <li class="nav-item">
@@ -288,6 +281,11 @@ export function Navigation({
             ${Button({ text: ctaText, href: ctaHref, variant: 'primary' })}
           </li>
         </ul>
+
+        <div class="nav-actions">
+          <a href="https://app.risivo.com/login" class="btn btn-outline btn-sm">Login</a>
+          ${Button({ text: ctaText, href: ctaHref, variant: 'primary', size: 'sm' })}
+        </div>
 
       </div>
     </nav>
