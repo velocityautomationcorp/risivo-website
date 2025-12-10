@@ -119,19 +119,15 @@ export class SupabaseClient {
   }) {
     // Create Agency
     const agencyId = crypto.randomUUID()
+    const slug = data.agencyName.toLowerCase().replace(/[^a-z0-9]+/g, '-')
     const agencyResponse = await fetch(`${this.baseUrl}/Agency`, {
       method: 'POST',
       headers: this.headers,
       body: JSON.stringify({
         id: agencyId,
         name: data.agencyName,
-        companyEmail: data.email,
-        address: '',
-        city: '',
-        state: '',
-        country: '',
-        zipCode: '',
-        goal: 5000,
+        slug: slug,
+        email: data.email,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       })
@@ -176,14 +172,12 @@ export class SupabaseClient {
       body: JSON.stringify({
         id: subAccountId,
         name: `${data.agencyName} - Main`,
-        companyEmail: data.email,
+        email: data.email,
         agencyId: agencyId,
-        address: '',
-        city: '',
-        state: '',
-        country: '',
-        zipCode: '',
-        goal: 5000,
+        industry: 'General',
+        timezone: 'America/Los_Angeles',
+        language: 'en',
+        isEnabled: true,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       })
