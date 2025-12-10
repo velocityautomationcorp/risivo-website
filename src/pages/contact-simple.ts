@@ -112,7 +112,6 @@ export const ContactPageSimple = () => {
 
       .contact-details {
         margin-bottom: ${spacing['2xl']};
-        flex-grow: 1;
       }
 
       .contact-item {
