@@ -10,5 +10,15 @@ export default defineConfig({
       adapter,
       entry: 'src/index.tsx'
     })
-  ]
+  ],
+  build: {
+    rollupOptions: {
+      external: [
+        'bcryptjs',
+        'pg',
+        '@prisma/client',
+        '@prisma/adapter-pg'
+      ]
+    }
+  }
 })
