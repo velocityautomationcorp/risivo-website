@@ -102,8 +102,52 @@ export const ContactPageSimple = () => {
           </div>
           
           <div class="form-group">
-            <label for="phone">Phone (Optional)</label>
-            <input type="tel" id="phone" name="phone">
+            <label for="phone">Phone Number *</label>
+            <div style="display: flex; gap: 0.5rem;">
+              <select id="countryCode" name="countryCode" required style="width: 140px;">
+                <option value="+1">🇺🇸 +1 (US)</option>
+                <option value="+44">🇬🇧 +44 (UK)</option>
+                <option value="+91">🇮🇳 +91 (India)</option>
+                <option value="+61">🇦🇺 +61 (Australia)</option>
+                <option value="+86">🇨🇳 +86 (China)</option>
+                <option value="+81">🇯🇵 +81 (Japan)</option>
+                <option value="+82">🇰🇷 +82 (S. Korea)</option>
+                <option value="+49">🇩🇪 +49 (Germany)</option>
+                <option value="+33">🇫🇷 +33 (France)</option>
+                <option value="+39">🇮🇹 +39 (Italy)</option>
+                <option value="+34">🇪🇸 +34 (Spain)</option>
+                <option value="+7">🇷🇺 +7 (Russia)</option>
+                <option value="+55">🇧🇷 +55 (Brazil)</option>
+                <option value="+52">🇲🇽 +52 (Mexico)</option>
+                <option value="+27">🇿🇦 +27 (S. Africa)</option>
+                <option value="+234">🇳🇬 +234 (Nigeria)</option>
+                <option value="+20">🇪🇬 +20 (Egypt)</option>
+                <option value="+971">🇦🇪 +971 (UAE)</option>
+                <option value="+966">🇸🇦 +966 (Saudi)</option>
+                <option value="+65">🇸🇬 +65 (Singapore)</option>
+                <option value="+60">🇲🇾 +60 (Malaysia)</option>
+                <option value="+63">🇵🇭 +63 (Philippines)</option>
+                <option value="+84">🇻🇳 +84 (Vietnam)</option>
+                <option value="+62">🇮🇩 +62 (Indonesia)</option>
+                <option value="+92">🇵🇰 +92 (Pakistan)</option>
+                <option value="+880">🇧🇩 +880 (Bangladesh)</option>
+                <option value="+90">🇹🇷 +90 (Turkey)</option>
+                <option value="+351">🇵🇹 +351 (Portugal)</option>
+                <option value="+31">🇳🇱 +31 (Netherlands)</option>
+                <option value="+46">🇸🇪 +46 (Sweden)</option>
+                <option value="+47">🇳🇴 +47 (Norway)</option>
+                <option value="+45">🇩🇰 +45 (Denmark)</option>
+                <option value="+358">🇫🇮 +358 (Finland)</option>
+                <option value="+48">🇵🇱 +48 (Poland)</option>
+                <option value="+30">🇬🇷 +30 (Greece)</option>
+                <option value="+64">🇳🇿 +64 (New Zealand)</option>
+                <option value="+353">🇮🇪 +353 (Ireland)</option>
+                <option value="+32">🇧🇪 +32 (Belgium)</option>
+                <option value="+41">🇨🇭 +41 (Switzerland)</option>
+                <option value="+43">🇦🇹 +43 (Austria)</option>
+              </select>
+              <input type="tel" id="phone" name="phone" placeholder="Enter phone number" required style="flex: 1;">
+            </div>
           </div>
           
           <div class="form-group">
@@ -127,11 +171,15 @@ export const ContactPageSimple = () => {
           submitBtn.textContent = 'Sending...';
           messageDiv.style.display = 'none';
           
+          const countryCode = form.countryCode.value;
+          const phoneNumber = form.phone.value.trim();
+          const fullPhone = phoneNumber ? \`\${countryCode} \${phoneNumber}\` : null;
+          
           const data = {
             firstName: form.firstName.value,
             lastName: form.lastName.value,
             email: form.email.value,
-            phone: form.phone.value || null,
+            phone: fullPhone,
             message: form.message.value,
             source: 'contact_page'
           };
