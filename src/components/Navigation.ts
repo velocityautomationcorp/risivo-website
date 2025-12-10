@@ -134,16 +134,15 @@ export function Navigation({
       }
 
       .mobile-menu-toggle {
-        display: none;
-        background: none;
-        border: none;
-        font-size: 1.75rem;
-        cursor: pointer;
-        color: ${colors.darkGray};
-        padding: ${spacing.xs};
-        margin: 0;
-        line-height: 1;
-        touch-action: manipulation;
+        display: none !important;
+      }
+
+      @media (max-width: 768px) {
+        .mobile-menu-toggle {
+          display: block !important;
+          visibility: visible !important;
+          opacity: 1 !important;
+        }
       }
 
       /* Mobile styles */
@@ -204,20 +203,8 @@ export function Navigation({
 
         .mobile-menu-toggle {
           display: block !important;
-          padding: ${spacing.sm};
-          z-index: 1001;
-          position: absolute;
-          right: ${spacing.lg};
-          top: 50%;
-          transform: translateY(-50%);
-          background: ${colors.white};
-          border: 2px solid ${colors.darkGray};
-          border-radius: 4px;
-          width: 44px;
-          height: 44px;
-          display: flex !important;
-          align-items: center;
-          justify-content: center;
+          visibility: visible !important;
+          opacity: 1 !important;
         }
 
         .nav-actions {
@@ -268,7 +255,12 @@ export function Navigation({
           ${Button({ text: ctaText, href: ctaHref, variant: 'primary', size: 'sm' })}
         </div>
 
-        <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Toggle menu">
+        <button 
+          class="mobile-menu-toggle" 
+          onclick="toggleMobileMenu()" 
+          aria-label="Toggle menu"
+          style="display: block; position: absolute; right: 24px; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; background: white; border: 2px solid #374151; border-radius: 4px; font-size: 1.75rem; cursor: pointer; z-index: 1001; padding: 0; margin: 0; line-height: 1;"
+        >
           ☰
         </button>
 
