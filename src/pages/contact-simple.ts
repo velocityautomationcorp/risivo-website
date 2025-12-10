@@ -21,24 +21,63 @@ export const ContactPageSimple = () => {
       .contact-header {
         text-align: center;
         margin-bottom: ${spacing['3xl']};
+        max-width: 900px;
+        margin-left: auto;
+        margin-right: auto;
       }
 
       .contact-header h1 {
         color: ${colors.primary};
         font-size: 2.5rem;
-        margin-bottom: ${spacing.md};
+        margin-bottom: ${spacing.lg};
+        text-transform: uppercase;
+        letter-spacing: 2px;
       }
 
-      .contact-header p {
+      .contact-header-intro {
         color: ${colors.darkGray};
         font-size: 1.125rem;
-        max-width: 600px;
-        margin: 0 auto;
+        line-height: 1.8;
+        margin-bottom: ${spacing.xl};
+      }
+
+      .contact-header-intro strong {
+        color: ${colors.black};
+        font-weight: 600;
+      }
+
+      .existing-clients-section {
+        background: #fff3cd;
+        padding: ${spacing.xl};
+        border-radius: 8px;
+        border-left: 4px solid #ffc107;
+        margin-top: ${spacing.xl};
+      }
+
+      .existing-clients-section h2 {
+        color: #856404;
+        font-size: 1.25rem;
+        margin-bottom: ${spacing.md};
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .existing-clients-section p {
+        color: #856404;
+        font-size: 1rem;
+        line-height: 1.6;
+        margin: 0;
+      }
+
+      .existing-clients-section a {
+        color: #856404;
+        text-decoration: underline;
+        font-weight: 600;
       }
 
       .contact-grid {
         display: grid;
-        grid-template-columns: 1fr 1.2fr;
+        grid-template-columns: 1fr 1fr;
         gap: ${spacing['2xl']};
         align-items: start;
       }
@@ -49,14 +88,16 @@ export const ContactPageSimple = () => {
         padding: ${spacing['2xl']};
         border-radius: 12px;
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        position: sticky;
-        top: 100px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
       }
 
       .contact-info h2 {
         color: ${colors.primary};
         font-size: 1.75rem;
         margin-bottom: ${spacing.lg};
+        text-align: center;
       }
 
       .contact-info-text {
@@ -64,10 +105,12 @@ export const ContactPageSimple = () => {
         font-size: 1rem;
         line-height: 1.6;
         margin-bottom: ${spacing['2xl']};
+        text-align: center;
       }
 
       .contact-details {
         margin-bottom: ${spacing['2xl']};
+        flex-grow: 1;
       }
 
       .contact-item {
@@ -138,6 +181,28 @@ export const ContactPageSimple = () => {
         padding: ${spacing['2xl']};
         border-radius: 12px;
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .form-header {
+        margin-bottom: ${spacing.xl};
+      }
+
+      .form-header h2 {
+        color: ${colors.primary};
+        font-size: 1.75rem;
+        margin-bottom: ${spacing.md};
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .form-header p {
+        color: ${colors.darkGray};
+        font-size: 1rem;
+        line-height: 1.6;
+        margin: 0;
       }
 
       .form-group {
@@ -243,10 +308,6 @@ export const ContactPageSimple = () => {
           grid-template-columns: 1fr;
           gap: ${spacing.xl};
         }
-
-        .contact-info {
-          position: static;
-        }
       }
 
       @media (max-width: 768px) {
@@ -274,14 +335,28 @@ export const ContactPageSimple = () => {
         .map-container {
           height: 250px;
         }
+
+        .existing-clients-section {
+          padding: ${spacing.lg};
+        }
       }
     </style>
 
     <div class="contact-page">
       <div class="contact-wrapper">
+        <!-- Main Header Section -->
         <div class="contact-header">
           <h1>Get in Touch</h1>
-          <p>We'd love to hear from you. Send us a message and we'll respond as soon as possible.</p>
+          <div class="contact-header-intro">
+            <p><strong>Risivo CRM is proudly developed by Velocity Automation Corp.</strong></p>
+            <p>Whether you have questions about our platform, need support, or want to explore partnership opportunities, we're here to help.</p>
+          </div>
+
+          <!-- Existing Clients Section -->
+          <div class="existing-clients-section">
+            <h2>Existing Clients</h2>
+            <p>Already using Risivo CRM? Access our <a href="https://app.risivo.com/support" target="_blank">internal support desk</a> for priority assistance with technical issues, billing, or account management.</p>
+          </div>
         </div>
 
         <div class="contact-grid">
@@ -328,6 +403,11 @@ export const ContactPageSimple = () => {
 
           <!-- Right Column: Contact Form -->
           <div class="contact-form-container">
+            <div class="form-header">
+              <h2>New Inquiries</h2>
+              <p>Have questions about our platform, pricing, or partnership opportunities? Submit your inquiry below, and our team will respond within one business day.</p>
+            </div>
+
             <div id="formMessage" class="message"></div>
 
             <form id="contactForm">
