@@ -1,103 +1,101 @@
 /**
- * Base Layout
- * Main layout wrapper for all pages
+ * Base Layout - Provides consistent header/footer for all pages
  */
 
+import { Navigation } from '../components/Navigation'
+import { Footer } from '../components/Footer'
 import { globalStyles } from '../styles/global.css'
-import { Navigation, type NavigationProps } from '../components/Navigation'
-import { Footer, type FooterProps } from '../components/Footer'
+import { navigationItems, footerColumns, socialLinks } from '../data/navigation'
 
 export interface BaseLayoutProps {
   title: string
   description?: string
   children: string
-  navigation: NavigationProps
-  footer: FooterProps
-  customCSS?: string
-  customJS?: string
+  includeFooter?: boolean
 }
 
 export function BaseLayout({
   title,
-  description = 'Risivo - Modern CRM software that helps businesses manage customer relationships, close deals, and grow revenue.',
+  description = 'Risivo - Marketing CRM Platform',
   children,
-  navigation,
-  footer,
-  customCSS = '',
-  customJS = '',
+  includeFooter = true
 }: BaseLayoutProps): string {
-  const currentYear = new Date().getFullYear()
-  
   return `
     <!DOCTYPE html>
     <html lang="en">
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>${title} | Risivo</title>
       <meta name="description" content="${description}">
-      
-      <!-- Open Graph / Social Media -->
-      <meta property="og:title" content="${title} | Risivo">
-      <meta property="og:description" content="${description}">
-      <meta property="og:type" content="website">
-      <meta property="og:url" content="https://www.risivo.com">
-      <meta property="og:image" content="https://www.risivo.com/og-image.png">
-      
-      <!-- Twitter Card -->
-      <meta name="twitter:card" content="summary_large_image">
-      <meta name="twitter:title" content="${title} | Risivo">
-      <meta name="twitter:description" content="${description}">
-      <meta name="twitter:image" content="https://www.risivo.com/og-image.png">
-      
-      <!-- Favicon - Official Risivo Icon -->
+      <title>${title}</title>
       <link rel="icon" type="image/png" href="/favicon.png">
-      
-      <!-- Fonts - JOST (Official Brand Font) -->
+      <link rel="shortcut icon" type="image/png" href="/favicon.png">
+      <link rel="apple-touch-icon" href="/favicon.png">
       <link rel="preconnect" href="https://fonts.googleapis.com">
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
       <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700&display=swap" rel="stylesheet">
-      
-      <!-- Global Styles -->
+      <style>${globalStyles}</style>
       <style>
-        ${globalStyles}
-        ${customCSS}
+        /* Mobile menu button override */
+        #fixedMobileMenuBtn {
+          display: none;
+          position: fixed;
+          right: 12px;
+          top: 10px;
+          width: 44px;
+          height: 44px;
+          background: #683FE9;
+          color: white;
+          border: none;
+          border-radius: 6px;
+          font-size: 22px;
+          cursor: pointer;
+          z-index: 9999;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        @media (max-width: 768px) {
+          #fixedMobileMenuBtn {
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            right: 8px !important;
+            top: 8px !important;
+          }
+        }
+
+        /* Prevent horizontal scroll */
+        html, body {
+          overflow-x: hidden;
+          max-width: 100%;
+        }
       </style>
     </head>
     <body>
-      <!-- Navigation -->
-      ${Navigation(navigation)}
-      
-      <!-- Main Content -->
+      <!-- Fixed Mobile Menu Button -->
+      <button 
+        id="fixedMobileMenuBtn"
+        onclick="document.getElementById('navMenu').classList.toggle('open')"
+      >
+        ☰
+      </button>
+
+      ${Navigation({
+        logoSrc: '/risivo-logo.png',
+        items: navigationItems,
+        ctaText: 'Start Free Trial',
+        ctaHref: 'https://app.risivo.com/signup'
+      })}
+
       <main>
         ${children}
       </main>
-      
-      <!-- Footer -->
-      ${Footer(footer)}
-      
-      <!-- Custom JavaScript -->
-      ${customJS ? `<script>${customJS}</script>` : ''}
-      
-      <!-- Analytics placeholder -->
-      <script>
-        // Intersection Observer for scroll animations
-        if ('IntersectionObserver' in window) {
-          const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-              if (entry.isIntersecting) {
-                entry.target.classList.add('fade-in')
-                observer.unobserve(entry.target)
-              }
-            })
-          }, { threshold: 0.1 })
-          
-          // Observe all elements with .animate-on-scroll class
-          document.querySelectorAll('.animate-on-scroll').forEach(el => {
-            observer.observe(el)
-          })
-        }
-      </script>
+
+      ${includeFooter ? Footer({
+        columns: footerColumns,
+        socialLinks: socialLinks,
+        copyrightText: `© ${new Date().getFullYear()} Risivo. All rights reserved.`
+      }) : ''}
     </body>
     </html>
   `
