@@ -37,7 +37,7 @@ WHERE NOT EXISTS (
 
 -- Create Website Leads SubAccount
 INSERT INTO "SubAccount" (
-  id, name, email, "agencyId", industry, timezone, language, "isEnabled", "createdAt", "updatedAt"
+  id, name, email, "agencyId", industry, timezone, language, "aiEnabled", "createdAt", "updatedAt"
 )
 SELECT 
   gen_random_uuid(), 
@@ -47,7 +47,7 @@ SELECT
   'Marketing',
   'America/Los_Angeles',
   'en',
-  true,
+  false,
   now(), 
   now()
 WHERE NOT EXISTS (
