@@ -137,9 +137,13 @@ export function Navigation({
         display: none;
         background: none;
         border: none;
-        font-size: 1.5rem;
+        font-size: 1.75rem;
         cursor: pointer;
         color: ${colors.darkGray};
+        padding: ${spacing.xs};
+        margin: 0;
+        line-height: 1;
+        touch-action: manipulation;
       }
 
       /* Mobile styles */
@@ -228,6 +232,12 @@ export function Navigation({
       .nav-spacer {
         height: 72px;
       }
+
+      @media (max-width: 768px) {
+        .nav-spacer {
+          height: 64px;
+        }
+      }
     </style>
 
     <nav class="navigation" id="navigation">
@@ -236,14 +246,14 @@ export function Navigation({
           ${logoSrc ? `<img src="${logoSrc}" alt="Risivo" />` : 'RISIVO'}
         </a>
 
-        <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Toggle menu">
-          ☰
-        </button>
-
         <div class="nav-actions">
           <a href="https://app.risivo.com/login" class="btn btn-outline btn-sm">Login</a>
           ${Button({ text: ctaText, href: ctaHref, variant: 'primary', size: 'sm' })}
         </div>
+
+        <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Toggle menu">
+          ☰
+        </button>
 
         <ul class="nav-menu" id="navMenu">
           ${items.map(item => `
