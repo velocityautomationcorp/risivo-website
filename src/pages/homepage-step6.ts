@@ -43,14 +43,27 @@ export const HomepageStep6 = () => {
       <button 
         id="fixedMobileMenuBtn"
         onclick="document.getElementById('navMenu').classList.toggle('open')"
-        style="display: none; position: fixed; right: 20px; top: 16px; width: 50px; height: 50px; background: #683FE9; color: white; border: none; border-radius: 8px; font-size: 24px; cursor: pointer; z-index: 9999; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"
+        style="display: none; position: fixed; right: 16px; top: 12px; width: 48px; height: 48px; background: #683FE9; color: white; border: none; border-radius: 8px; font-size: 24px; cursor: pointer; z-index: 9999; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"
       >
         ☰
       </button>
       <style>
+        /* Prevent horizontal scroll on mobile */
+        body {
+          overflow-x: hidden;
+          max-width: 100vw;
+        }
+        
+        /* Hide the navigation hamburger, only show the purple one */
+        .mobile-menu-toggle {
+          display: none !important;
+        }
+        
         @media (max-width: 768px) {
           #fixedMobileMenuBtn {
-            display: block !important;
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
           }
         }
       </style>

@@ -255,14 +255,7 @@ export function Navigation({
           ${Button({ text: ctaText, href: ctaHref, variant: 'primary', size: 'sm' })}
         </div>
 
-        <button 
-          class="mobile-menu-toggle" 
-          onclick="toggleMobileMenu()" 
-          aria-label="Toggle menu"
-          style="display: block; position: absolute; right: 24px; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; background: white; border: 2px solid #374151; border-radius: 4px; font-size: 1.75rem; cursor: pointer; z-index: 1001; padding: 0; margin: 0; line-height: 1;"
-        >
-          ☰
-        </button>
+        <!-- Mobile menu button removed - using fixed button in page instead -->
 
         <ul class="nav-menu" id="navMenu">
           ${items.map(item => `
