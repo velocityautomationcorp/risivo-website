@@ -73,6 +73,8 @@ export function Navigation({
         align-items: center;
         gap: ${spacing.xl};
         list-style: none;
+        margin: 0;
+        padding: 0;
       }
 
       .nav-item {
@@ -142,9 +144,17 @@ export function Navigation({
 
       /* Mobile styles */
       @media (max-width: 768px) {
+        .nav-container {
+          height: 64px;
+        }
+
+        .nav-logo img {
+          height: 32px;
+        }
+
         .nav-menu {
           position: fixed;
-          top: 72px;
+          top: 64px;
           left: 0;
           right: 0;
           background: ${colors.white};
@@ -152,15 +162,25 @@ export function Navigation({
           align-items: stretch;
           padding: ${spacing.lg};
           box-shadow: ${shadows.lg};
-          transform: translateY(-100%);
+          transform: translateX(-100%);
           opacity: 0;
+          visibility: hidden;
           transition: all 0.3s ease;
           gap: ${spacing.md};
+          max-height: calc(100vh - 64px);
+          overflow-y: auto;
         }
 
         .nav-menu.open {
-          transform: translateY(0);
+          transform: translateX(0);
           opacity: 1;
+          visibility: visible;
+        }
+
+        .nav-link {
+          display: block;
+          padding: ${spacing.sm};
+          font-size: 1.125rem;
         }
 
         .nav-dropdown {
@@ -170,19 +190,37 @@ export function Navigation({
           transform: none;
           box-shadow: none;
           padding-left: ${spacing.lg};
+          margin-top: ${spacing.xs};
         }
 
         .mobile-menu-toggle {
           display: block;
+          padding: ${spacing.sm};
+          z-index: 1001;
         }
 
         .nav-actions {
-          flex-direction: column;
-          width: 100%;
+          display: none;
         }
 
-        .nav-actions a {
+        .nav-menu .nav-actions {
+          display: flex;
+          flex-direction: column;
           width: 100%;
+          gap: ${spacing.sm};
+          margin-top: ${spacing.md};
+          padding-top: ${spacing.md};
+          border-top: 1px solid ${colors.lightGray};
+        }
+
+        .nav-menu .nav-actions a,
+        .nav-menu .nav-actions button {
+          width: 100%;
+          text-align: center;
+        }
+
+        .nav-spacer {
+          height: 64px;
         }
       }
 
@@ -198,6 +236,15 @@ export function Navigation({
           ${logoSrc ? `<img src="${logoSrc}" alt="Risivo" />` : 'RISIVO'}
         </a>
 
+        <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Toggle menu">
+          ☰
+        </button>
+
+        <div class="nav-actions">
+          <a href="https://app.risivo.com/login" class="btn btn-outline btn-sm">Login</a>
+          ${Button({ text: ctaText, href: ctaHref, variant: 'primary', size: 'sm' })}
+        </div>
+
         <ul class="nav-menu" id="navMenu">
           ${items.map(item => `
             <li class="nav-item">
@@ -211,16 +258,12 @@ export function Navigation({
               ` : ''}
             </li>
           `).join('')}
+          <li class="nav-item nav-actions">
+            <a href="https://app.risivo.com/login" class="btn btn-outline">Login</a>
+            ${Button({ text: ctaText, href: ctaHref, variant: 'primary' })}
+          </li>
         </ul>
 
-        <div class="nav-actions">
-          <a href="https://app.risivo.com/login" class="btn btn-outline btn-sm">Login</a>
-          ${Button({ text: ctaText, href: ctaHref, variant: 'primary', size: 'sm' })}
-        </div>
-
-        <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Toggle menu">
-          ☰
-        </button>
       </div>
     </nav>
 
