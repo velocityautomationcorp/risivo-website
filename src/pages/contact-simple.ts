@@ -347,6 +347,20 @@ export const ContactPageSimple = () => {
               </div>
 
               <div class="form-group">
+                <label for="department">Department *</label>
+                <select id="department" name="department" required>
+                  <option value="">Select a department</option>
+                  <option value="Sales">Sales</option>
+                  <option value="Support">Support</option>
+                  <option value="Billing">Billing</option>
+                  <option value="Technical">Technical</option>
+                  <option value="General Inquiry">General Inquiry</option>
+                  <option value="Partnership">Partnership</option>
+                  <option value="Press/Media">Press/Media</option>
+                </select>
+              </div>
+
+              <div class="form-group">
                 <label for="phone">Phone Number *</label>
                 <div class="phone-group">
                   <select id="countryCode" name="countryCode" required class="country-code">
@@ -558,6 +572,7 @@ export const ContactPageSimple = () => {
           firstName: form.firstName.value,
           lastName: form.lastName.value,
           email: form.email.value,
+          department: form.department.value,
           phone: fullPhone,
           message: form.message.value,
           source: 'contact_page'
