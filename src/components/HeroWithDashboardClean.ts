@@ -97,6 +97,13 @@ export const HeroWithDashboardClean = () => {
         box-shadow: 0 2px 8px rgba(0,0,0,0.08);
       }
       
+      .hero-chart-inner {
+        height: 100%;
+        min-height: 120px;
+        border-radius: 4px;
+        opacity: 0.6;
+      }
+      
       /* Mobile Responsive */
       @media (max-width: 768px) {
         .hero-section {
@@ -160,7 +167,11 @@ export const HeroWithDashboardClean = () => {
         }
         
         .hero-chart {
-          min-height: 80px;
+          min-height: 100px;
+        }
+        
+        .hero-chart-inner {
+          min-height: 68px;
         }
         
         .hero-metric {
@@ -247,11 +258,11 @@ export const HeroWithDashboardClean = () => {
                 <div class="hero-dashboard-column">
                   <!-- Chart 1 -->
                   <div class="hero-chart" style="flex: 1;">
-                    <div style="height: 100%; background: linear-gradient(to top, #683FE9 0%, #7C3AED 100%); border-radius: 4px; opacity: 0.6;"></div>
+                    <div class="hero-chart-inner" style="background: linear-gradient(to top, #683FE9 0%, #7C3AED 100%);"></div>
                   </div>
                   <!-- Chart 2 -->
                   <div class="hero-chart" style="flex: 1;">
-                    <div style="height: 100%; background: linear-gradient(135deg, #ED632F 0%, #ff8a65 100%); border-radius: 4px; opacity: 0.6;"></div>
+                    <div class="hero-chart-inner" style="background: linear-gradient(135deg, #ED632F 0%, #ff8a65 100%);"></div>
                   </div>
                 </div>
                 
