@@ -31,7 +31,8 @@ export class SupabaseClient {
    * Insert a new contact into CRM
    */
   async createContact(data: {
-    name: string
+    firstName: string
+    lastName: string
     email: string
     phone?: string | null
     subAccountId: string
@@ -41,7 +42,8 @@ export class SupabaseClient {
       headers: this.headers,
       body: JSON.stringify({
         id: crypto.randomUUID(),
-        name: data.name,
+        firstName: data.firstName,
+        lastName: data.lastName,
         email: data.email,
         phone: data.phone,
         subAccountId: data.subAccountId,
