@@ -98,6 +98,8 @@ export const ContactPageSimple = () => {
         font-size: 1.75rem;
         margin-bottom: ${spacing.lg};
         text-align: center;
+        text-transform: uppercase;
+        letter-spacing: 1px;
       }
 
       .contact-info-text {
@@ -131,6 +133,7 @@ export const ContactPageSimple = () => {
         justify-content: center;
         font-size: 1.25rem;
         flex-shrink: 0;
+        margin-top: 2px;
       }
 
       .contact-item-content h3 {
@@ -140,6 +143,7 @@ export const ContactPageSimple = () => {
         margin-bottom: ${spacing.xs};
         text-transform: uppercase;
         letter-spacing: 0.5px;
+        margin-top: 0;
       }
 
       .contact-item-content p {
@@ -188,6 +192,7 @@ export const ContactPageSimple = () => {
 
       .form-header {
         margin-bottom: ${spacing.xl};
+        text-align: center;
       }
 
       .form-header h2 {
