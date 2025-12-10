@@ -177,7 +177,7 @@ export class SupabaseClient {
         industry: 'General',
         timezone: 'America/Los_Angeles',
         language: 'en',
-        isEnabled: true,
+        aiEnabled: false,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       })
