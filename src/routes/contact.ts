@@ -1,12 +1,21 @@
-// Contact Form API Route
+// Contact Form API Route - Using Supabase REST API for Cloudflare Workers
 import { Hono } from 'hono'
-import { prisma } from '../lib/db'
+import type { Context } from 'hono'
 
 const contactRoute = new Hono()
 
-contactRoute.post('/', async (c) => {
+interface ContactBody {
+  firstName: string
+  lastName: string
+  email: string
+  phone?: string
+  message: string
+  source?: string
+}
+
+contactRoute.post('/', async (c: Context) => {
   try {
-    const body = await c.req.json()
+    const body = await c.req.json() as ContactBody
     const { firstName, lastName, email, phone, message, source } = body
 
     if (!firstName || !lastName || !email || !message) {
@@ -22,15 +31,72 @@ contactRoute.post('/', async (c) => {
 
     console.log('[CONTACT] Creating contact:', { firstName, lastName, email })
 
-    let defaultSubAccount = await prisma.subAccount.findFirst({
-      where: { name: 'Website Leads' }
-    })
+    // Get Supabase credentials from environment
+    const env = c.env as any
+    const supabaseUrl = env.SUPABASE_URL
+    const supabaseKey = env.SUPABASE_ANON_KEY
 
-    if (!defaultSubAccount) {
-      defaultSubAccount = await prisma.subAccount.findFirst()
+    if (!supabaseUrl || !supabaseKey) {
+      console.error('[CONTACT] Missing Supabase credentials')
+      return c.json(
+        { error: 'Service configuration error. Please contact support.' },
+        500
+      )
     }
 
-    if (!defaultSubAccount) {
+    const baseUrl = `${supabaseUrl}/rest/v1`
+    const headers = {
+      'apikey': supabaseKey,
+      'Authorization': `Bearer ${supabaseKey}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation'
+    }
+
+    // Find default SubAccount (Website Leads or first available)
+    let defaultSubAccountId: string | null = null
+    
+    try {
+      const subAccountResponse = await fetch(
+        `${baseUrl}/SubAccount?name=eq.Website%20Leads&limit=1`,
+        {
+          method: 'GET',
+          headers
+        }
+      )
+
+      if (subAccountResponse.ok) {
+        const subAccounts = await subAccountResponse.json()
+        if (subAccounts.length > 0) {
+          defaultSubAccountId = subAccounts[0].id
+        }
+      }
+    } catch (err) {
+      console.error('[CONTACT] Error finding SubAccount:', err)
+    }
+
+    // If no "Website Leads" subaccount, get the first one
+    if (!defaultSubAccountId) {
+      try {
+        const firstSubAccountResponse = await fetch(
+          `${baseUrl}/SubAccount?limit=1`,
+          {
+            method: 'GET',
+            headers
+          }
+        )
+
+        if (firstSubAccountResponse.ok) {
+          const subAccounts = await firstSubAccountResponse.json()
+          if (subAccounts.length > 0) {
+            defaultSubAccountId = subAccounts[0].id
+          }
+        }
+      } catch (err) {
+        console.error('[CONTACT] Error finding first SubAccount:', err)
+      }
+    }
+
+    if (!defaultSubAccountId) {
       console.error('[CONTACT] No sub-account found in database')
       return c.json(
         { error: 'System configuration error. Please contact support.' },
@@ -38,43 +104,83 @@ contactRoute.post('/', async (c) => {
       )
     }
 
-    const contact = await prisma.contact.create({
-      data: {
-        subAccountId: defaultSubAccount.id,
-        firstName,
-        lastName,
-        email,
-        phone: phone || null,
-        status: 'new',
-        score: 0,
-        tags: ['website', source || 'contact_form'],
-        customFields: {
-          message,
-          source: source || 'contact_form',
-          submittedAt: new Date().toISOString(),
-          pageUrl: c.req.header('referer') || 'unknown',
-          userAgent: c.req.header('user-agent') || 'unknown'
-        }
-      }
+    // Create contact in CRM
+    const contactId = crypto.randomUUID()
+    const contactData = {
+      id: contactId,
+      subAccountId: defaultSubAccountId,
+      name: `${firstName} ${lastName}`,
+      email,
+      phone: phone || null,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    }
+
+    const createContactResponse = await fetch(`${baseUrl}/Contact`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(contactData)
     })
 
-    console.log('[CONTACT] Contact created:', contact.id)
+    if (!createContactResponse.ok) {
+      const error = await createContactResponse.text()
+      console.error('[CONTACT] Failed to create contact:', error)
+      
+      // Check if it's a duplicate email error
+      if (error.includes('duplicate') || error.includes('unique')) {
+        return c.json(
+          { error: 'This email has already been submitted. We will contact you shortly.' },
+          409
+        )
+      }
+
+      return c.json(
+        { 
+          error: 'Failed to submit contact form. Please try again.',
+          details: error 
+        },
+        500
+      )
+    }
+
+    const contact = await createContactResponse.json()
+    console.log('[CONTACT] Contact created:', contactId)
+
+    // Also save to webhook if configured (for Make.com or other automation)
+    const webhookUrl = env.WEBHOOK_URL
+    if (webhookUrl) {
+      try {
+        await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'contact_form',
+            firstName,
+            lastName,
+            email,
+            phone: phone || null,
+            message,
+            source: source || 'contact_form',
+            submittedAt: new Date().toISOString(),
+            pageUrl: c.req.header('referer') || 'unknown',
+            userAgent: c.req.header('user-agent') || 'unknown',
+            contactId
+          })
+        })
+      } catch (webhookError) {
+        console.error('[CONTACT] Webhook failed:', webhookError)
+        // Don't fail the request if webhook fails
+      }
+    }
 
     return c.json({
       success: true,
-      contactId: contact.id,
+      contactId,
       message: "Thank you! We'll be in touch soon."
     })
 
   } catch (error: any) {
     console.error('[CONTACT] Error:', error)
-
-    if (error.code === 'P2002') {
-      return c.json(
-        { error: 'This email has already been submitted. We will contact you shortly.' },
-        409
-      )
-    }
 
     return c.json(
       { 
