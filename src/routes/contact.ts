@@ -8,6 +8,7 @@ interface ContactBody {
   firstName: string
   lastName: string
   email: string
+  department?: string
   phone?: string
   message: string
   source?: string
@@ -16,7 +17,7 @@ interface ContactBody {
 contactRoute.post('/', async (c: Context) => {
   try {
     const body = await c.req.json() as ContactBody
-    const { firstName, lastName, email, phone, message, source } = body
+    const { firstName, lastName, email, department, phone, message, source } = body
 
     if (!firstName || !lastName || !email || !message) {
       return c.json(
@@ -114,6 +115,10 @@ contactRoute.post('/', async (c: Context) => {
       lastName,
       email,
       phone: phone || null,
+      customFields: {
+        department: department || null,
+        message: message || null
+      },
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     }
@@ -160,6 +165,7 @@ contactRoute.post('/', async (c: Context) => {
             firstName,
             lastName,
             email,
+            department: department || null,
             phone: phone || null,
             message,
             source: source || 'contact_form',
