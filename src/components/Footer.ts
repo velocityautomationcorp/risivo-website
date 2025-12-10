@@ -1,7 +1,8 @@
 /**
- * Footer Component
+ * Footer Component - NEW DESIGN v2.0 - December 10, 2025
  * New Design - Newsletter at top, Logo + 4 columns, Social icons at bottom
  * Per footer mockup requirements (Footer Requirements & Comments.docx)
+ * DEPLOYMENT VERSION: 2025-12-10-v2.0
  */
 
 import { designSystem } from '../styles/design-system'
@@ -293,6 +294,7 @@ export function Footer({
     </style>
 
     <footer class="footer">
+      <!-- FOOTER VERSION: 2025-12-10-v2.0-NEW-DESIGN -->
       <!-- Newsletter Section at Top -->
       <div class="footer-newsletter-section">
         <div class="footer-newsletter-container">
