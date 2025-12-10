@@ -90,6 +90,13 @@ export const HeroWithDashboardClean = () => {
         gap: 16px;
       }
       
+      .hero-chart, .hero-metric {
+        background: white;
+        border-radius: 8px;
+        padding: 16px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      }
+      
       /* Mobile Responsive */
       @media (max-width: 768px) {
         .hero-section {
@@ -150,6 +157,14 @@ export const HeroWithDashboardClean = () => {
         
         .hero-dashboard-column {
           gap: 12px;
+        }
+        
+        .hero-chart {
+          min-height: 80px;
+        }
+        
+        .hero-metric {
+          padding: 20px;
         }
       }
       
@@ -231,11 +246,11 @@ export const HeroWithDashboardClean = () => {
                 <!-- Left Side - Charts -->
                 <div class="hero-dashboard-column">
                   <!-- Chart 1 -->
-                  <div style="background: white; border-radius: 8px; padding: 16px; flex: 1; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                  <div class="hero-chart" style="flex: 1;">
                     <div style="height: 100%; background: linear-gradient(to top, #683FE9 0%, #7C3AED 100%); border-radius: 4px; opacity: 0.6;"></div>
                   </div>
                   <!-- Chart 2 -->
-                  <div style="background: white; border-radius: 8px; padding: 16px; flex: 1; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                  <div class="hero-chart" style="flex: 1;">
                     <div style="height: 100%; background: linear-gradient(135deg, #ED632F 0%, #ff8a65 100%); border-radius: 4px; opacity: 0.6;"></div>
                   </div>
                 </div>
@@ -243,19 +258,19 @@ export const HeroWithDashboardClean = () => {
                 <!-- Right Side - Metrics -->
                 <div class="hero-dashboard-column">
                   <!-- Metric 1 -->
-                  <div style="background: white; border-radius: 8px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                  <div class="hero-metric">
                     <div style="color: #6b7280; font-size: 0.875rem; margin-bottom: 8px;">Total Revenue</div>
                     <div style="color: #683FE9; font-size: 2rem; font-weight: 700;">$127,500</div>
                     <div style="color: #10b981; font-size: 0.875rem; margin-top: 8px;">↑ 23.5%</div>
                   </div>
                   <!-- Metric 2 -->
-                  <div style="background: white; border-radius: 8px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                  <div class="hero-metric">
                     <div style="color: #6b7280; font-size: 0.875rem; margin-bottom: 8px;">Active Campaigns</div>
                     <div style="color: #683FE9; font-size: 2rem; font-weight: 700;">42</div>
                     <div style="color: #10b981; font-size: 0.875rem; margin-top: 8px;">↑ 12.3%</div>
                   </div>
                   <!-- Metric 3 -->
-                  <div style="background: white; border-radius: 8px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                  <div class="hero-metric">
                     <div style="color: #6b7280; font-size: 0.875rem; margin-bottom: 8px;">Conversion Rate</div>
                     <div style="color: #683FE9; font-size: 2rem; font-weight: 700;">8.4%</div>
                     <div style="color: #10b981; font-size: 0.875rem; margin-top: 8px;">↑ 5.2%</div>

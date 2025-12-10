@@ -76,6 +76,11 @@ export function Navigation({
         margin: 0;
         padding: 0;
       }
+      
+      /* Hide nav-actions inside nav-menu on desktop (they're in the nav bar) */
+      .nav-menu .nav-actions {
+        display: none;
+      }
 
       .nav-item {
         position: relative;
