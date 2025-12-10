@@ -1,120 +1,189 @@
-// Simple Contact Page - Clean design without emoji flags
+// Contact Page with Header/Footer Layout
+import { BaseLayout } from '../layouts/BaseLayout'
+import { designSystem } from '../styles/design-system'
+
+const { colors, spacing } = designSystem
+
 export const ContactPageSimple = () => {
-  return `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Contact Us - Risivo</title>
-      <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-          background: #f9fafb;
-          padding: 2rem;
+  const content = `
+    <style>
+      .contact-page {
+        background: #f9fafb;
+        padding: ${spacing['3xl']} ${spacing.lg};
+        min-height: calc(100vh - 72px);
+      }
+
+      .contact-container {
+        max-width: 600px;
+        margin: 0 auto;
+        background: white;
+        padding: ${spacing['2xl']};
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      }
+
+      .contact-header {
+        text-align: center;
+        margin-bottom: ${spacing['2xl']};
+      }
+
+      .contact-header h1 {
+        color: ${colors.primary};
+        font-size: 2.5rem;
+        margin-bottom: ${spacing.md};
+      }
+
+      .contact-header p {
+        color: ${colors.darkGray};
+        font-size: 1.125rem;
+      }
+
+      .form-group {
+        margin-bottom: ${spacing.lg};
+      }
+
+      .form-group label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: ${spacing.sm};
+        color: ${colors.darkGray};
+      }
+
+      .form-group input,
+      .form-group textarea,
+      .form-group select {
+        width: 100%;
+        padding: ${spacing.md};
+        border: 2px solid ${colors.lightGray};
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: border-color 0.2s;
+      }
+
+      .form-group input:focus,
+      .form-group textarea:focus,
+      .form-group select:focus {
+        outline: none;
+        border-color: ${colors.primary};
+      }
+
+      .form-group select {
+        background: white;
+        cursor: pointer;
+      }
+
+      .form-group textarea {
+        min-height: 120px;
+        resize: vertical;
+      }
+
+      .phone-group {
+        display: flex;
+        gap: ${spacing.md};
+      }
+
+      .country-code {
+        flex: 0 0 220px;
+      }
+
+      .phone-input {
+        flex: 1;
+      }
+
+      .submit-btn {
+        width: 100%;
+        padding: ${spacing.lg};
+        background: ${colors.primary};
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.125rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .submit-btn:hover {
+        background: ${colors.primaryDark};
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(104, 63, 233, 0.3);
+      }
+
+      .submit-btn:disabled {
+        background: ${colors.lightGray};
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .message {
+        padding: ${spacing.lg};
+        border-radius: 8px;
+        margin-bottom: ${spacing.lg};
+        display: none;
+      }
+
+      .message.success {
+        background: #d1fae5;
+        color: #065f46;
+        border: 2px solid #10b981;
+        display: block;
+      }
+
+      .message.error {
+        background: #fee2e2;
+        color: #991b1b;
+        border: 2px solid #ef4444;
+        display: block;
+      }
+
+      @media (max-width: 768px) {
+        .contact-page {
+          padding: ${spacing.xl} ${spacing.md};
         }
-        .container {
-          max-width: 600px;
-          margin: 0 auto;
-          background: white;
-          padding: 2rem;
-          border-radius: 8px;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+
+        .contact-container {
+          padding: ${spacing.xl};
         }
-        h1 { color: #683FE9; margin-bottom: 1rem; }
-        .form-group { margin-bottom: 1.5rem; }
-        label {
-          display: block;
-          font-weight: 600;
-          margin-bottom: 0.5rem;
-          color: #1f2937;
+
+        .contact-header h1 {
+          font-size: 2rem;
         }
-        input, textarea, select {
-          width: 100%;
-          padding: 0.75rem;
-          border: 1px solid #d1d5db;
-          border-radius: 6px;
-          font-size: 1rem;
-        }
-        select {
-          background: white;
-          cursor: pointer;
-        }
-        textarea { min-height: 120px; resize: vertical; }
-        button {
-          width: 100%;
-          padding: 1rem;
-          background: #683FE9;
-          color: white;
-          border: none;
-          border-radius: 6px;
-          font-size: 1rem;
-          font-weight: 600;
-          cursor: pointer;
-        }
-        button:hover { background: #5a35c7; }
-        button:disabled { background: #9ca3af; cursor: not-allowed; }
-        .message {
-          padding: 1rem;
-          border-radius: 6px;
-          margin-bottom: 1.5rem;
-          display: none;
-        }
-        .message.success {
-          background: #d1fae5;
-          color: #065f46;
-          border: 1px solid #10b981;
-          display: block;
-        }
-        .message.error {
-          background: #fee2e2;
-          color: #991b1b;
-          border: 1px solid #ef4444;
-          display: block;
-        }
-        .back-link {
-          display: inline-block;
-          margin-bottom: 1rem;
-          color: #683FE9;
-          text-decoration: none;
-        }
+
         .phone-group {
-          display: flex;
-          gap: 0.75rem;
+          flex-direction: column;
         }
+
         .country-code {
-          flex: 0 0 220px;
-        }
-        .phone-input {
           flex: 1;
         }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <a href="/" class="back-link">← Back to Home</a>
-        <h1>Contact Us</h1>
-        <p style="color: #6b7280; margin-bottom: 2rem;">Send us a message and we'll respond as soon as possible.</p>
-        
+      }
+    </style>
+
+    <div class="contact-page">
+      <div class="contact-container">
+        <div class="contact-header">
+          <h1>Get in Touch</h1>
+          <p>We'd love to hear from you. Send us a message and we'll respond as soon as possible.</p>
+        </div>
+
         <div id="formMessage" class="message"></div>
-        
+
         <form id="contactForm">
           <div class="form-group">
             <label for="firstName">First Name *</label>
             <input type="text" id="firstName" name="firstName" required>
           </div>
-          
+
           <div class="form-group">
             <label for="lastName">Last Name *</label>
             <input type="text" id="lastName" name="lastName" required>
           </div>
-          
+
           <div class="form-group">
-            <label for="email">Email *</label>
+            <label for="email">Email Address *</label>
             <input type="email" id="email" name="email" required>
           </div>
-          
+
           <div class="form-group">
             <label for="phone">Phone Number *</label>
             <div class="phone-group">
@@ -294,73 +363,82 @@ export const ContactPageSimple = () => {
               <input type="tel" id="phone" name="phone" placeholder="Enter phone number" required class="phone-input">
             </div>
           </div>
-          
+
           <div class="form-group">
-            <label for="message">Message *</label>
-            <textarea id="message" name="message" required></textarea>
+            <label for="message">Your Message *</label>
+            <textarea id="message" name="message" required placeholder="Tell us how we can help you..."></textarea>
           </div>
-          
-          <button type="submit" id="submitBtn">Send Message</button>
+
+          <button type="submit" id="submitBtn" class="submit-btn">Send Message</button>
         </form>
       </div>
-      
-      <script>
-        const form = document.getElementById('contactForm');
-        const submitBtn = document.getElementById('submitBtn');
-        const messageDiv = document.getElementById('formMessage');
-        
-        form.addEventListener('submit', async (e) => {
-          e.preventDefault();
-          
-          submitBtn.disabled = true;
-          submitBtn.textContent = 'Sending...';
-          messageDiv.style.display = 'none';
-          
-          const countryCode = form.countryCode.value;
-          const phoneNumber = form.phone.value.trim();
-          const fullPhone = phoneNumber ? \`\${countryCode} \${phoneNumber}\` : null;
-          
-          const data = {
-            firstName: form.firstName.value,
-            lastName: form.lastName.value,
-            email: form.email.value,
-            phone: fullPhone,
-            message: form.message.value,
-            source: 'contact_page'
-          };
-          
-          try {
-            console.log('Submitting form data:', data);
+    </div>
+
+    <script>
+      const form = document.getElementById('contactForm');
+      const submitBtn = document.getElementById('submitBtn');
+      const messageDiv = document.getElementById('formMessage');
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Sending...';
+        messageDiv.style.display = 'none';
+
+        const countryCode = form.countryCode.value;
+        const phoneNumber = form.phone.value.trim();
+        const fullPhone = phoneNumber ? \`\${countryCode} \${phoneNumber}\` : null;
+
+        const data = {
+          firstName: form.firstName.value,
+          lastName: form.lastName.value,
+          email: form.email.value,
+          phone: fullPhone,
+          message: form.message.value,
+          source: 'contact_page'
+        };
+
+        try {
+          console.log('Submitting form data:', data);
+
+          const response = await fetch('/api/contact', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          });
+
+          console.log('Response status:', response.status);
+
+          const result = await response.json();
+          console.log('Response data:', result);
+
+          if (response.ok && result.success) {
+            messageDiv.textContent = result.message || "Thank you! We'll be in touch soon.";
+            messageDiv.className = 'message success';
+            form.reset();
             
-            const response = await fetch('/api/contact', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(data)
-            });
-            
-            console.log('Response status:', response.status);
-            
-            const result = await response.json();
-            console.log('Response data:', result);
-            
-            if (response.ok && result.success) {
-              messageDiv.textContent = result.message || "Thank you! We'll be in touch soon.";
-              messageDiv.className = 'message success';
-              form.reset();
-            } else {
-              throw new Error(result.error || 'Failed to send message');
-            }
-          } catch (error) {
-            console.error('Submission error:', error);
-            messageDiv.textContent = 'Error: ' + (error.message || 'Failed to send message. Please try again.');
-            messageDiv.className = 'message error';
-          } finally {
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Send Message';
+            // Scroll to success message
+            messageDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          } else {
+            throw new Error(result.error || 'Failed to send message');
           }
-        });
-      </script>
-    </body>
-    </html>
+        } catch (error) {
+          console.error('Submission error:', error);
+          messageDiv.textContent = 'Error: ' + (error.message || 'Failed to send message. Please try again.');
+          messageDiv.className = 'message error';
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Send Message';
+        }
+      });
+    </script>
   `
+
+  return BaseLayout({
+    title: 'Contact Us - Risivo',
+    description: 'Get in touch with Risivo. We\'d love to hear from you and answer any questions about our marketing CRM platform.',
+    children: content,
+    includeFooter: true
+  })
 }
