@@ -109,7 +109,8 @@ contactRoute.post('/', async (c: Context) => {
     const contactData = {
       id: contactId,
       subAccountId: defaultSubAccountId,
-      name: `${firstName} ${lastName}`,
+      firstName,
+      lastName,
       email,
       phone: phone || null,
       createdAt: new Date().toISOString(),
