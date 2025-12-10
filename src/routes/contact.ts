@@ -34,7 +34,8 @@ contactRoute.post('/', async (c: Context) => {
     // Get Supabase credentials from environment
     const env = c.env as any
     const supabaseUrl = env.SUPABASE_URL
-    const supabaseKey = env.SUPABASE_ANON_KEY
+    // Use service role key for server-side operations (bypasses RLS)
+    const supabaseKey = env.SUPABASE_SERVICE_KEY || env.SUPABASE_ANON_KEY
 
     if (!supabaseUrl || !supabaseKey) {
       console.error('[CONTACT] Missing Supabase credentials')
