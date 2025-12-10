@@ -43,20 +43,31 @@ export const HomepageStep6 = () => {
       <button 
         id="fixedMobileMenuBtn"
         onclick="document.getElementById('navMenu').classList.toggle('open')"
-        style="display: none; position: fixed; right: 16px; top: 12px; width: 48px; height: 48px; background: #683FE9; color: white; border: none; border-radius: 8px; font-size: 24px; cursor: pointer; z-index: 9999; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"
+        style="display: none; position: fixed; right: 12px; top: 10px; width: 44px; height: 44px; background: #683FE9; color: white; border: none; border-radius: 6px; font-size: 22px; cursor: pointer; z-index: 9999; box-shadow: 0 2px 8px rgba(0,0,0,0.15);"
       >
         ☰
       </button>
       <style>
         /* Prevent horizontal scroll on mobile */
-        body {
+        * {
+          box-sizing: border-box;
+        }
+        
+        html, body {
           overflow-x: hidden;
-          max-width: 100vw;
+          max-width: 100%;
+          position: relative;
         }
         
         /* Hide the navigation hamburger, only show the purple one */
         .mobile-menu-toggle {
           display: none !important;
+          visibility: hidden !important;
+        }
+        
+        /* Ensure button stays within viewport */
+        #fixedMobileMenuBtn {
+          max-width: calc(100vw - 24px);
         }
         
         @media (max-width: 768px) {
@@ -64,6 +75,13 @@ export const HomepageStep6 = () => {
             display: flex !important;
             align-items: center;
             justify-content: center;
+            right: 8px !important;
+            top: 8px !important;
+          }
+          
+          /* Extra safety - prevent any element from causing horizontal scroll */
+          body > * {
+            max-width: 100%;
           }
         }
       </style>
