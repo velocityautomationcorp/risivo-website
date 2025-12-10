@@ -52,6 +52,7 @@ export function Navigation({
         align-items: center;
         justify-content: space-between;
         height: 72px;
+        gap: ${spacing.lg};
       }
 
       .nav-logo {
@@ -62,6 +63,7 @@ export function Navigation({
         color: ${colors.black};
         font-weight: 700;
         font-size: 1.5rem;
+        flex-shrink: 0;
       }
 
       .nav-logo img {
@@ -75,11 +77,17 @@ export function Navigation({
         list-style: none;
         margin: 0;
         padding: 0;
+        flex: 1;
+        justify-content: center;
       }
       
       /* Hide nav-actions inside nav-menu on desktop (they're in the nav bar) */
       .nav-menu .nav-actions {
         display: none;
+      }
+      
+      .nav-actions {
+        flex-shrink: 0;
       }
 
       .nav-item {
