@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
 import { HomepageStep6 } from './pages/homepage-step6'
-import { ContactPage } from './pages/contact'
+import { ContactPageSimple } from './pages/contact-simple'
 import contactRoute from './routes/contact'
 import newsletterRoute from './routes/newsletter'
 import registerRoute from './routes/register'
@@ -144,7 +144,7 @@ app.get('/coming-soon', async (c) => {
 
 // Contact page
 app.get('/contact', (c) => {
-  return c.html(ContactPage())
+  return c.html(ContactPageSimple())
 })
 
 // Features page (placeholder)
