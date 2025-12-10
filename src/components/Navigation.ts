@@ -150,6 +150,11 @@ export function Navigation({
       @media (max-width: 768px) {
         .nav-container {
           height: 64px;
+          position: relative;
+        }
+
+        .nav-logo {
+          flex: 0 0 auto;
         }
 
         .nav-logo img {
@@ -198,17 +203,29 @@ export function Navigation({
         }
 
         .mobile-menu-toggle {
-          display: block;
+          display: block !important;
           padding: ${spacing.sm};
           z-index: 1001;
+          position: absolute;
+          right: ${spacing.lg};
+          top: 50%;
+          transform: translateY(-50%);
+          background: ${colors.white};
+          border: 2px solid ${colors.darkGray};
+          border-radius: 4px;
+          width: 44px;
+          height: 44px;
+          display: flex !important;
+          align-items: center;
+          justify-content: center;
         }
 
         .nav-actions {
-          display: none;
+          display: none !important;
         }
 
         .nav-menu .nav-actions {
-          display: flex;
+          display: flex !important;
           flex-direction: column;
           width: 100%;
           gap: ${spacing.sm};
