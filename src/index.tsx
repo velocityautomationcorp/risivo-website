@@ -1,13 +1,23 @@
 import { Hono } from 'hono'
 import { HomepageStep6 } from './pages/homepage-step6'
+import { ContactPage } from './pages/contact'
+import contactRoute from './routes/contact'
+import newsletterRoute from './routes/newsletter'
+import registerRoute from './routes/register'
 
 type Bindings = {
   WEBHOOK_URL?: string
   ENABLE_FULL_SITE?: string
   ENVIRONMENT?: string
+  DATABASE_URL?: string
 }
 
 const app = new Hono<{ Bindings: Bindings }>()
+
+// Mount API routes
+app.route('/api/contact', contactRoute)
+app.route('/api/newsletter', newsletterRoute)
+app.route('/api/register', registerRoute)
 
 // Debug endpoint to check configuration
 app.get('/api/health', (c) => {
@@ -130,6 +140,11 @@ app.get('/coming-soon', async (c) => {
       </body>
     </html>
   `)
+})
+
+// Contact page
+app.get('/contact', (c) => {
+  return c.html(ContactPage())
 })
 
 // Features page (placeholder)
