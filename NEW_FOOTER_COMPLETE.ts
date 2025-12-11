@@ -9,8 +9,8 @@ import { designSystem } from '../styles/design-system'
 
 const { colors, spacing } = designSystem
 
-// White Risivo logo path
-const WHITE_RISIVO_LOGO = '/white-favicon.png'
+// Base64 encoded white Risivo logo (for embedding directly in component)
+const WHITE_RISIVO_LOGO = '/White Favicon.png'
 
 export interface FooterLink {
   label: string
@@ -46,7 +46,7 @@ export function Footer({
         background: #2b3544;
         color: ${colors.white};
         padding: 0;
-        margin-top: 75px;
+        margin-top: 0;
       }
 
       /* Newsletter Section - Top */
@@ -84,20 +84,9 @@ export function Footer({
       .newsletter-form {
         display: flex;
         gap: ${spacing.md};
-        max-width: 700px;
+        max-width: 600px;
         margin: 0 auto;
         align-items: stretch;
-      }
-
-      .newsletter-language-select {
-        padding: ${spacing.md};
-        border: none;
-        border-radius: 8px;
-        background: ${colors.white};
-        font-size: 1rem;
-        cursor: pointer;
-        min-width: 100px;
-        order: 1;
       }
 
       .newsletter-form input {
@@ -107,7 +96,16 @@ export function Footer({
         border-radius: 8px;
         background: ${colors.white};
         font-size: 1rem;
-        order: 2;
+      }
+
+      .newsletter-language-select {
+        padding: ${spacing.md};
+        border: none;
+        border-radius: 8px;
+        background: ${colors.white};
+        font-size: 1rem;
+        cursor: pointer;
+        min-width: 80px;
       }
 
       .newsletter-form button {
@@ -231,13 +229,7 @@ export function Footer({
         color: ${colors.white};
         text-decoration: none;
         transition: all 0.3s ease;
-      }
-
-      .social-link svg,
-      .social-link img {
-        width: 20px;
-        height: 20px;
-        filter: brightness(0) invert(1);
+        font-size: 1.2rem;
       }
 
       .social-link:hover {
@@ -306,18 +298,9 @@ export function Footer({
       <!-- Newsletter Section at Top -->
       <div class="footer-newsletter-section">
         <div class="footer-newsletter-container">
-          <h3 class="footer-newsletter-title">Stay Ahead of the Curve</h3>
+          <h3 class="footer-newsletter-title">Stay Ahead of the Curve in: <span id="language-display">[EN ▼]</span> [ES] [FR] [DE]</h3>
           <h4 class="footer-newsletter-subtitle">Get exclusive CRM insights, AI tips, and product updates delivered to your inbox.</h4>
           <form class="newsletter-form" onsubmit="subscribeNewsletter(event)">
-            <select 
-              class="newsletter-language-select" 
-              id="newsletter-language"
-              aria-label="Select language"
-            >
-              ${newsletterLanguages.map(lang => `
-                <option value="${lang.code}">${lang.label.replace(' ▼', '')}</option>
-              `).join('')}
-            </select>
             <input 
               type="email" 
               placeholder="Enter your email" 
@@ -325,6 +308,15 @@ export function Footer({
               id="newsletter-email"
               aria-label="Email address"
             />
+            <select 
+              class="newsletter-language-select" 
+              id="newsletter-language"
+              aria-label="Select language"
+            >
+              ${newsletterLanguages.map(lang => `
+                <option value="${lang.code}">${lang.label}</option>
+              `).join('')}
+            </select>
             <button type="submit">Subscribe</button>
           </form>
         </div>
@@ -401,6 +393,19 @@ export function Footer({
           alert('An error occurred. Please try again.')
         }
       }
+
+      // Update language display on selection
+      document.addEventListener('DOMContentLoaded', function() {
+        const languageSelect = document.getElementById('newsletter-language')
+        const languageDisplay = document.getElementById('language-display')
+        
+        if (languageSelect && languageDisplay) {
+          languageSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex].text
+            languageDisplay.textContent = '[' + selectedOption + ']'
+          })
+        }
+      })
     </script>
   `
 }
