@@ -46,7 +46,7 @@ export function Footer({
         background: #2b3544;
         color: ${colors.white};
         padding: 0;
-        margin-top: 75px;
+        margin-top: 150px;
       }
 
       /* Newsletter Section - Top */
@@ -90,14 +90,20 @@ export function Footer({
       }
 
       .newsletter-language-select {
-        padding: ${spacing.md};
+        padding: ${spacing.md} ${spacing.lg};
         border: none;
         border-radius: 8px;
         background: ${colors.white};
         font-size: 1rem;
         cursor: pointer;
-        min-width: 100px;
+        min-width: 120px;
         order: 1;
+        appearance: none;
+        background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27currentColor%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e');
+        background-repeat: no-repeat;
+        background-position: right 0.7rem center;
+        background-size: 1rem;
+        padding-right: 2.5rem;
       }
 
       .newsletter-form input {
@@ -315,7 +321,7 @@ export function Footer({
               aria-label="Select language"
             >
               ${newsletterLanguages.map(lang => `
-                <option value="${lang.code}">${lang.label.replace(' ▼', '')}</option>
+                <option value="${lang.code}">${lang.code.toUpperCase()}</option>
               `).join('')}
             </select>
             <input 
