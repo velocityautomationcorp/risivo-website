@@ -1,6 +1,8 @@
 import { Hono } from 'hono'
 import { HomepageStep6 } from './pages/homepage-step6'
 import { ContactPageSimple } from './pages/contact-simple'
+import { FeaturesPage } from './pages/features'
+import { PricingPage } from './pages/pricing'
 import contactRoute from './routes/contact'
 import newsletterRoute from './routes/newsletter'
 import registerRoute from './routes/register'
@@ -147,30 +149,14 @@ app.get('/contact', (c) => {
   return c.html(ContactPageSimple())
 })
 
-// Features page (placeholder)
+// Features page
 app.get('/features', (c) => {
-  return c.html(`
-    <html>
-      <body style="font-family: sans-serif; text-align: center; padding: 50px;">
-        <h1>Features Page</h1>
-        <p>Coming soon - will showcase all CRM features</p>
-        <p><a href="/">Back to Homepage</a></p>
-      </body>
-    </html>
-  `)
+  return c.html(FeaturesPage())
 })
 
-// Pricing page (placeholder)
+// Pricing page
 app.get('/pricing', (c) => {
-  return c.html(`
-    <html>
-      <body style="font-family: sans-serif; text-align: center; padding: 50px;">
-        <h1>Pricing Page</h1>
-        <p>Coming soon - will show pricing tiers</p>
-        <p><a href="/">Back to Homepage</a></p>
-      </body>
-    </html>
-  `)
+  return c.html(PricingPage())
 })
 
 export default app
