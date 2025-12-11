@@ -2,23 +2,27 @@
  * Base Layout - Provides consistent header/footer for all pages
  */
 
-import { Navigation } from '../components/Navigation'
-import { Footer } from '../components/Footer'
-import { globalStyles } from '../styles/global.css'
-import { navigationItems, footerColumns, socialLinks } from '../data/navigation'
+import { Navigation } from "../components/Navigation";
+import { Footer } from "../components/Footer";
+import { globalStyles } from "../styles/global.css";
+import {
+  navigationItems,
+  footerColumns,
+  socialLinks,
+} from "../data/navigation";
 
 export interface BaseLayoutProps {
-  title: string
-  description?: string
-  children: string
-  includeFooter?: boolean
+  title: string;
+  description?: string;
+  children: string;
+  includeFooter?: boolean;
 }
 
 export function BaseLayout({
   title,
-  description = 'Risivo - Marketing CRM Platform',
+  description = "Risivo - Marketing CRM Platform",
   children,
-  includeFooter = true
+  includeFooter = true,
 }: BaseLayoutProps): string {
   return `
     <!DOCTYPE html>
@@ -81,22 +85,26 @@ export function BaseLayout({
       </button>
 
       ${Navigation({
-        logoSrc: '/risivo-logo.png',
+        logoSrc: "/risivo-logo.png",
         items: navigationItems,
-        ctaText: 'Start Free Trial',
-        ctaHref: 'https://app.risivo.com/signup'
+        ctaText: "Start Free Trial",
+        ctaHref: "https://app.risivo.com/signup",
       })}
 
       <main>
         ${children}
       </main>
 
-      ${includeFooter ? Footer({
-        columns: footerColumns,
-        socialLinks: socialLinks,
-        copyrightText: `© ${new Date().getFullYear()} Risivo. All rights reserved.`
-      }) : ''}
+      ${
+        includeFooter
+          ? Footer({
+              columns: footerColumns,
+              socialLinks: socialLinks,
+              copyrightText: `© ${new Date().getFullYear()} Velocity Automation Corp. All rights reserved.`,
+            })
+          : ""
+      }
     </body>
     </html>
-  `
+  `;
 }

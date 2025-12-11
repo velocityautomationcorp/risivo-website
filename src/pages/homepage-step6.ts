@@ -1,288 +1,161 @@
 /**
  * STEP 6: Complete Homepage with HeroWithDashboard
  * Final step - enhanced hero section with dashboard preview
+ * Updated to use BaseLayout with new footer
  */
 
-import { globalStyles } from '../styles/global.css.ts';
-import { Navigation } from '../components/Navigation';
-import { HeroWithDashboardClean } from '../components/HeroWithDashboardClean';
-import { PartnerLogos } from '../components/PartnerLogos';
-import { SimplifiedFeatures } from '../components/SimplifiedFeatures';
-import { MarketingMadeSimple } from '../components/MarketingMadeSimple';
-import { PricingCards } from '../components/PricingCards';
-import { designSystem } from '../styles/design-system';
+import { BaseLayout } from "../layouts/BaseLayout";
+import { HeroWithDashboardClean } from "../components/HeroWithDashboardClean";
+import { PartnerLogos } from "../components/PartnerLogos";
+import { SimplifiedFeatures } from "../components/SimplifiedFeatures";
+import { MarketingMadeSimple } from "../components/MarketingMadeSimple";
+import { PricingCards } from "../components/PricingCards";
+import { designSystem } from "../styles/design-system";
 
 const { colors, spacing } = designSystem;
 
-const navigationItems = [
-  { label: 'Features', href: '/features' },
-  { label: 'Pricing', href: '/pricing' },
-  { label: 'About', href: '/about' }
-];
-
 export const HomepageStep6 = () => {
-  const currentYear = new Date().getFullYear();
-  
-  return `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Risivo - Marketing CRM</title>
-      <link rel="icon" type="image/png" href="/favicon.png">
-      <link rel="shortcut icon" type="image/png" href="/favicon.png">
-      <link rel="apple-touch-icon" href="/favicon.png">
-      <link rel="preconnect" href="https://fonts.googleapis.com">
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-      <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700&display=swap" rel="stylesheet">
-      <style>${globalStyles}</style>
-    </head>
-    <body>
-      <!-- FIXED MOBILE MENU BUTTON - INDEPENDENT OF NAVIGATION -->
-      <button 
-        id="fixedMobileMenuBtn"
-        onclick="document.getElementById('navMenu').classList.toggle('open')"
-        style="display: none; position: fixed; right: 12px; top: 10px; width: 44px; height: 44px; background: #683FE9; color: white; border: none; border-radius: 6px; font-size: 22px; cursor: pointer; z-index: 9999; box-shadow: 0 2px 8px rgba(0,0,0,0.15);"
-      >
-        ☰
-      </button>
-      <style>
-        /* Prevent horizontal scroll on mobile */
-        * {
-          box-sizing: border-box;
-        }
-        
-        html, body {
-          overflow-x: hidden;
-          max-width: 100%;
-          position: relative;
-        }
-        
-        /* Hide the navigation hamburger, only show the purple one */
-        .mobile-menu-toggle {
-          display: none !important;
-          visibility: hidden !important;
-        }
-        
-        /* Ensure button stays within viewport */
-        #fixedMobileMenuBtn {
-          max-width: calc(100vw - 24px);
-        }
-        
-        @media (max-width: 768px) {
-          #fixedMobileMenuBtn {
-            display: flex !important;
-            align-items: center;
-            justify-content: center;
-            right: 8px !important;
-            top: 8px !important;
-          }
-          
-          /* Extra safety - prevent any element from causing horizontal scroll */
-          body > * {
-            max-width: 100%;
-          }
-        }
-      </style>
+  const pageContent = `
+    <!-- Enhanced Hero with Dashboard -->
+    ${HeroWithDashboardClean()}
 
-      ${Navigation({
-        logoSrc: '/risivo-logo.png',
-        items: navigationItems,
-        ctaText: 'Start Free Trial',
-        ctaHref: 'https://app.risivo.com/signup'
-      })}
-
-      <main>
-        <!-- Enhanced Hero with Dashboard -->
-        ${HeroWithDashboardClean()}
-
-        <!-- Partner Logos -->
+    <!-- Partner Logos -->
+    <section style="
+      padding: 60px 20px;
+      background: linear-gradient(180deg, #ffffff 0%, #f8f9ff 100%);
+    ">
+      <div style="max-width: 1200px; margin: 0 auto;">
         ${PartnerLogos()}
+      </div>
+    </section>
 
-        <!-- Simplified Features -->
-        ${SimplifiedFeatures({
-          title: 'Smart Marketing Tools',
-          subtitle: '$250/yr For Everyone',
-          features: [
-            {
-              icon: '📧',
-              title: 'Email Marketing',
-              description: 'Create beautiful campaigns with our drag-and-drop editor'
-            },
-            {
-              icon: '🤖',
-              title: 'Smart Automation',
-              description: 'Set up workflows that run on autopilot'
-            },
-            {
-              icon: '📊',
-              title: 'Data Insights',
-              description: 'Get actionable insights powered by AI'
-            }
-          ]
-        })}
+    <!-- Simplified Features -->
+    <section style="padding: 80px 20px; background: white;">
+      <div style="max-width: 1200px; margin: 0 auto;">
+        ${SimplifiedFeatures()}
+      </div>
+    </section>
 
-        <!-- Marketing Made Simple -->
+    <!-- Marketing Made Simple -->
+    <section style="
+      padding: 100px 20px;
+      background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+    ">
+      <div style="max-width: 1200px; margin: 0 auto;">
         ${MarketingMadeSimple()}
+      </div>
+    </section>
 
-        <!-- Pricing Cards - NEW COMPONENT -->
-        ${PricingCards({
-          title: 'Simple, Transparent Pricing',
-          description: 'Choose the plan that fits your business needs',
-          plans: [
-            {
-              name: 'Starter',
-              price: '$0',
-              period: 'forever',
-              description: 'Perfect for trying out Risivo',
-              features: [
-                { text: 'Up to 1,000 contacts', included: true },
-                { text: 'Email campaigns', included: true },
-                { text: 'Basic automation', included: true },
-                { text: 'Email support', included: true },
-                { text: 'Custom domains', included: false },
-                { text: 'Advanced analytics', included: false }
-              ],
-              ctaText: 'Get Started Free',
-              ctaHref: 'https://app.risivo.com/signup'
-            },
-            {
-              name: 'Professional',
-              price: '$29',
-              period: '/month',
-              description: 'For growing businesses',
-              features: [
-                { text: 'Up to 10,000 contacts', included: true },
-                { text: 'Unlimited email campaigns', included: true },
-                { text: 'Advanced automation', included: true },
-                { text: 'Priority support', included: true },
-                { text: 'Custom domains', included: true },
-                { text: 'Advanced analytics', included: true }
-              ],
-              ctaText: 'Start Free Trial',
-              ctaHref: 'https://app.risivo.com/signup',
-              highlighted: true
-            },
-            {
-              name: 'Enterprise',
-              price: 'Custom',
-              period: 'pricing',
-              description: 'For large organizations',
-              features: [
-                { text: 'Unlimited contacts', included: true },
-                { text: 'Everything in Professional', included: true },
-                { text: 'Dedicated account manager', included: true },
-                { text: '24/7 phone support', included: true },
-                { text: 'Custom integrations', included: true },
-                { text: 'SLA guarantee', included: true }
-              ],
-              ctaText: 'Contact Sales',
-              ctaHref: '/contact'
-            }
-          ]
-        })}
+    <!-- Pricing Cards -->
+    <section style="
+      padding: 100px 20px;
+      background: white;
+    ">
+      <div style="max-width: 1200px; margin: 0 auto;">
+        <div style="text-align: center; margin-bottom: 60px;">
+          <h2 style="
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 16px;
+          ">
+            Simple, Transparent Pricing
+          </h2>
+          <p style="
+            font-size: 1.25rem;
+            color: #666;
+            max-width: 600px;
+            margin: 0 auto;
+          ">
+            Choose the perfect plan for your business needs
+          </p>
+        </div>
+        ${PricingCards()}
+      </div>
+    </section>
 
-        <!-- Dark CTA Section -->
-        <section style="
-          background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-          padding: 80px 20px;
-          text-align: center;
+    <!-- Final CTA Section -->
+    <section style="
+      padding: 100px 20px;
+      background: linear-gradient(135deg, ${colors.primary} 0%, ${
+    colors.primaryDark
+  } 100%);
+      text-align: center;
+      color: white;
+    ">
+      <div style="max-width: 800px; margin: 0 auto;">
+        <h2 style="
+          font-size: clamp(2rem, 5vw, 3rem);
+          font-weight: 700;
+          margin-bottom: 24px;
           color: white;
         ">
-          <div style="max-width: 600px; margin: 0 auto;">
-            <h2 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 20px; color: white;">
-              Ready to Transform Your Marketing?
-            </h2>
-            <p style="font-size: 1.1rem; margin-bottom: 40px; opacity: 0.9; color: white;">
-              Join thousands of businesses already using Risivo
-            </p>
-            <a href="https://app.risivo.com/signup" style="
-              background: ${colors.primary};
-              color: white;
-              padding: 18px 40px;
-              border-radius: 8px;
-              text-decoration: none;
-              font-weight: 600;
-              font-size: 1.1rem;
-              display: inline-block;
-              transition: transform 0.2s;
-            ">
-              Get Started Free
-            </a>
-          </div>
-        </section>
-
-        <!-- Simple Footer -->
-        <footer style="
-          background: #0a0a0f;
-          color: white;
-          padding: 60px 20px 30px;
+          Ready to Transform Your Marketing?
+        </h2>
+        <p style="
+          font-size: 1.25rem;
+          margin-bottom: 40px;
+          opacity: 0.95;
+          line-height: 1.6;
         ">
-          <div style="max-width: 1200px; margin: 0 auto;">
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px; margin-bottom: 40px;">
-              <!-- Company -->
-              <div>
-                <img src="/images/risivo-logo-white.png" alt="Risivo" style="height: 32px; margin-bottom: 16px;" onerror="this.src='/risivo-logo-white.png'">
-                <p style="opacity: 0.7; line-height: 1.6;">
-                  Powerful marketing automation made simple for everyone.
-                </p>
-              </div>
-              
-              <!-- Product -->
-              <div>
-                <h4 style="font-size: 0.9rem; font-weight: 600; margin-bottom: 16px; text-transform: uppercase; opacity: 0.6;">Product</h4>
-                <ul style="list-style: none; padding: 0;">
-                  <li style="margin-bottom: 8px;"><a href="/features" style="color: white; opacity: 0.8; text-decoration: none;">Features</a></li>
-                  <li style="margin-bottom: 8px;"><a href="/pricing" style="color: white; opacity: 0.8; text-decoration: none;">Pricing</a></li>
-                </ul>
-              </div>
-              
-              <!-- Resources -->
-              <div>
-                <h4 style="font-size: 0.9rem; font-weight: 600; margin-bottom: 16px; text-transform: uppercase; opacity: 0.6;">Resources</h4>
-                <ul style="list-style: none; padding: 0;">
-                  <li style="margin-bottom: 8px;"><a href="/blog" style="color: white; opacity: 0.8; text-decoration: none;">Blog</a></li>
-                  <li style="margin-bottom: 8px;"><a href="/docs" style="color: white; opacity: 0.8; text-decoration: none;">Documentation</a></li>
-                </ul>
-              </div>
-              
-              <!-- Company -->
-              <div>
-                <h4 style="font-size: 0.9rem; font-weight: 600; margin-bottom: 16px; text-transform: uppercase; opacity: 0.6;">Company</h4>
-                <ul style="list-style: none; padding: 0;">
-                  <li style="margin-bottom: 8px;"><a href="/about" style="color: white; opacity: 0.8; text-decoration: none;">About</a></li>
-                  <li style="margin-bottom: 8px;"><a href="/contact" style="color: white; opacity: 0.8; text-decoration: none;">Contact</a></li>
-                </ul>
-              </div>
-            </div>
-            
-            <div style="
-              border-top: 1px solid rgba(255, 255, 255, 0.1);
-              padding-top: 30px;
-              text-align: center;
-              opacity: 0.6;
-              font-size: 0.9rem;
-            ">
-              © ${currentYear} Risivo. All rights reserved.
-            </div>
-          </div>
-        </footer>
-      </main>
+          Join thousands of businesses already using Risivo to streamline their marketing operations and drive growth.
+        </p>
+        <div style="
+          display: flex;
+          gap: 16px;
+          justify-content: center;
+          flex-wrap: wrap;
+        ">
+          <a href="https://app.risivo.com/signup" style="
+            background: white;
+            color: ${colors.primary};
+            padding: 18px 40px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            display: inline-block;
+            transition: transform 0.2s;
+          ">
+            Start Free Trial
+          </a>
+          <a href="/contact" style="
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 18px 40px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            display: inline-block;
+            transition: background 0.2s;
+            border: 2px solid white;
+          ">
+            Contact Sales
+          </a>
+        </div>
+      </div>
+    </section>
 
-      <!-- Smooth scroll -->
-      <script>
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-          anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-              target.scrollIntoView({ behavior: 'smooth' });
-            }
-          });
+    <!-- Smooth scroll -->
+    <script>
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute('href'));
+          if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
         });
-      </script>
-    </body>
-    </html>
+      });
+    </script>
   `;
+
+  return BaseLayout({
+    title: "Risivo - Marketing CRM Platform",
+    description:
+      "Powerful marketing automation made simple for everyone. Streamline your campaigns, engage customers, and grow your business with Risivo.",
+    children: pageContent,
+    includeFooter: true,
+  });
 };
