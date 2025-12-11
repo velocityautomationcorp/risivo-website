@@ -10,7 +10,7 @@ import { designSystem } from "../styles/design-system";
 const { colors, spacing } = designSystem;
 
 // White Risivo logo path
-const WHITE_RISIVO_LOGO = "/white-favicon.png";
+const WHITE_RISIVO_LOGO = "/risivo-logo-white.png";
 
 export interface FooterLink {
   label: string;
@@ -96,14 +96,14 @@ export function Footer({
         background: ${colors.white};
         font-size: 1rem;
         cursor: pointer;
-        min-width: 120px;
-        order: 1;
+        width: 90px;
+        flex-shrink: 0;
         appearance: none;
         background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27currentColor%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e');
         background-repeat: no-repeat;
-        background-position: right 0.7rem center;
-        background-size: 1rem;
-        padding-right: 2.5rem;
+        background-position: right 0.5rem center;
+        background-size: 0.875rem;
+        padding-right: 2rem;
       }
 
       .newsletter-form input {
@@ -113,7 +113,6 @@ export function Footer({
         border-radius: 8px;
         background: ${colors.white};
         font-size: 1rem;
-        order: 2;
       }
 
       .newsletter-form button {
