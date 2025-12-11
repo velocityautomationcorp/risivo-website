@@ -5,6 +5,7 @@
 
 import { designSystem } from '../styles/design-system'
 import { Button } from './Button'
+import { LanguageSwitcher } from './LanguageSwitcher'
 
 const { colors, spacing, shadows } = designSystem
 
@@ -283,6 +284,7 @@ export function Navigation({
         </ul>
 
         <div class="nav-actions">
+          ${LanguageSwitcher()}
           <a href="https://app.risivo.com/login" class="btn btn-outline btn-sm">Login</a>
           ${Button({ text: ctaText, href: ctaHref, variant: 'primary', size: 'sm' })}
         </div>
