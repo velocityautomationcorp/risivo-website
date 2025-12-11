@@ -7,6 +7,7 @@ import { AppLayout } from './components/layout/AppLayout'
 import { Dashboard } from './pages/Dashboard'
 import { PagesManager } from './pages/PagesManager'
 import { PageEditor } from './pages/PageEditor'
+import { VisualPageEditor } from './pages/VisualPageEditor'
 import { MediaLibrary } from './pages/MediaLibrary'
 import { TranslationsManager } from './pages/TranslationsManager'
 import { Settings } from './pages/Settings'
@@ -38,6 +39,7 @@ function App() {
             <Route index element={<Dashboard />} />
             <Route path="pages" element={<PagesManager />} />
             <Route path="pages/:id" element={<PageEditor />} />
+            <Route path="pages/:id/visual" element={<VisualPageEditor />} />
             <Route path="media" element={<MediaLibrary />} />
             <Route path="translations" element={<TranslationsManager />} />
             <Route path="settings" element={<Settings />} />
