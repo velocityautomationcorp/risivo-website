@@ -8,8 +8,9 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
 // Supabase client instance (initialized on first use)
 let supabaseCMSInstance: SupabaseClient | null = null
+let supabaseCMSAdminInstance: SupabaseClient | null = null
 
-// Get or create Supabase CMS client
+// Get or create Supabase CMS client (for public access with RLS)
 export function getSupabaseCMS(supabaseUrl?: string, supabaseAnonKey?: string): SupabaseClient {
   if (!supabaseCMSInstance) {
     const url = supabaseUrl || process.env.SUPABASE_URL || ''
@@ -23,6 +24,24 @@ export function getSupabaseCMS(supabaseUrl?: string, supabaseAnonKey?: string): 
   }
   
   return supabaseCMSInstance
+}
+
+// Get or create Supabase CMS Admin client (bypasses RLS with service role key)
+export function getSupabaseCMSAdmin(supabaseUrl?: string, supabaseServiceKey?: string): SupabaseClient {
+  const url = supabaseUrl || process.env.SUPABASE_URL || ''
+  const key = supabaseServiceKey || process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+  
+  if (!url || !key) {
+    throw new Error('Supabase URL and Service Role Key are required for admin operations. Please configure SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY environment variables.')
+  }
+  
+  // Always create a fresh client for admin to ensure proper auth
+  return createClient(url, key, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  })
 }
 
 // Export for backward compatibility (will throw error if called without env vars)

@@ -5,11 +5,11 @@
 
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
-import { getSupabaseCMS } from '../lib/supabase-cms'
+import { getSupabaseCMSAdmin } from '../lib/supabase-cms'
 
 type Bindings = {
   SUPABASE_URL?: string
-  SUPABASE_ANON_KEY?: string
+  SUPABASE_SERVICE_ROLE_KEY?: string
 }
 
 const cmsAdmin = new Hono<{ Bindings: Bindings }>()
@@ -29,7 +29,7 @@ cmsAdmin.use('/*', cors({
 // List all pages (including drafts)
 cmsAdmin.get('/pages', async (c) => {
   try {
-    const supabaseCMS = getSupabaseCMS(c.env?.SUPABASE_URL, c.env?.SUPABASE_ANON_KEY)
+    const supabaseCMS = getSupabaseCMSAdmin(c.env?.SUPABASE_URL, c.env?.SUPABASE_SERVICE_ROLE_KEY)
     
     const { data, error } = await supabaseCMS
       .from('cms_pages')
@@ -50,7 +50,7 @@ cmsAdmin.get('/pages/:id', async (c) => {
   const id = c.req.param('id')
 
   try {
-    const supabaseCMS = getSupabaseCMS(c.env?.SUPABASE_URL, c.env?.SUPABASE_ANON_KEY)
+    const supabaseCMS = getSupabaseCMSAdmin(c.env?.SUPABASE_URL, c.env?.SUPABASE_SERVICE_ROLE_KEY)
     
     const { data: page, error: pageError } = await supabaseCMS
       .from('cms_pages')
@@ -82,7 +82,10 @@ cmsAdmin.get('/pages/:id', async (c) => {
 cmsAdmin.post('/pages', async (c) => {
   try {
     const body = await c.req.json()
-    const supabaseCMS = getSupabaseCMS(c.env?.SUPABASE_URL, c.env?.SUPABASE_ANON_KEY)
+    console.log('📝 Creating page with body:', JSON.stringify(body, null, 2))
+    
+    const supabaseCMS = getSupabaseCMSAdmin(c.env?.SUPABASE_URL, c.env?.SUPABASE_SERVICE_ROLE_KEY)
+    console.log('🔑 Supabase URL:', c.env?.SUPABASE_URL ? 'configured' : 'missing')
 
     const { data, error } = await supabaseCMS
       .from('cms_pages')
@@ -100,12 +103,25 @@ cmsAdmin.post('/pages', async (c) => {
       .select()
       .single()
 
-    if (error) throw error
+    if (error) {
+      console.error('❌ Supabase error:', error)
+      return c.json({ 
+        error: 'Failed to create page', 
+        details: error.message || error,
+        code: error.code,
+        hint: error.hint 
+      }, 500)
+    }
 
+    console.log('✅ Page created successfully:', data)
     return c.json({ success: true, data }, 201)
-  } catch (error) {
-    console.error('Error creating page:', error)
-    return c.json({ error: 'Failed to create page' }, 500)
+  } catch (error: any) {
+    console.error('❌ Error creating page:', error)
+    return c.json({ 
+      error: 'Failed to create page',
+      details: error.message || String(error),
+      stack: error.stack
+    }, 500)
   }
 })
 
@@ -115,7 +131,7 @@ cmsAdmin.put('/pages/:id', async (c) => {
 
   try {
     const body = await c.req.json()
-    const supabaseCMS = getSupabaseCMS(c.env?.SUPABASE_URL, c.env?.SUPABASE_ANON_KEY)
+    const supabaseCMS = getSupabaseCMSAdmin(c.env?.SUPABASE_URL, c.env?.SUPABASE_SERVICE_ROLE_KEY)
 
     const { data, error } = await supabaseCMS
       .from('cms_pages')
@@ -138,7 +154,7 @@ cmsAdmin.delete('/pages/:id', async (c) => {
   const id = c.req.param('id')
 
   try {
-    const supabaseCMS = getSupabaseCMS(c.env?.SUPABASE_URL, c.env?.SUPABASE_ANON_KEY)
+    const supabaseCMS = getSupabaseCMSAdmin(c.env?.SUPABASE_URL, c.env?.SUPABASE_SERVICE_ROLE_KEY)
     
     const { error } = await supabaseCMS
       .from('cms_pages')
@@ -159,7 +175,7 @@ cmsAdmin.post('/pages/:id/publish', async (c) => {
   const id = c.req.param('id')
 
   try {
-    const supabaseCMS = getSupabaseCMS(c.env?.SUPABASE_URL, c.env?.SUPABASE_ANON_KEY)
+    const supabaseCMS = getSupabaseCMSAdmin(c.env?.SUPABASE_URL, c.env?.SUPABASE_SERVICE_ROLE_KEY)
     
     const { data, error } = await supabaseCMS
       .from('cms_pages')
@@ -188,7 +204,7 @@ cmsAdmin.post('/pages/:id/publish', async (c) => {
 cmsAdmin.post('/blocks', async (c) => {
   try {
     const body = await c.req.json()
-    const supabaseCMS = getSupabaseCMS(c.env?.SUPABASE_URL, c.env?.SUPABASE_ANON_KEY)
+    const supabaseCMS = getSupabaseCMSAdmin(c.env?.SUPABASE_URL, c.env?.SUPABASE_SERVICE_ROLE_KEY)
 
     const { data, error } = await supabaseCMS
       .from('cms_content_blocks')
@@ -217,7 +233,7 @@ cmsAdmin.put('/blocks/:id', async (c) => {
 
   try {
     const body = await c.req.json()
-    const supabaseCMS = getSupabaseCMS(c.env?.SUPABASE_URL, c.env?.SUPABASE_ANON_KEY)
+    const supabaseCMS = getSupabaseCMSAdmin(c.env?.SUPABASE_URL, c.env?.SUPABASE_SERVICE_ROLE_KEY)
 
     const { data, error } = await supabaseCMS
       .from('cms_content_blocks')
@@ -240,7 +256,7 @@ cmsAdmin.delete('/blocks/:id', async (c) => {
   const id = c.req.param('id')
 
   try {
-    const supabaseCMS = getSupabaseCMS(c.env?.SUPABASE_URL, c.env?.SUPABASE_ANON_KEY)
+    const supabaseCMS = getSupabaseCMSAdmin(c.env?.SUPABASE_URL, c.env?.SUPABASE_SERVICE_ROLE_KEY)
     
     const { error } = await supabaseCMS
       .from('cms_content_blocks')
@@ -260,7 +276,7 @@ cmsAdmin.delete('/blocks/:id', async (c) => {
 cmsAdmin.put('/blocks/reorder', async (c) => {
   try {
     const { blocks } = await c.req.json()
-    const supabaseCMS = getSupabaseCMS(c.env?.SUPABASE_URL, c.env?.SUPABASE_ANON_KEY)
+    const supabaseCMS = getSupabaseCMSAdmin(c.env?.SUPABASE_URL, c.env?.SUPABASE_SERVICE_ROLE_KEY)
 
     // Update position for each block
     const updates = blocks.map((block: { id: string; position: number }) =>
@@ -288,7 +304,7 @@ cmsAdmin.get('/media', async (c) => {
   const folder = c.req.query('folder')
 
   try {
-    const supabaseCMS = getSupabaseCMS(c.env?.SUPABASE_URL, c.env?.SUPABASE_ANON_KEY)
+    const supabaseCMS = getSupabaseCMSAdmin(c.env?.SUPABASE_URL, c.env?.SUPABASE_SERVICE_ROLE_KEY)
     
     let query = supabaseCMS
       .from('cms_media')
@@ -315,7 +331,7 @@ cmsAdmin.delete('/media/:id', async (c) => {
   const id = c.req.param('id')
 
   try {
-    const supabaseCMS = getSupabaseCMS(c.env?.SUPABASE_URL, c.env?.SUPABASE_ANON_KEY)
+    const supabaseCMS = getSupabaseCMSAdmin(c.env?.SUPABASE_URL, c.env?.SUPABASE_SERVICE_ROLE_KEY)
     
     // Get media info first to delete from storage
     const { data: media } = await supabaseCMS
@@ -355,7 +371,7 @@ cmsAdmin.get('/translations', async (c) => {
   const category = c.req.query('category')
 
   try {
-    const supabaseCMS = getSupabaseCMS(c.env?.SUPABASE_URL, c.env?.SUPABASE_ANON_KEY)
+    const supabaseCMS = getSupabaseCMSAdmin(c.env?.SUPABASE_URL, c.env?.SUPABASE_SERVICE_ROLE_KEY)
     
     let query = supabaseCMS
       .from('cms_translations')
@@ -383,7 +399,7 @@ cmsAdmin.put('/translations/:key', async (c) => {
 
   try {
     const body = await c.req.json()
-    const supabaseCMS = getSupabaseCMS(c.env?.SUPABASE_URL, c.env?.SUPABASE_ANON_KEY)
+    const supabaseCMS = getSupabaseCMSAdmin(c.env?.SUPABASE_URL, c.env?.SUPABASE_SERVICE_ROLE_KEY)
 
     const { data, error } = await supabaseCMS
       .from('cms_translations')

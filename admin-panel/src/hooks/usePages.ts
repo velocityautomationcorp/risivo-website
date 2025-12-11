@@ -78,6 +78,6 @@ export function usePage(id: string) {
       if (!response.success) throw new Error(response.error || 'Failed to fetch page')
       return response.data
     },
-    enabled: !!id,
+    enabled: !!id && id !== 'new', // Don't fetch if id is 'new'
   })
 }
