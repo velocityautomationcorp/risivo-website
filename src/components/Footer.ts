@@ -5,28 +5,28 @@
  * DEPLOYMENT VERSION: 2025-12-10-v2.0
  */
 
-import { designSystem } from "../styles/design-system";
+import { designSystem } from '../styles/design-system'
 
-const { colors, spacing } = designSystem;
+const { colors, spacing } = designSystem
 
-// Base64 encoded white Risivo logo (for embedding directly in component)
-const WHITE_RISIVO_LOGO = "/White Favicon.png";
+// White Risivo logo path
+const WHITE_RISIVO_LOGO = '/white-favicon.png'
 
 export interface FooterLink {
-  label: string;
-  href: string;
+  label: string
+  href: string
 }
 
 export interface FooterColumn {
-  title: string;
-  links: FooterLink[];
+  title: string
+  links: FooterLink[]
 }
 
 export interface FooterProps {
-  columns: FooterColumn[];
-  socialLinks?: Array<{ platform: string; url: string; icon: string }>;
-  copyrightText?: string;
-  newsletterLanguages?: Array<{ code: string; label: string }>;
+  columns: FooterColumn[]
+  socialLinks?: Array<{ platform: string; url: string; icon: string }>
+  copyrightText?: string
+  newsletterLanguages?: Array<{ code: string; label: string }>
 }
 
 export function Footer({
@@ -34,11 +34,11 @@ export function Footer({
   socialLinks = [],
   copyrightText = `© ${new Date().getFullYear()} Velocity Automation Corp. All rights reserved.`,
   newsletterLanguages = [
-    { code: "en", label: "EN ▼" },
-    { code: "es", label: "ES" },
-    { code: "fr", label: "FR" },
-    { code: "de", label: "DE" },
-  ],
+    { code: 'en', label: 'EN ▼' },
+    { code: 'es', label: 'ES' },
+    { code: 'fr', label: 'FR' },
+    { code: 'de', label: 'DE' }
+  ]
 }: FooterProps): string {
   return `
     <style>
@@ -46,13 +46,13 @@ export function Footer({
         background: #2b3544;
         color: ${colors.white};
         padding: 0;
-        margin-top: 0;
+        margin-top: 75px;
       }
 
       /* Newsletter Section - Top */
       .footer-newsletter-section {
         background: #3d4b5f;
-        padding: ${spacing["2xl"]} 0;
+        padding: ${spacing['2xl']} 0;
         border-radius: 12px;
         margin: 0 auto;
         max-width: 1200px;
@@ -84,18 +84,9 @@ export function Footer({
       .newsletter-form {
         display: flex;
         gap: ${spacing.md};
-        max-width: 600px;
+        max-width: 700px;
         margin: 0 auto;
         align-items: stretch;
-      }
-
-      .newsletter-form input {
-        flex: 1;
-        padding: ${spacing.md} ${spacing.lg};
-        border: none;
-        border-radius: 8px;
-        background: ${colors.white};
-        font-size: 1rem;
       }
 
       .newsletter-language-select {
@@ -105,11 +96,22 @@ export function Footer({
         background: ${colors.white};
         font-size: 1rem;
         cursor: pointer;
-        min-width: 80px;
+        min-width: 100px;
+        order: 1;
+      }
+
+      .newsletter-form input {
+        flex: 1;
+        padding: ${spacing.md} ${spacing.lg};
+        border: none;
+        border-radius: 8px;
+        background: ${colors.white};
+        font-size: 1rem;
+        order: 2;
       }
 
       .newsletter-form button {
-        padding: ${spacing.md} ${spacing["2xl"]};
+        padding: ${spacing.md} ${spacing['2xl']};
         background: ${colors.primary};
         color: ${colors.white};
         border: none;
@@ -131,15 +133,15 @@ export function Footer({
       .footer-container {
         max-width: 1280px;
         margin: 0 auto;
-        padding: ${spacing["3xl"]} ${spacing.lg} ${spacing.xl} ${spacing.lg};
+        padding: ${spacing['3xl']} ${spacing.lg} ${spacing.xl} ${spacing.lg};
         padding-top: 0;
       }
 
       .footer-main {
         display: grid;
         grid-template-columns: 200px repeat(4, 1fr);
-        gap: ${spacing["2xl"]};
-        margin-bottom: ${spacing["3xl"]};
+        gap: ${spacing['2xl']};
+        margin-bottom: ${spacing['3xl']};
         align-items: start;
       }
 
@@ -229,7 +231,13 @@ export function Footer({
         color: ${colors.white};
         text-decoration: none;
         transition: all 0.3s ease;
-        font-size: 1.2rem;
+      }
+
+      .social-link svg,
+      .social-link img {
+        width: 20px;
+        height: 20px;
+        filter: brightness(0) invert(1);
       }
 
       .social-link:hover {
@@ -298,9 +306,18 @@ export function Footer({
       <!-- Newsletter Section at Top -->
       <div class="footer-newsletter-section">
         <div class="footer-newsletter-container">
-          <h3 class="footer-newsletter-title">Stay Ahead of the Curve in: <span id="language-display">[EN ▼]</span> [ES] [FR] [DE]</h3>
+          <h3 class="footer-newsletter-title">Stay Ahead of the Curve</h3>
           <h4 class="footer-newsletter-subtitle">Get exclusive CRM insights, AI tips, and product updates delivered to your inbox.</h4>
           <form class="newsletter-form" onsubmit="subscribeNewsletter(event)">
+            <select 
+              class="newsletter-language-select" 
+              id="newsletter-language"
+              aria-label="Select language"
+            >
+              ${newsletterLanguages.map(lang => `
+                <option value="${lang.code}">${lang.label.replace(' ▼', '')}</option>
+              `).join('')}
+            </select>
             <input 
               type="email" 
               placeholder="Enter your email" 
@@ -308,19 +325,6 @@ export function Footer({
               id="newsletter-email"
               aria-label="Email address"
             />
-            <select 
-              class="newsletter-language-select" 
-              id="newsletter-language"
-              aria-label="Select language"
-            >
-              ${newsletterLanguages
-                .map(
-                  (lang) => `
-                <option value="${lang.code}">${lang.label}</option>
-              `
-                )
-                .join("")}
-            </select>
             <button type="submit">Subscribe</button>
           </form>
         </div>
@@ -335,24 +339,16 @@ export function Footer({
           </div>
 
           <!-- Menu Columns -->
-          ${columns
-            .map(
-              (column) => `
+          ${columns.map(column => `
             <div class="footer-column">
               <h4>${column.title}</h4>
               <ul class="footer-links">
-                ${column.links
-                  .map(
-                    (link) => `
+                ${column.links.map(link => `
                   <li><a href="${link.href}">${link.label}</a></li>
-                `
-                  )
-                  .join("")}
+                `).join('')}
               </ul>
             </div>
-          `
-            )
-            .join("")}
+          `).join('')}
         </div>
 
         <!-- Bottom Section -->
@@ -362,23 +358,15 @@ export function Footer({
             <span class="footer-copyright-highlight">Risivo™</span> is a trademark of Velocity Automation Corp.
           </div>
           
-          ${
-            socialLinks.length > 0
-              ? `
+          ${socialLinks.length > 0 ? `
             <div class="footer-social">
-              ${socialLinks
-                .map(
-                  (social) => `
+              ${socialLinks.map(social => `
                 <a href="${social.url}" class="social-link" aria-label="${social.platform}" target="_blank" rel="noopener noreferrer">
                   ${social.icon}
                 </a>
-              `
-                )
-                .join("")}
+              `).join('')}
             </div>
-          `
-              : ""
-          }
+          ` : ''}
         </div>
       </div>
     </footer>
@@ -413,19 +401,6 @@ export function Footer({
           alert('An error occurred. Please try again.')
         }
       }
-
-      // Update language display on selection
-      document.addEventListener('DOMContentLoaded', function() {
-        const languageSelect = document.getElementById('newsletter-language')
-        const languageDisplay = document.getElementById('language-display')
-        
-        if (languageSelect && languageDisplay) {
-          languageSelect.addEventListener('change', function() {
-            const selectedOption = this.options[this.selectedIndex].text
-            languageDisplay.textContent = '[' + selectedOption + ']'
-          })
-        }
-      })
     </script>
-  `;
+  `
 }
