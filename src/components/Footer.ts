@@ -5,28 +5,28 @@
  * DEPLOYMENT VERSION: 2025-12-10-v2.0
  */
 
-import { designSystem } from '../styles/design-system'
+import { designSystem } from "../styles/design-system";
 
-const { colors, spacing } = designSystem
+const { colors, spacing } = designSystem;
 
 // White Risivo logo path
-const WHITE_RISIVO_LOGO = '/white-favicon.png'
+const WHITE_RISIVO_LOGO = "/white-favicon.png";
 
 export interface FooterLink {
-  label: string
-  href: string
+  label: string;
+  href: string;
 }
 
 export interface FooterColumn {
-  title: string
-  links: FooterLink[]
+  title: string;
+  links: FooterLink[];
 }
 
 export interface FooterProps {
-  columns: FooterColumn[]
-  socialLinks?: Array<{ platform: string; url: string; icon: string }>
-  copyrightText?: string
-  newsletterLanguages?: Array<{ code: string; label: string }>
+  columns: FooterColumn[];
+  socialLinks?: Array<{ platform: string; url: string; icon: string }>;
+  copyrightText?: string;
+  newsletterLanguages?: Array<{ code: string; label: string }>;
 }
 
 export function Footer({
@@ -34,11 +34,11 @@ export function Footer({
   socialLinks = [],
   copyrightText = `© ${new Date().getFullYear()} Velocity Automation Corp. All rights reserved.`,
   newsletterLanguages = [
-    { code: 'en', label: 'EN ▼' },
-    { code: 'es', label: 'ES' },
-    { code: 'fr', label: 'FR' },
-    { code: 'de', label: 'DE' }
-  ]
+    { code: "en", label: "EN ▼" },
+    { code: "es", label: "ES" },
+    { code: "fr", label: "FR" },
+    { code: "de", label: "DE" },
+  ],
 }: FooterProps): string {
   return `
     <style>
@@ -46,13 +46,13 @@ export function Footer({
         background: #2b3544;
         color: ${colors.white};
         padding: 0;
-        margin-top: 75px;
+        margin-top: 150px;
       }
 
       /* Newsletter Section - Top */
       .footer-newsletter-section {
         background: #3d4b5f;
-        padding: ${spacing['2xl']} 0;
+        padding: ${spacing["2xl"]} 0;
         border-radius: 12px;
         margin: 0 auto;
         max-width: 1200px;
@@ -90,14 +90,20 @@ export function Footer({
       }
 
       .newsletter-language-select {
-        padding: ${spacing.md};
+        padding: ${spacing.md} ${spacing.lg};
         border: none;
         border-radius: 8px;
         background: ${colors.white};
         font-size: 1rem;
         cursor: pointer;
-        min-width: 100px;
+        min-width: 120px;
         order: 1;
+        appearance: none;
+        background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27currentColor%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3e%3cpolyline points=%276 9 12 15 18 9%27%3e%3c/polyline%3e%3c/svg%3e');
+        background-repeat: no-repeat;
+        background-position: right 0.7rem center;
+        background-size: 1rem;
+        padding-right: 2.5rem;
       }
 
       .newsletter-form input {
@@ -111,7 +117,7 @@ export function Footer({
       }
 
       .newsletter-form button {
-        padding: ${spacing.md} ${spacing['2xl']};
+        padding: ${spacing.md} ${spacing["2xl"]};
         background: ${colors.primary};
         color: ${colors.white};
         border: none;
@@ -133,15 +139,15 @@ export function Footer({
       .footer-container {
         max-width: 1280px;
         margin: 0 auto;
-        padding: ${spacing['3xl']} ${spacing.lg} ${spacing.xl} ${spacing.lg};
+        padding: ${spacing["3xl"]} ${spacing.lg} ${spacing.xl} ${spacing.lg};
         padding-top: 0;
       }
 
       .footer-main {
         display: grid;
         grid-template-columns: 200px repeat(4, 1fr);
-        gap: ${spacing['2xl']};
-        margin-bottom: ${spacing['3xl']};
+        gap: ${spacing["2xl"]};
+        margin-bottom: ${spacing["3xl"]};
         align-items: start;
       }
 
@@ -314,9 +320,13 @@ export function Footer({
               id="newsletter-language"
               aria-label="Select language"
             >
-              ${newsletterLanguages.map(lang => `
-                <option value="${lang.code}">${lang.label.replace(' ▼', '')}</option>
-              `).join('')}
+              ${newsletterLanguages
+                .map(
+                  (lang) => `
+                <option value="${lang.code}">${lang.code.toUpperCase()}</option>
+              `
+                )
+                .join("")}
             </select>
             <input 
               type="email" 
@@ -339,16 +349,24 @@ export function Footer({
           </div>
 
           <!-- Menu Columns -->
-          ${columns.map(column => `
+          ${columns
+            .map(
+              (column) => `
             <div class="footer-column">
               <h4>${column.title}</h4>
               <ul class="footer-links">
-                ${column.links.map(link => `
+                ${column.links
+                  .map(
+                    (link) => `
                   <li><a href="${link.href}">${link.label}</a></li>
-                `).join('')}
+                `
+                  )
+                  .join("")}
               </ul>
             </div>
-          `).join('')}
+          `
+            )
+            .join("")}
         </div>
 
         <!-- Bottom Section -->
@@ -358,15 +376,23 @@ export function Footer({
             <span class="footer-copyright-highlight">Risivo™</span> is a trademark of Velocity Automation Corp.
           </div>
           
-          ${socialLinks.length > 0 ? `
+          ${
+            socialLinks.length > 0
+              ? `
             <div class="footer-social">
-              ${socialLinks.map(social => `
+              ${socialLinks
+                .map(
+                  (social) => `
                 <a href="${social.url}" class="social-link" aria-label="${social.platform}" target="_blank" rel="noopener noreferrer">
                   ${social.icon}
                 </a>
-              `).join('')}
+              `
+                )
+                .join("")}
             </div>
-          ` : ''}
+          `
+              : ""
+          }
         </div>
       </div>
     </footer>
@@ -402,5 +428,5 @@ export function Footer({
         }
       }
     </script>
-  `
+  `;
 }
