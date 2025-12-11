@@ -10,7 +10,7 @@ import { designSystem } from "../styles/design-system";
 const { colors, spacing } = designSystem;
 
 // White Risivo logo path
-const WHITE_RISIVO_LOGO = "/risivo-logo-white.png";
+const WHITE_RISIVO_LOGO = "/risivo-white-icon.png";
 
 export interface FooterLink {
   label: string;
