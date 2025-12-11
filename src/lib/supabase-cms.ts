@@ -1,16 +1,36 @@
 /**
  * Supabase CMS Client Configuration
  * Separate from CRM - handles CMS database connections only
+ * FIXED: Lazy initialization for Cloudflare Workers environment
  */
 
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 
-// These will come from environment variables
-const supabaseUrl = process.env.SUPABASE_URL || ''
-const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || ''
+// Supabase client instance (initialized on first use)
+let supabaseCMSInstance: SupabaseClient | null = null
 
-// Create Supabase client for CMS
-export const supabaseCMS = createClient(supabaseUrl, supabaseAnonKey)
+// Get or create Supabase CMS client
+export function getSupabaseCMS(supabaseUrl?: string, supabaseAnonKey?: string): SupabaseClient {
+  if (!supabaseCMSInstance) {
+    const url = supabaseUrl || process.env.SUPABASE_URL || ''
+    const key = supabaseAnonKey || process.env.SUPABASE_ANON_KEY || ''
+    
+    if (!url || !key) {
+      throw new Error('Supabase URL and Anon Key are required. Please configure SUPABASE_URL and SUPABASE_ANON_KEY environment variables.')
+    }
+    
+    supabaseCMSInstance = createClient(url, key)
+  }
+  
+  return supabaseCMSInstance
+}
+
+// Export for backward compatibility (will throw error if called without env vars)
+export const supabaseCMS = new Proxy({} as SupabaseClient, {
+  get(target, prop) {
+    return getSupabaseCMS()[prop as keyof SupabaseClient]
+  }
+})
 
 // Types for CMS
 export interface CMSPage {
@@ -66,8 +86,10 @@ export interface CMSTranslation {
 }
 
 // Helper function to get page with blocks
-export async function getPageBySlug(slug: string, lang: string = 'en') {
-  const { data: page, error: pageError } = await supabaseCMS
+export async function getPageBySlug(slug: string, lang: string = 'en', supabaseUrl?: string, supabaseAnonKey?: string) {
+  const client = getSupabaseCMS(supabaseUrl, supabaseAnonKey)
+  
+  const { data: page, error: pageError } = await client
     .from('cms_pages')
     .select('*')
     .eq('slug', slug)
@@ -78,7 +100,7 @@ export async function getPageBySlug(slug: string, lang: string = 'en') {
     return null
   }
 
-  const { data: blocks, error: blocksError } = await supabaseCMS
+  const { data: blocks, error: blocksError } = await client
     .from('cms_content_blocks')
     .select('*')
     .eq('page_id', page.id)
@@ -95,8 +117,10 @@ export async function getPageBySlug(slug: string, lang: string = 'en') {
 }
 
 // Helper function to get translations
-export async function getTranslations(category?: string) {
-  let query = supabaseCMS
+export async function getTranslations(category?: string, supabaseUrl?: string, supabaseAnonKey?: string) {
+  const client = getSupabaseCMS(supabaseUrl, supabaseAnonKey)
+  
+  let query = client
     .from('cms_translations')
     .select('*')
 
@@ -114,8 +138,10 @@ export async function getTranslations(category?: string) {
 }
 
 // Helper function to get media
-export async function getMedia(folder?: string) {
-  let query = supabaseCMS
+export async function getMedia(folder?: string, supabaseUrl?: string, supabaseAnonKey?: string) {
+  const client = getSupabaseCMS(supabaseUrl, supabaseAnonKey)
+  
+  let query = client
     .from('cms_media')
     .select('*')
     .order('created_at', { ascending: false })

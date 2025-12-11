@@ -4,9 +4,14 @@
  */
 
 import { Hono } from 'hono'
-import { getPageBySlug, getTranslations, supabaseCMS } from '../lib/supabase-cms'
+import { getPageBySlug, getTranslations, getSupabaseCMS } from '../lib/supabase-cms'
 
-const cms = new Hono()
+type Bindings = {
+  SUPABASE_URL?: string
+  SUPABASE_ANON_KEY?: string
+}
+
+const cms = new Hono<{ Bindings: Bindings }>()
 
 // Get page by slug with language support
 cms.get('/pages/:slug', async (c) => {
@@ -14,7 +19,7 @@ cms.get('/pages/:slug', async (c) => {
   const lang = c.req.query('lang') || 'en'
 
   try {
-    const pageData = await getPageBySlug(slug, lang)
+    const pageData = await getPageBySlug(slug, lang, c.env?.SUPABASE_URL, c.env?.SUPABASE_ANON_KEY)
 
     if (!pageData) {
       return c.json({ error: 'Page not found' }, 404)
@@ -36,7 +41,7 @@ cms.get('/translations', async (c) => {
   const lang = c.req.query('lang') || 'en'
 
   try {
-    const translations = await getTranslations(category)
+    const translations = await getTranslations(category, c.env?.SUPABASE_URL, c.env?.SUPABASE_ANON_KEY)
 
     // Transform to simple key-value for requested language
     const transformed = translations.reduce((acc: Record<string, string>, item) => {
@@ -60,6 +65,8 @@ cms.get('/pages', async (c) => {
   const lang = c.req.query('lang') || 'en'
 
   try {
+    const supabaseCMS = getSupabaseCMS(c.env?.SUPABASE_URL, c.env?.SUPABASE_ANON_KEY)
+    
     const { data: pages, error } = await supabaseCMS
       .from('cms_pages')
       .select('slug, meta_title, meta_description, published_at')

@@ -4,9 +4,14 @@
  */
 
 import { Hono } from 'hono'
-import { supabaseCMS } from '../lib/supabase-cms'
+import { getSupabaseCMS } from '../lib/supabase-cms'
 
-const cmsAdmin = new Hono()
+type Bindings = {
+  SUPABASE_URL?: string
+  SUPABASE_ANON_KEY?: string
+}
+
+const cmsAdmin = new Hono<{ Bindings: Bindings }>()
 
 // ============================================
 // PAGES MANAGEMENT
@@ -15,6 +20,8 @@ const cmsAdmin = new Hono()
 // List all pages (including drafts)
 cmsAdmin.get('/pages', async (c) => {
   try {
+    const supabaseCMS = getSupabaseCMS(c.env?.SUPABASE_URL, c.env?.SUPABASE_ANON_KEY)
+    
     const { data, error } = await supabaseCMS
       .from('cms_pages')
       .select('*')
@@ -34,6 +41,8 @@ cmsAdmin.get('/pages/:id', async (c) => {
   const id = c.req.param('id')
 
   try {
+    const supabaseCMS = getSupabaseCMS(c.env?.SUPABASE_URL, c.env?.SUPABASE_ANON_KEY)
+    
     const { data: page, error: pageError } = await supabaseCMS
       .from('cms_pages')
       .select('*')
@@ -64,6 +73,7 @@ cmsAdmin.get('/pages/:id', async (c) => {
 cmsAdmin.post('/pages', async (c) => {
   try {
     const body = await c.req.json()
+    const supabaseCMS = getSupabaseCMS(c.env?.SUPABASE_URL, c.env?.SUPABASE_ANON_KEY)
 
     const { data, error } = await supabaseCMS
       .from('cms_pages')
@@ -96,6 +106,7 @@ cmsAdmin.put('/pages/:id', async (c) => {
 
   try {
     const body = await c.req.json()
+    const supabaseCMS = getSupabaseCMS(c.env?.SUPABASE_URL, c.env?.SUPABASE_ANON_KEY)
 
     const { data, error } = await supabaseCMS
       .from('cms_pages')
@@ -118,7 +129,9 @@ cmsAdmin.delete('/pages/:id', async (c) => {
   const id = c.req.param('id')
 
   try {
-    const { error } = await supabase
+    const supabaseCMS = getSupabaseCMS(c.env?.SUPABASE_URL, c.env?.SUPABASE_ANON_KEY)
+    
+    const { error } = await supabaseCMS
       .from('cms_pages')
       .delete()
       .eq('id', id)
@@ -137,6 +150,8 @@ cmsAdmin.post('/pages/:id/publish', async (c) => {
   const id = c.req.param('id')
 
   try {
+    const supabaseCMS = getSupabaseCMS(c.env?.SUPABASE_URL, c.env?.SUPABASE_ANON_KEY)
+    
     const { data, error } = await supabaseCMS
       .from('cms_pages')
       .update({
@@ -164,6 +179,7 @@ cmsAdmin.post('/pages/:id/publish', async (c) => {
 cmsAdmin.post('/blocks', async (c) => {
   try {
     const body = await c.req.json()
+    const supabaseCMS = getSupabaseCMS(c.env?.SUPABASE_URL, c.env?.SUPABASE_ANON_KEY)
 
     const { data, error } = await supabaseCMS
       .from('cms_content_blocks')
@@ -192,6 +208,7 @@ cmsAdmin.put('/blocks/:id', async (c) => {
 
   try {
     const body = await c.req.json()
+    const supabaseCMS = getSupabaseCMS(c.env?.SUPABASE_URL, c.env?.SUPABASE_ANON_KEY)
 
     const { data, error } = await supabaseCMS
       .from('cms_content_blocks')
@@ -214,7 +231,9 @@ cmsAdmin.delete('/blocks/:id', async (c) => {
   const id = c.req.param('id')
 
   try {
-    const { error } = await supabase
+    const supabaseCMS = getSupabaseCMS(c.env?.SUPABASE_URL, c.env?.SUPABASE_ANON_KEY)
+    
+    const { error } = await supabaseCMS
       .from('cms_content_blocks')
       .delete()
       .eq('id', id)
@@ -232,10 +251,11 @@ cmsAdmin.delete('/blocks/:id', async (c) => {
 cmsAdmin.put('/blocks/reorder', async (c) => {
   try {
     const { blocks } = await c.req.json()
+    const supabaseCMS = getSupabaseCMS(c.env?.SUPABASE_URL, c.env?.SUPABASE_ANON_KEY)
 
     // Update position for each block
     const updates = blocks.map((block: { id: string; position: number }) =>
-      supabase
+      supabaseCMS
         .from('cms_content_blocks')
         .update({ position: block.position })
         .eq('id', block.id)
@@ -259,7 +279,9 @@ cmsAdmin.get('/media', async (c) => {
   const folder = c.req.query('folder')
 
   try {
-    let query = supabase
+    const supabaseCMS = getSupabaseCMS(c.env?.SUPABASE_URL, c.env?.SUPABASE_ANON_KEY)
+    
+    let query = supabaseCMS
       .from('cms_media')
       .select('*')
       .order('created_at', { ascending: false })
@@ -284,6 +306,8 @@ cmsAdmin.delete('/media/:id', async (c) => {
   const id = c.req.param('id')
 
   try {
+    const supabaseCMS = getSupabaseCMS(c.env?.SUPABASE_URL, c.env?.SUPABASE_ANON_KEY)
+    
     // Get media info first to delete from storage
     const { data: media } = await supabaseCMS
       .from('cms_media')
@@ -299,7 +323,7 @@ cmsAdmin.delete('/media/:id', async (c) => {
     }
 
     // Delete from database
-    const { error } = await supabase
+    const { error } = await supabaseCMS
       .from('cms_media')
       .delete()
       .eq('id', id)
@@ -322,7 +346,9 @@ cmsAdmin.get('/translations', async (c) => {
   const category = c.req.query('category')
 
   try {
-    let query = supabase
+    const supabaseCMS = getSupabaseCMS(c.env?.SUPABASE_URL, c.env?.SUPABASE_ANON_KEY)
+    
+    let query = supabaseCMS
       .from('cms_translations')
       .select('*')
       .order('key')
@@ -348,6 +374,7 @@ cmsAdmin.put('/translations/:key', async (c) => {
 
   try {
     const body = await c.req.json()
+    const supabaseCMS = getSupabaseCMS(c.env?.SUPABASE_URL, c.env?.SUPABASE_ANON_KEY)
 
     const { data, error } = await supabaseCMS
       .from('cms_translations')
