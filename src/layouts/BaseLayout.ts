@@ -94,7 +94,7 @@ export function BaseLayout({
       ${includeFooter ? Footer({
         columns: footerColumns,
         socialLinks: socialLinks,
-        copyrightText: `© ${new Date().getFullYear()} Risivo. All rights reserved.`
+        copyrightText: `© ${new Date().getFullYear()} Velocity Automation Corp. All rights reserved.`
       }) : ''}
     </body>
     </html>
