@@ -3,8 +3,8 @@
  * Displays pricing tiers and plans
  */
 
-import { BaseLayout } from '../layouts/BaseLayout';
-import { designSystem } from '../styles/design-system';
+import { BaseLayout } from "../layouts/BaseLayout";
+import { designSystem } from "../styles/design-system";
 
 const { colors, spacing } = designSystem;
 
@@ -370,9 +370,10 @@ export function PricingPage(): string {
   `;
 
   return BaseLayout({
-    title: 'Pricing - Risivo CRM',
-    description: 'Choose the perfect plan for your business. Simple, transparent pricing with no hidden fees. 14-day free trial included.',
+    title: "Pricing - Risivo CRM",
+    description:
+      "Choose the perfect plan for your business. Simple, transparent pricing with no hidden fees. 14-day free trial included.",
     children: pageContent,
-    includeFooter: true
+    includeFooter: true,
   });
 }

@@ -4,25 +4,25 @@
  * Supports: EN, ES, FR, DE, IT, PT
  */
 
-import { designSystem } from '../styles/design-system'
+import { designSystem } from "../styles/design-system";
 
-const { colors, spacing, shadows } = designSystem
+const { colors, spacing, shadows } = designSystem;
 
 export interface Language {
-  code: string
-  name: string
-  flag: string
-  locale: string
+  code: string;
+  name: string;
+  flag: string;
+  locale: string;
 }
 
 export const SUPPORTED_LANGUAGES: Language[] = [
-  { code: 'EN', name: 'English', flag: '🇬🇧', locale: 'en' },
-  { code: 'ES', name: 'Español', flag: '🇪🇸', locale: 'es' },
-  { code: 'FR', name: 'Français', flag: '🇫🇷', locale: 'fr' },
-  { code: 'DE', name: 'Deutsch', flag: '🇩🇪', locale: 'de' },
-  { code: 'IT', name: 'Italiano', flag: '🇮🇹', locale: 'it' },
-  { code: 'PT', name: 'Português', flag: '🇵🇹', locale: 'pt' }
-]
+  { code: "EN", name: "English", flag: "🇬🇧", locale: "en" },
+  { code: "ES", name: "Español", flag: "🇪🇸", locale: "es" },
+  { code: "FR", name: "Français", flag: "🇫🇷", locale: "fr" },
+  { code: "DE", name: "Deutsch", flag: "🇩🇪", locale: "de" },
+  { code: "IT", name: "Italiano", flag: "🇮🇹", locale: "it" },
+  { code: "PT", name: "Português", flag: "🇵🇹", locale: "pt" },
+];
 
 export function LanguageSwitcher(): string {
   return `
@@ -166,7 +166,8 @@ export function LanguageSwitcher(): string {
       </button>
 
       <div class="language-dropdown" id="languageDropdown" role="menu">
-        ${SUPPORTED_LANGUAGES.map(lang => `
+        ${SUPPORTED_LANGUAGES.map(
+          (lang) => `
           <a 
             href="/${lang.locale}" 
             class="language-option" 
@@ -182,7 +183,8 @@ export function LanguageSwitcher(): string {
               <span class="language-option-code">${lang.code}</span>
             </span>
           </a>
-        `).join('')}
+        `
+        ).join("")}
       </div>
     </div>
 
@@ -337,5 +339,5 @@ export function LanguageSwitcher(): string {
         updateLanguageUI();
       })();
     </script>
-  `
+  `;
 }

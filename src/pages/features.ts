@@ -3,8 +3,8 @@
  * Showcases all Risivo CRM features
  */
 
-import { BaseLayout } from '../layouts/BaseLayout';
-import { designSystem } from '../styles/design-system';
+import { BaseLayout } from "../layouts/BaseLayout";
+import { designSystem } from "../styles/design-system";
 
 const { colors, spacing } = designSystem;
 
@@ -216,9 +216,10 @@ export function FeaturesPage(): string {
   `;
 
   return BaseLayout({
-    title: 'Features - Risivo CRM',
-    description: 'Explore powerful marketing automation features including campaign management, lead scoring, email automation, analytics, and integrations.',
+    title: "Features - Risivo CRM",
+    description:
+      "Explore powerful marketing automation features including campaign management, lead scoring, email automation, analytics, and integrations.",
     children: pageContent,
-    includeFooter: true
+    includeFooter: true,
   });
 }

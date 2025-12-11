@@ -3,8 +3,8 @@
  * Use this if homepage-step6.ts causes 500 errors
  */
 
-import { BaseLayout } from '../layouts/BaseLayout';
-import { designSystem } from '../styles/design-system';
+import { BaseLayout } from "../layouts/BaseLayout";
+import { designSystem } from "../styles/design-system";
 
 const { colors, spacing } = designSystem;
 
@@ -123,12 +123,14 @@ export const HomepageStep6 = () => {
     </section>
   `;
 
-  const pageContent = heroContent + featuresContent + pricingContent + ctaContent;
+  const pageContent =
+    heroContent + featuresContent + pricingContent + ctaContent;
 
   return BaseLayout({
-    title: 'Risivo - Marketing CRM Platform',
-    description: 'Powerful marketing automation made simple for everyone. Streamline your campaigns, engage customers, and grow your business with Risivo.',
+    title: "Risivo - Marketing CRM Platform",
+    description:
+      "Powerful marketing automation made simple for everyone. Streamline your campaigns, engage customers, and grow your business with Risivo.",
     children: pageContent,
-    includeFooter: true
+    includeFooter: true,
   });
 };
