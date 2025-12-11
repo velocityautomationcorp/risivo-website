@@ -1,10 +1,9 @@
 /**
- * Pricing Page
+ * Pricing Page - SAFE VERSION (no complex dependencies)
  * Displays pricing tiers and plans
  */
 
 import { BaseLayout } from "../layouts/BaseLayout";
-import { PricingCards } from "../components/PricingCards";
 import { designSystem } from "../styles/design-system";
 
 const { colors, spacing } = designSystem;
@@ -39,10 +38,175 @@ export function PricingPage(): string {
         </div>
       </section>
 
-      <!-- Pricing Cards -->
+      <!-- Pricing Cards - Inline -->
       <section style="padding: 100px 20px; background: white;">
         <div style="max-width: 1200px; margin: 0 auto;">
-          ${PricingCards()}
+          <div style="
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            max-width: 1000px;
+            margin: 0 auto;
+          ">
+            <!-- Starter Plan -->
+            <div style="
+              background: white;
+              padding: 40px 30px;
+              border-radius: 12px;
+              border: 2px solid #e5e7eb;
+              text-align: center;
+              transition: transform 0.3s, box-shadow 0.3s;
+            ">
+              <h3 style="
+                font-size: 1.5rem;
+                font-weight: 600;
+                margin-bottom: 12px;
+                color: #1a1a1a;
+              ">Starter</h3>
+              <p style="color: #666; margin-bottom: 24px;">Perfect for small teams</p>
+              <div style="margin-bottom: 24px;">
+                <span style="
+                  font-size: 3rem;
+                  font-weight: 700;
+                  color: ${colors.primary};
+                ">$29</span>
+                <span style="font-size: 1rem; color: #666;">/month</span>
+              </div>
+              <ul style="
+                list-style: none;
+                padding: 0;
+                margin-bottom: 30px;
+                text-align: left;
+              ">
+                <li style="padding: 8px 0; color: #666;">✓ Up to 1,000 contacts</li>
+                <li style="padding: 8px 0; color: #666;">✓ Basic email automation</li>
+                <li style="padding: 8px 0; color: #666;">✓ Campaign tracking</li>
+                <li style="padding: 8px 0; color: #666;">✓ Email support</li>
+              </ul>
+              <a href="https://app.risivo.com/signup?plan=starter" style="
+                display: block;
+                background: ${colors.primary};
+                color: white;
+                padding: 14px 24px;
+                border-radius: 8px;
+                text-decoration: none;
+                font-weight: 600;
+                transition: background 0.2s;
+              ">Get Started</a>
+            </div>
+
+            <!-- Professional Plan (Popular) -->
+            <div style="
+              background: white;
+              padding: 40px 30px;
+              border-radius: 12px;
+              border: 3px solid ${colors.primary};
+              text-align: center;
+              position: relative;
+              transform: scale(1.05);
+              box-shadow: 0 8px 30px rgba(124, 58, 237, 0.2);
+            ">
+              <div style="
+                position: absolute;
+                top: -15px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: ${colors.primary};
+                color: white;
+                padding: 6px 20px;
+                border-radius: 20px;
+                font-size: 0.875rem;
+                font-weight: 600;
+              ">MOST POPULAR</div>
+              <h3 style="
+                font-size: 1.5rem;
+                font-weight: 600;
+                margin-bottom: 12px;
+                color: #1a1a1a;
+              ">Professional</h3>
+              <p style="color: #666; margin-bottom: 24px;">For growing businesses</p>
+              <div style="margin-bottom: 24px;">
+                <span style="
+                  font-size: 3rem;
+                  font-weight: 700;
+                  color: ${colors.primary};
+                ">$99</span>
+                <span style="font-size: 1rem; color: #666;">/month</span>
+              </div>
+              <ul style="
+                list-style: none;
+                padding: 0;
+                margin-bottom: 30px;
+                text-align: left;
+              ">
+                <li style="padding: 8px 0; color: #666;">✓ Up to 10,000 contacts</li>
+                <li style="padding: 8px 0; color: #666;">✓ Advanced automation</li>
+                <li style="padding: 8px 0; color: #666;">✓ A/B testing</li>
+                <li style="padding: 8px 0; color: #666;">✓ Analytics & reporting</li>
+                <li style="padding: 8px 0; color: #666;">✓ Priority support</li>
+                <li style="padding: 8px 0; color: #666;">✓ Custom integrations</li>
+              </ul>
+              <a href="https://app.risivo.com/signup?plan=professional" style="
+                display: block;
+                background: ${colors.primary};
+                color: white;
+                padding: 14px 24px;
+                border-radius: 8px;
+                text-decoration: none;
+                font-weight: 600;
+                transition: background 0.2s;
+              ">Get Started</a>
+            </div>
+
+            <!-- Enterprise Plan -->
+            <div style="
+              background: white;
+              padding: 40px 30px;
+              border-radius: 12px;
+              border: 2px solid #e5e7eb;
+              text-align: center;
+              transition: transform 0.3s, box-shadow 0.3s;
+            ">
+              <h3 style="
+                font-size: 1.5rem;
+                font-weight: 600;
+                margin-bottom: 12px;
+                color: #1a1a1a;
+              ">Enterprise</h3>
+              <p style="color: #666; margin-bottom: 24px;">For large organizations</p>
+              <div style="margin-bottom: 24px;">
+                <span style="
+                  font-size: 2rem;
+                  font-weight: 700;
+                  color: ${colors.primary};
+                ">Custom</span>
+              </div>
+              <ul style="
+                list-style: none;
+                padding: 0;
+                margin-bottom: 30px;
+                text-align: left;
+              ">
+                <li style="padding: 8px 0; color: #666;">✓ Unlimited contacts</li>
+                <li style="padding: 8px 0; color: #666;">✓ Advanced AI features</li>
+                <li style="padding: 8px 0; color: #666;">✓ Dedicated account manager</li>
+                <li style="padding: 8px 0; color: #666;">✓ Custom onboarding</li>
+                <li style="padding: 8px 0; color: #666;">✓ 24/7 phone support</li>
+                <li style="padding: 8px 0; color: #666;">✓ SLA guarantees</li>
+              </ul>
+              <a href="/contact" style="
+                display: block;
+                background: white;
+                color: ${colors.primary};
+                padding: 14px 24px;
+                border-radius: 8px;
+                text-decoration: none;
+                font-weight: 600;
+                border: 2px solid ${colors.primary};
+                transition: background 0.2s, color 0.2s;
+              ">Contact Sales</a>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -148,9 +312,7 @@ export function PricingPage(): string {
       <!-- CTA Section -->
       <section style="
         padding: 100px 20px;
-        background: linear-gradient(135deg, ${colors.primary} 0%, ${
-    colors.primaryDark
-  } 100%);
+        background: linear-gradient(135deg, ${colors.primary} 0%, ${colors.primaryDark} 100%);
         text-align: center;
         color: white;
       ">

@@ -3,29 +3,30 @@
  * Sticky header navigation with mobile menu
  */
 
-import { designSystem } from '../styles/design-system'
-import { Button } from './Button'
+import { designSystem } from "../styles/design-system";
+import { Button } from "./Button";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 
-const { colors, spacing, shadows } = designSystem
+const { colors, spacing, shadows } = designSystem;
 
 export interface NavItem {
-  label: string
-  href: string
-  children?: NavItem[]
+  label: string;
+  href: string;
+  children?: NavItem[];
 }
 
 export interface NavigationProps {
-  logoSrc?: string
-  items: NavItem[]
-  ctaText?: string
-  ctaHref?: string
+  logoSrc?: string;
+  items: NavItem[];
+  ctaText?: string;
+  ctaHref?: string;
 }
 
 export function Navigation({
   logoSrc,
   items,
-  ctaText = 'Start Free Trial',
-  ctaHref = 'https://app.risivo.com/signup',
+  ctaText = "Start Free Trial",
+  ctaHref = "https://app.risivo.com/signup",
 }: NavigationProps): string {
   return `
     <style>
@@ -260,31 +261,49 @@ export function Navigation({
     <nav class="navigation" id="navigation">
       <div class="nav-container">
         <a href="/" class="nav-logo">
-          ${logoSrc ? `<img src="${logoSrc}" alt="Risivo" />` : 'RISIVO'}
+          ${logoSrc ? `<img src="${logoSrc}" alt="Risivo" />` : "RISIVO"}
         </a>
 
         <ul class="nav-menu" id="navMenu">
-          ${items.map(item => `
+          ${items
+            .map(
+              (item) => `
             <li class="nav-item">
               <a href="${item.href}" class="nav-link">${item.label}</a>
-              ${item.children ? `
+              ${
+                item.children
+                  ? `
                 <div class="nav-dropdown">
-                  ${item.children.map(child => `
+                  ${item.children
+                    .map(
+                      (child) => `
                     <a href="${child.href}">${child.label}</a>
-                  `).join('')}
+                  `
+                    )
+                    .join("")}
                 </div>
-              ` : ''}
+              `
+                  : ""
+              }
             </li>
-          `).join('')}
+          `
+            )
+            .join("")}
           <li class="nav-item nav-actions">
             <a href="https://app.risivo.com/login" class="btn btn-outline">Login</a>
-            ${Button({ text: ctaText, href: ctaHref, variant: 'primary' })}
+            ${Button({ text: ctaText, href: ctaHref, variant: "primary" })}
           </li>
         </ul>
 
         <div class="nav-actions">
+          ${LanguageSwitcher()}
           <a href="https://app.risivo.com/login" class="btn btn-outline btn-sm">Login</a>
-          ${Button({ text: ctaText, href: ctaHref, variant: 'primary', size: 'sm' })}
+          ${Button({
+            text: ctaText,
+            href: ctaHref,
+            variant: "primary",
+            size: "sm",
+          })}
         </div>
 
       </div>
@@ -318,5 +337,5 @@ export function Navigation({
         }
       })
     </script>
-  `
+  `;
 }
