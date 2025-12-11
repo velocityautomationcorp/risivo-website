@@ -4,6 +4,7 @@
  */
 
 import { Hono } from 'hono'
+import { cors } from 'hono/cors'
 import { getPageBySlug, getTranslations, getSupabaseCMS } from '../lib/supabase-cms'
 
 type Bindings = {
@@ -12,6 +13,14 @@ type Bindings = {
 }
 
 const cms = new Hono<{ Bindings: Bindings }>()
+
+// Enable CORS for all origins (public API)
+cms.use('/*', cors({
+  origin: '*',
+  credentials: false,
+  allowMethods: ['GET', 'OPTIONS'],
+  allowHeaders: ['Content-Type'],
+}))
 
 // Get page by slug with language support
 cms.get('/pages/:slug', async (c) => {

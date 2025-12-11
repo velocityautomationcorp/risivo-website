@@ -4,6 +4,7 @@
  */
 
 import { Hono } from 'hono'
+import { cors } from 'hono/cors'
 import { getSupabaseCMS } from '../lib/supabase-cms'
 
 type Bindings = {
@@ -12,6 +13,14 @@ type Bindings = {
 }
 
 const cmsAdmin = new Hono<{ Bindings: Bindings }>()
+
+// Enable CORS for admin panel
+cmsAdmin.use('/*', cors({
+  origin: ['http://localhost:3001', 'http://localhost:3000', 'https://risivo-admin.pages.dev'],
+  credentials: true,
+  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowHeaders: ['Content-Type', 'Authorization'],
+}))
 
 // ============================================
 // PAGES MANAGEMENT
