@@ -6,12 +6,16 @@ import { PricingPage } from './pages/pricing'
 import contactRoute from './routes/contact'
 import newsletterRoute from './routes/newsletter'
 import registerRoute from './routes/register'
+import cmsRoute from './routes/cms'
+import cmsAdminRoute from './routes/cms-admin'
 
 type Bindings = {
   WEBHOOK_URL?: string
   ENABLE_FULL_SITE?: string
   ENVIRONMENT?: string
   DATABASE_URL?: string
+  SUPABASE_URL?: string
+  SUPABASE_ANON_KEY?: string
 }
 
 const app = new Hono<{ Bindings: Bindings }>()
@@ -20,6 +24,8 @@ const app = new Hono<{ Bindings: Bindings }>()
 app.route('/api/contact', contactRoute)
 app.route('/api/newsletter', newsletterRoute)
 app.route('/api/register', registerRoute)
+app.route('/api/cms', cmsRoute)
+app.route('/api/cms/admin', cmsAdminRoute)
 
 // Debug endpoint to check configuration
 app.get('/api/health', (c) => {
