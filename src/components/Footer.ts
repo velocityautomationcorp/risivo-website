@@ -46,7 +46,8 @@ export function Footer({
         background: #2b3544;
         color: ${colors.white};
         padding: 0;
-        margin-top: 150px;
+        margin-top: 0;
+        padding-top: 150px;
       }
 
       /* Newsletter Section - Top */
