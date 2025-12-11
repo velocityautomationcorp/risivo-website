@@ -4,7 +4,7 @@
  */
 
 import { Hono } from 'hono'
-import { supabase } from '../lib/supabase'
+import { supabaseCMS } from '../lib/supabase-cms'
 
 const cmsAdmin = new Hono()
 
@@ -15,7 +15,7 @@ const cmsAdmin = new Hono()
 // List all pages (including drafts)
 cmsAdmin.get('/pages', async (c) => {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseCMS
       .from('cms_pages')
       .select('*')
       .order('created_at', { ascending: false })
@@ -34,7 +34,7 @@ cmsAdmin.get('/pages/:id', async (c) => {
   const id = c.req.param('id')
 
   try {
-    const { data: page, error: pageError } = await supabase
+    const { data: page, error: pageError } = await supabaseCMS
       .from('cms_pages')
       .select('*')
       .eq('id', id)
@@ -42,7 +42,7 @@ cmsAdmin.get('/pages/:id', async (c) => {
 
     if (pageError) throw pageError
 
-    const { data: blocks, error: blocksError } = await supabase
+    const { data: blocks, error: blocksError } = await supabaseCMS
       .from('cms_content_blocks')
       .select('*')
       .eq('page_id', id)
@@ -65,7 +65,7 @@ cmsAdmin.post('/pages', async (c) => {
   try {
     const body = await c.req.json()
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseCMS
       .from('cms_pages')
       .insert({
         slug: body.slug,
@@ -97,7 +97,7 @@ cmsAdmin.put('/pages/:id', async (c) => {
   try {
     const body = await c.req.json()
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseCMS
       .from('cms_pages')
       .update(body)
       .eq('id', id)
@@ -137,7 +137,7 @@ cmsAdmin.post('/pages/:id/publish', async (c) => {
   const id = c.req.param('id')
 
   try {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseCMS
       .from('cms_pages')
       .update({
         status: 'published',
@@ -165,7 +165,7 @@ cmsAdmin.post('/blocks', async (c) => {
   try {
     const body = await c.req.json()
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseCMS
       .from('cms_content_blocks')
       .insert({
         page_id: body.page_id,
@@ -193,7 +193,7 @@ cmsAdmin.put('/blocks/:id', async (c) => {
   try {
     const body = await c.req.json()
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseCMS
       .from('cms_content_blocks')
       .update(body)
       .eq('id', id)
@@ -285,7 +285,7 @@ cmsAdmin.delete('/media/:id', async (c) => {
 
   try {
     // Get media info first to delete from storage
-    const { data: media } = await supabase
+    const { data: media } = await supabaseCMS
       .from('cms_media')
       .select('storage_path')
       .eq('id', id)
@@ -293,7 +293,7 @@ cmsAdmin.delete('/media/:id', async (c) => {
 
     if (media) {
       // Delete from storage bucket
-      await supabase.storage
+      await supabaseCMS.storage
         .from('media')
         .remove([media.storage_path])
     }
@@ -349,7 +349,7 @@ cmsAdmin.put('/translations/:key', async (c) => {
   try {
     const body = await c.req.json()
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseCMS
       .from('cms_translations')
       .update({
         translations: body.translations,

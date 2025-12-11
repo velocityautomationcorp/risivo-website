@@ -4,7 +4,7 @@
  */
 
 import { Hono } from 'hono'
-import { getPageBySlug, getTranslations, supabase } from '../lib/supabase'
+import { getPageBySlug, getTranslations, supabaseCMS } from '../lib/supabase-cms'
 
 const cms = new Hono()
 
@@ -60,7 +60,7 @@ cms.get('/pages', async (c) => {
   const lang = c.req.query('lang') || 'en'
 
   try {
-    const { data: pages, error } = await supabase
+    const { data: pages, error } = await supabaseCMS
       .from('cms_pages')
       .select('slug, meta_title, meta_description, published_at')
       .eq('status', 'published')
