@@ -1,4 +1,4 @@
-import { html } from 'hono/html';
+import { html, raw } from 'hono/html';
 
 export const AdminDashboardPage = (admin: any, updates: any[] = []) => {
     const stats = {
@@ -458,7 +458,7 @@ export const AdminDashboardPage = (admin: any, updates: any[] = []) => {
             <div class="section-header">
                 <h2 class="section-title">Recent Updates</h2>
             </div>
-            ${updatesHTML}
+            ${raw(updatesHTML)}
         </div>
     </div>
     
