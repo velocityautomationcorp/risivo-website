@@ -698,27 +698,39 @@ export const AdminUpdateFormPage = ({ admin, update, mode }: AdminUpdateFormProp
     </div>
 
     <script>
-      // Initialize Quill Rich Text Editor
-      const quill = new Quill('#editor', {
-        theme: 'snow',
-        modules: {
-          toolbar: [
-            [{ 'header': [1, 2, 3, false] }],
-            ['bold', 'italic', 'underline', 'strike'],
-            [{ 'color': [] }, { 'background': [] }],
-            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-            [{ 'align': [] }],
-            ['link', 'image'],
-            ['clean']
-          ]
-        },
-        placeholder: 'Write your update content here...'
-      });
+      // Wait for Quill to load
+      let quill;
+      
+      function initializeEditor() {
+        // Initialize Quill Rich Text Editor
+        quill = new Quill('#editor', {
+          theme: 'snow',
+          modules: {
+            toolbar: [
+              [{ 'header': [1, 2, 3, false] }],
+              ['bold', 'italic', 'underline', 'strike'],
+              [{ 'color': [] }, { 'background': [] }],
+              [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+              [{ 'align': [] }],
+              ['link', 'image'],
+              ['clean']
+            ]
+          },
+          placeholder: 'Write your update content here...'
+        });
 
-      // Load existing content
-      const existingContent = document.getElementById('content').value;
-      if (existingContent) {
-        quill.root.innerHTML = existingContent;
+        // Load existing content
+        const existingContent = document.getElementById('content').value;
+        if (existingContent) {
+          quill.root.innerHTML = existingContent;
+        }
+      }
+      
+      // Initialize when Quill library is loaded
+      if (typeof Quill !== 'undefined') {
+        initializeEditor();
+      } else {
+        window.addEventListener('load', initializeEditor);
       }
 
       // Gallery images array
@@ -879,12 +891,17 @@ export const AdminUpdateFormPage = ({ admin, update, mode }: AdminUpdateFormProp
         // Get form data
         const title = document.getElementById('title').value.trim();
         const excerpt = document.getElementById('excerpt').value.trim();
-        const content = quill.root.innerHTML;
+        const content = quill ? quill.root.innerHTML : '';
         const category = document.getElementById('category').value;
         const status = document.querySelector('input[name="status"]:checked').value;
         const mediaType = document.querySelector('input[name="media_type"]:checked').value;
 
         // Validate
+        if (!quill) {
+          showAlert('error', 'Editor not loaded yet. Please wait a moment and try again.');
+          return;
+        }
+        
         if (!title || !content || content === '<p><br></p>') {
           showAlert('error', 'Please fill in all required fields');
           return;
