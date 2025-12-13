@@ -16,6 +16,7 @@ import { UserDashboardPage } from './pages/user-dashboard'
 import { UpdateDetailPage } from './pages/update-detail'
 import { AdminLoginPage } from './pages/admin-login'
 import { AdminDashboardPage } from './pages/admin-dashboard'
+import { AdminUpdateFormPage } from './pages/admin-update-form'
 import { PrivacyPolicyPage } from './pages/privacy-policy'
 import { TermsOfServicePage } from './pages/terms-of-service'
 
@@ -1278,6 +1279,93 @@ app.get('/updates/admin/dashboard', async (c) => {
     .order('created_at', { ascending: false });
   
   return c.html(AdminDashboardPage(admin, updates || []));
+});
+
+// Admin Create Update (Protected)
+app.get('/updates/admin/create', async (c) => {
+  const sessionToken = getCookie(c, 'admin_session');
+  
+  if (!sessionToken) {
+    return c.redirect('/updates/admin/login');
+  }
+  
+  // Verify admin session
+  const supabaseUrl = c.env?.SUPABASE_URL;
+  const supabaseKey = c.env?.SUPABASE_SERVICE_ROLE_KEY;
+  
+  if (!supabaseUrl || !supabaseKey) {
+    return c.redirect('/updates/admin/login');
+  }
+  
+  const supabase = createClient(supabaseUrl, supabaseKey);
+  
+  const { data: session } = await supabase
+    .from('admin_sessions')
+    .select('*, admin_users(*)')
+    .eq('session_token', sessionToken)
+    .single();
+  
+  if (!session || new Date(session.expires_at) < new Date()) {
+    return c.redirect('/updates/admin/login');
+  }
+  
+  const admin = session.admin_users;
+  
+  if (!admin || !admin.is_active) {
+    return c.redirect('/updates/admin/login');
+  }
+  
+  return c.html(AdminUpdateFormPage({ admin, mode: 'create' }));
+});
+
+// Admin Edit Update (Protected)
+app.get('/updates/admin/edit/:id', async (c) => {
+  const sessionToken = getCookie(c, 'admin_session');
+  
+  if (!sessionToken) {
+    return c.redirect('/updates/admin/login');
+  }
+  
+  const updateId = c.req.param('id');
+  
+  // Verify admin session
+  const supabaseUrl = c.env?.SUPABASE_URL;
+  const supabaseKey = c.env?.SUPABASE_SERVICE_ROLE_KEY;
+  
+  if (!supabaseUrl || !supabaseKey) {
+    return c.redirect('/updates/admin/login');
+  }
+  
+  const supabase = createClient(supabaseUrl, supabaseKey);
+  
+  const { data: session } = await supabase
+    .from('admin_sessions')
+    .select('*, admin_users(*)')
+    .eq('session_token', sessionToken)
+    .single();
+  
+  if (!session || new Date(session.expires_at) < new Date()) {
+    return c.redirect('/updates/admin/login');
+  }
+  
+  const admin = session.admin_users;
+  
+  if (!admin || !admin.is_active) {
+    return c.redirect('/updates/admin/login');
+  }
+  
+  // Get the update to edit
+  const { data: update } = await supabase
+    .from('project_updates')
+    .select('*')
+    .eq('id', updateId)
+    .single();
+  
+  if (!update) {
+    return c.redirect('/updates/admin/dashboard');
+  }
+  
+  return c.html(AdminUpdateFormPage({ admin, update, mode: 'edit' }));
 });
 
 // Legal Pages

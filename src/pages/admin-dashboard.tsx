@@ -26,7 +26,7 @@ export const AdminDashboardPage = (admin: any, updates: any[] = []) => {
                 <td>${new Date(update.created_at).toLocaleDateString()}</td>
                 <td>
                     <div class="action-buttons">
-                        <button class="btn-icon btn-edit" onclick="editUpdate('${update.slug}')">✏️ Edit</button>
+                        <button class="btn-icon btn-edit" onclick="editUpdate('${update.id}')">✏️ Edit</button>
                         <button class="btn-icon btn-delete" onclick="deleteUpdate('${update.id}')">🗑️ Delete</button>
                     </div>
                 </td>
@@ -475,8 +475,8 @@ export const AdminDashboardPage = (admin: any, updates: any[] = []) => {
         });
         
         // Edit update
-        function editUpdate(slug) {
-            window.location.href = \`/updates/admin/edit/\${slug}\`;
+        function editUpdate(id) {
+            window.location.href = \`/updates/admin/edit/\${id}\`;
         }
         
         // Delete update
