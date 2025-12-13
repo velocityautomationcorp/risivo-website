@@ -5,6 +5,8 @@ import registerRoute from './routes/register'
 import cmsRoute from './routes/cms'
 import cmsAdminRoute from './routes/cms-admin'
 import waitlistRoute from './routes/waitlist'
+import userAuthRoute from './routes/user-auth'
+import updatesRoute from './routes/updates'
 
 type Bindings = {
   WEBHOOK_URL?: string
@@ -25,6 +27,8 @@ app.route('/api/register', registerRoute)
 app.route('/api/cms', cmsRoute)
 app.route('/api/cms/admin', cmsAdminRoute)
 app.route('/api/waitlist', waitlistRoute)
+app.route('/api/user', userAuthRoute)
+app.route('/api/updates', updatesRoute)
 
 
 // Base64 encoded logo
