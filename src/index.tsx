@@ -906,10 +906,10 @@ app.get("/", (c) => {
                     </svg>
                 </a>
                 <a href="https://www.instagram.com/risivocrm/" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="Instagram">
-                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-                        <path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z" fill="none" stroke="white" stroke-width="2"/>
-                        <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                        <circle cx="12" cy="12" r="4"/>
+                        <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" stroke-linecap="round"/>
                     </svg>
                 </a>
                 <a href="https://x.com/risivocrm" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="Twitter/X">
