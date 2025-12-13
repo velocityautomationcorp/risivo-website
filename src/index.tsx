@@ -846,12 +846,12 @@ app.get("/", (c) => {
                             <select id="language" name="language" required class="form-select">
                                 <option value="">Select your language...</option>
                                 <option value="english">English</option>
-                                <option value="spanish">Español (Spanish)</option>
+                                <option value="arabic">العربية (Arabic)</option>
+                                <option value="chinese">中文 (Chinese)</option>
                                 <option value="french">Français (French)</option>
                                 <option value="german">Deutsch (German)</option>
                                 <option value="portuguese">Português (Portuguese)</option>
-                                <option value="chinese">中文 (Chinese)</option>
-                                <option value="arabic">العربية (Arabic)</option>
+                                <option value="spanish">Español (Spanish)</option>
                             </select>
                         </div>
                         
