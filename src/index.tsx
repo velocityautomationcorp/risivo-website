@@ -14,6 +14,7 @@ import { UserLoginPage } from './pages/user-login'
 import { UserDashboardPage } from './pages/user-dashboard'
 import { UpdateDetailPage } from './pages/update-detail'
 import { AdminLoginPage } from './pages/admin-login'
+import { AdminDashboardPage } from './pages/admin-dashboard'
 
 type Bindings = {
   WEBHOOK_URL?: string
@@ -1229,6 +1230,49 @@ app.get('/updates/view/:slug', async (c) => {
 // Admin Login Page
 app.get('/updates/admin/login', (c) => {
   return c.html(AdminLoginPage());
+});
+
+// Admin Dashboard (Protected)
+app.get('/updates/admin/dashboard', async (c) => {
+  const sessionToken = getCookie(c, 'admin_session');
+  
+  if (!sessionToken) {
+    return c.redirect('/updates/admin/login');
+  }
+  
+  // Verify admin session
+  const supabaseUrl = c.env?.SUPABASE_URL;
+  const supabaseKey = c.env?.SUPABASE_SERVICE_ROLE_KEY;
+  
+  if (!supabaseUrl || !supabaseKey) {
+    return c.redirect('/updates/admin/login');
+  }
+  
+  const supabase = createClient(supabaseUrl, supabaseKey);
+  
+  const { data: session } = await supabase
+    .from('admin_sessions')
+    .select('*, admin_users(*)')
+    .eq('session_token', sessionToken)
+    .single();
+  
+  if (!session || new Date(session.expires_at) < new Date()) {
+    return c.redirect('/updates/admin/login');
+  }
+  
+  const admin = session.admin_users;
+  
+  if (!admin || !admin.is_active) {
+    return c.redirect('/updates/admin/login');
+  }
+  
+  // Get all updates for dashboard
+  const { data: updates } = await supabase
+    .from('project_updates')
+    .select('*')
+    .order('created_at', { ascending: false });
+  
+  return c.html(AdminDashboardPage(admin, updates || []));
 });
 
 export default app;
