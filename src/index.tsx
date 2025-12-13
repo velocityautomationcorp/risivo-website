@@ -851,6 +851,7 @@ app.get("/", (c) => {
                                 <option value="german">Deutsch (German)</option>
                                 <option value="portuguese">Português (Portuguese)</option>
                                 <option value="chinese">中文 (Chinese)</option>
+                                <option value="arabic">العربية (Arabic)</option>
                             </select>
                         </div>
                         
