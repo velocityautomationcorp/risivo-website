@@ -1,4 +1,6 @@
 import { Hono } from 'hono'
+import { getCookie } from 'hono/cookie'
+import { createClient } from '@supabase/supabase-js'
 import contactRoute from './routes/contact'
 import newsletterRoute from './routes/newsletter'
 import registerRoute from './routes/register'
@@ -7,6 +9,9 @@ import cmsAdminRoute from './routes/cms-admin'
 import waitlistRoute from './routes/waitlist'
 import userAuthRoute from './routes/user-auth'
 import updatesRoute from './routes/updates'
+import { UserLoginPage } from './pages/user-login'
+import { UserDashboardPage } from './pages/user-dashboard'
+import { UpdateDetailPage } from './pages/update-detail'
 
 type Bindings = {
   WEBHOOK_URL?: string
@@ -1112,6 +1117,106 @@ app.get("/", (c) => {
     </body>
     </html>
   `);
+});
+
+// User Login Page
+app.get('/updates/login', (c) => {
+  return c.html(UserLoginPage());
+});
+
+// User Dashboard (protected)
+app.get('/updates/dashboard', async (c) => {
+  const sessionToken = getCookie(c, 'user_session');
+  
+  if (!sessionToken) {
+    return c.redirect('/updates/login');
+  }
+  
+  // Verify session
+  const supabaseUrl = c.env?.SUPABASE_URL;
+  const supabaseKey = c.env?.SUPABASE_SERVICE_ROLE_KEY;
+  
+  if (!supabaseUrl || !supabaseKey) {
+    return c.redirect('/updates/login');
+  }
+  
+  const supabase = createClient(supabaseUrl, supabaseKey);
+  
+  const { data: session } = await supabase
+    .from('user_sessions')
+    .select('user_id, expires_at')
+    .eq('session_token', sessionToken)
+    .single();
+  
+  if (!session || new Date(session.expires_at) < new Date()) {
+    return c.redirect('/updates/login');
+  }
+  
+  const { data: user } = await supabase
+    .from('waitlist_users')
+    .select('id, email, first_name, last_name, business_name, is_active')
+    .eq('id', session.user_id)
+    .single();
+  
+  if (!user || !user.is_active) {
+    return c.redirect('/updates/login');
+  }
+  
+  return c.html(UserDashboardPage(user));
+});
+
+// Update Detail Page (protected)
+app.get('/updates/view/:slug', async (c) => {
+  const slug = c.req.param('slug');
+  const sessionToken = getCookie(c, 'user_session');
+  
+  if (!sessionToken) {
+    return c.redirect('/updates/login');
+  }
+  
+  // Verify session
+  const supabaseUrl = c.env?.SUPABASE_URL;
+  const supabaseKey = c.env?.SUPABASE_SERVICE_ROLE_KEY;
+  
+  if (!supabaseUrl || !supabaseKey) {
+    return c.redirect('/updates/login');
+  }
+  
+  const supabase = createClient(supabaseUrl, supabaseKey);
+  
+  const { data: session } = await supabase
+    .from('user_sessions')
+    .select('user_id, expires_at')
+    .eq('session_token', sessionToken)
+    .single();
+  
+  if (!session || new Date(session.expires_at) < new Date()) {
+    return c.redirect('/updates/login');
+  }
+  
+  const { data: user } = await supabase
+    .from('waitlist_users')
+    .select('id, email, first_name, last_name, is_active')
+    .eq('id', session.user_id)
+    .single();
+  
+  if (!user || !user.is_active) {
+    return c.redirect('/updates/login');
+  }
+  
+  // Get update
+  const { data: update } = await supabase
+    .from('project_updates')
+    .select('*')
+    .eq('slug', slug)
+    .eq('status', 'published')
+    .single();
+  
+  if (!update) {
+    return c.html('<h1>Update not found</h1>', 404);
+  }
+  
+  return c.html(UpdateDetailPage(user, update));
 });
 
 export default app;
