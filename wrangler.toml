@@ -21,5 +21,5 @@ vars = { ENVIRONMENT = "staging" }
 #    - SUPABASE_URL = https://sldpdgdkrakfzwtroglx.supabase.co
 #    - SUPABASE_ANON_KEY = [Your Supabase anon key]
 #    - SUPABASE_SERVICE_ROLE_KEY = [Your Supabase service role key]
-#    - WEBHOOK_URL = [Your Make.com webhook URL] (optional)
+#    - MAKE_WEBHOOK_URL = [Your Make.com webhook URL] (for social media auto-posting)
 #    - ENABLE_FULL_SITE = true
