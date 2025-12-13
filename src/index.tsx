@@ -17,6 +17,8 @@ import { UserDashboardPage } from './pages/user-dashboard'
 import { UpdateDetailPage } from './pages/update-detail'
 import { AdminLoginPage } from './pages/admin-login'
 import { AdminDashboardPage } from './pages/admin-dashboard'
+import { PrivacyPolicyPage } from './pages/privacy-policy'
+import { TermsOfServicePage } from './pages/terms-of-service'
 
 type Bindings = {
   WEBHOOK_URL?: string
@@ -1279,5 +1281,20 @@ app.get('/updates/admin/dashboard', async (c) => {
   
   return c.html(AdminDashboardPage(admin, updates || []));
 });
+
+// Legal Pages
+// ============================================
+app.get('/privacy-policy', (c) => {
+  return c.html(PrivacyPolicyPage());
+});
+
+app.get('/terms-of-service', (c) => {
+  return c.html(TermsOfServicePage());
+});
+
+// Aliases for common variations
+app.get('/privacy', (c) => c.redirect('/privacy-policy'));
+app.get('/terms', (c) => c.redirect('/terms-of-service'));
+app.get('/tos', (c) => c.redirect('/terms-of-service'));
 
 export default app;
