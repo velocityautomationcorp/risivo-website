@@ -856,8 +856,8 @@ app.get("/", (c) => {
                         </div>
                         
                         <div class="form-group">
-                            <label for="businessName">Business Name (Optional)</label>
-                            <input type="text" id="businessName" name="businessName" class="form-input" placeholder="Your Company Name">
+                            <label for="businessName">Business Name *</label>
+                            <input type="text" id="businessName" name="businessName" required class="form-input" placeholder="Your Company Name">
                         </div>
                         
                         <div class="form-row">

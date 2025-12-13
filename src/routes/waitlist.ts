@@ -34,12 +34,12 @@ app.post('/join', async (c) => {
     console.log('[WAITLIST] ========================================');
 
     // Validate required fields
-    if (!email || !first_name || !last_name || !language) {
+    if (!email || !first_name || !last_name || !language || !business_name) {
       console.error('[WAITLIST] ❌ Missing required fields');
       return c.json(
         {
           error: 'Missing required fields',
-          details: 'Please provide email, first name, last name, and preferred language',
+          details: 'Please provide email, first name, last name, business name, and preferred language',
         },
         400
       );
@@ -123,7 +123,7 @@ app.post('/join', async (c) => {
         email: email.toLowerCase(),
         first_name,
         last_name,
-        business_name: business_name || null,
+        business_name,
         preferred_language: language,
         status: 'pending',
       })
