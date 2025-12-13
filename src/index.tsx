@@ -9,9 +9,11 @@ import cmsAdminRoute from './routes/cms-admin'
 import waitlistRoute from './routes/waitlist'
 import userAuthRoute from './routes/user-auth'
 import updatesRoute from './routes/updates'
+import adminAuthRoute from './routes/admin-auth'
 import { UserLoginPage } from './pages/user-login'
 import { UserDashboardPage } from './pages/user-dashboard'
 import { UpdateDetailPage } from './pages/update-detail'
+import { AdminLoginPage } from './pages/admin-login'
 
 type Bindings = {
   WEBHOOK_URL?: string
@@ -34,6 +36,7 @@ app.route('/api/cms/admin', cmsAdminRoute)
 app.route('/api/waitlist', waitlistRoute)
 app.route('/api/user', userAuthRoute)
 app.route('/api/updates', updatesRoute)
+app.route('/api/admin', adminAuthRoute)
 
 
 // Base64 encoded logo
@@ -1217,6 +1220,15 @@ app.get('/updates/view/:slug', async (c) => {
   }
   
   return c.html(UpdateDetailPage(user, update));
+});
+
+// ==========================================
+// ADMIN PAGES
+// ==========================================
+
+// Admin Login Page
+app.get('/updates/admin/login', (c) => {
+  return c.html(AdminLoginPage());
 });
 
 export default app;
