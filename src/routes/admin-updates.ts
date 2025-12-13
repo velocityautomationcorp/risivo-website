@@ -161,6 +161,9 @@ adminUpdates.post('/', async (c) => {
       status: status || 'draft',
       category: category || null,
       featured_image_url: body.featured_image_url || null,
+      media_type: body.media_type || 'none',
+      media_url: body.media_url || null,
+      gallery_images: body.gallery_images || null,
       author_id: admin.id,
       view_count: 0
     };
@@ -303,6 +306,9 @@ adminUpdates.put('/:id', async (c) => {
     if (body.status !== undefined) updateData.status = body.status;
     if (body.category !== undefined) updateData.category = body.category;
     if (body.featured_image_url !== undefined) updateData.featured_image_url = body.featured_image_url;
+    if (body.media_type !== undefined) updateData.media_type = body.media_type;
+    if (body.media_url !== undefined) updateData.media_url = body.media_url;
+    if (body.gallery_images !== undefined) updateData.gallery_images = body.gallery_images;
     
     // Update the record
     const { data: updated, error } = await supabase

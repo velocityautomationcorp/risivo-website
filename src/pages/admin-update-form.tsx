@@ -1,6 +1,6 @@
 /**
  * Admin Create/Edit Update Form Page
- * Includes rich text editor, image upload, and all update fields
+ * Includes rich text editor, image/video upload, and photo galleries
  */
 
 import { html } from 'hono/html';
@@ -11,7 +11,20 @@ interface AdminUpdateFormProps {
   mode: 'create' | 'edit';
 }
 
-export const AdminUpdateFormPage = ({ admin, update, mode }: AdminUpdateFormProps) => html`
+export const AdminUpdateFormPage = ({ admin, update, mode }: AdminUpdateFormProps) => {
+  // Parse media data
+  const updateData = update ? {
+    ...update,
+    media_type: update.media_type || 'none',
+    media_url: update.media_url || '',
+    gallery_images: update.gallery_images || []
+  } : {
+    media_type: 'none',
+    media_url: '',
+    gallery_images: []
+  };
+
+  return html`
   <!DOCTYPE html>
   <html lang="en">
   <head>
@@ -23,8 +36,9 @@ export const AdminUpdateFormPage = ({ admin, update, mode }: AdminUpdateFormProp
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- TinyMCE Rich Text Editor -->
-    <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+    <!-- Quill Rich Text Editor (No API key needed!) -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
     
     <style>
       * {
@@ -54,10 +68,6 @@ export const AdminUpdateFormPage = ({ admin, update, mode }: AdminUpdateFormProp
         display: flex;
         align-items: center;
         gap: 1rem;
-      }
-
-      .logo {
-        height: 40px;
       }
 
       .header h1 {
@@ -172,44 +182,162 @@ export const AdminUpdateFormPage = ({ admin, update, mode }: AdminUpdateFormProp
         gap: 1.5rem;
       }
 
-      .image-upload-area {
+      /* Quill Editor Styling */
+      #editor {
+        height: 400px;
+        background: white;
+        border-radius: 8px;
+      }
+
+      .ql-toolbar {
+        border-radius: 8px 8px 0 0 !important;
+        border-color: #e5e5e5 !important;
+      }
+
+      .ql-container {
+        border-radius: 0 0 8px 8px !important;
+        border-color: #e5e5e5 !important;
+        font-family: inherit !important;
+      }
+
+      /* Media Type Selection */
+      .media-type-selector {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        margin: 1rem 0;
+      }
+
+      .media-type-option {
+        position: relative;
+      }
+
+      .media-type-option input[type="radio"] {
+        position: absolute;
+        opacity: 0;
+      }
+
+      .media-type-label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1.5rem 1rem;
+        border: 2px solid #e5e5e5;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-align: center;
+      }
+
+      .media-type-option input[type="radio"]:checked + .media-type-label {
+        border-color: #667eea;
+        background: #f3f4ff;
+      }
+
+      .media-type-label:hover {
+        border-color: #667eea;
+      }
+
+      .media-icon {
+        font-size: 2rem;
+      }
+
+      .media-type-name {
+        font-weight: 600;
+        font-size: 0.9rem;
+      }
+
+      /* Media Upload Areas */
+      .media-upload-section {
+        display: none;
+        margin-top: 1rem;
+        padding: 1.5rem;
         border: 2px dashed #e5e5e5;
         border-radius: 8px;
-        padding: 2rem;
-        text-align: center;
-        transition: all 0.3s;
-        cursor: pointer;
       }
 
-      .image-upload-area:hover {
-        border-color: #667eea;
-        background: #f9fafb;
+      .media-upload-section.active {
+        display: block;
       }
 
-      .image-upload-area.has-image {
-        border-style: solid;
-        border-color: #10b981;
-      }
-
-      .image-preview {
+      .media-preview {
         max-width: 100%;
-        max-height: 300px;
+        max-height: 400px;
         margin: 1rem 0;
         border-radius: 8px;
         display: none;
       }
 
-      .image-preview.visible {
+      .media-preview.visible {
         display: block;
       }
 
-      .upload-text {
-        color: #666;
-        margin-top: 0.5rem;
+      .video-preview {
+        width: 100%;
+        max-height: 400px;
+        border-radius: 8px;
+        display: none;
       }
 
-      .upload-text strong {
+      .video-preview.visible {
+        display: block;
+      }
+
+      /* Gallery */
+      .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+      }
+
+      .gallery-item {
+        position: relative;
+        border-radius: 8px;
+        overflow: hidden;
+        aspect-ratio: 1;
+        border: 2px solid #e5e5e5;
+      }
+
+      .gallery-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .gallery-item-remove {
+        position: absolute;
+        top: 0.5rem;
+        right: 0.5rem;
+        background: #ef4444;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        cursor: pointer;
+        font-size: 1.2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .add-gallery-image {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        aspect-ratio: 1;
+        border: 2px dashed #667eea;
+        border-radius: 8px;
+        cursor: pointer;
         color: #667eea;
+        font-size: 3rem;
+        transition: all 0.3s;
+      }
+
+      .add-gallery-image:hover {
+        background: #f3f4ff;
       }
 
       .status-badges {
@@ -357,7 +485,7 @@ export const AdminUpdateFormPage = ({ admin, update, mode }: AdminUpdateFormProp
       }
 
       @media (max-width: 768px) {
-        .form-row {
+        .form-row, .media-type-selector {
           grid-template-columns: 1fr;
         }
 
@@ -392,7 +520,7 @@ export const AdminUpdateFormPage = ({ admin, update, mode }: AdminUpdateFormProp
       <div class="form-card">
         <div class="form-header">
           <h2>${mode === 'create' ? '📝 New Update' : '✏️ Edit Update'}</h2>
-          <p>${mode === 'create' ? 'Create a new project update to share with your users' : 'Update your project information'}</p>
+          <p>${mode === 'create' ? 'Create a new project update with images, videos, or photo galleries' : 'Update your project information'}</p>
         </div>
 
         <div id="alert" class="alert"></div>
@@ -412,7 +540,7 @@ export const AdminUpdateFormPage = ({ admin, update, mode }: AdminUpdateFormProp
               id="title" 
               name="title" 
               placeholder="Enter update title" 
-              value="${update?.title || ''}"
+              value="${updateData.title || ''}"
               required
             >
             <small>A clear, concise title for your update</small>
@@ -428,7 +556,7 @@ export const AdminUpdateFormPage = ({ admin, update, mode }: AdminUpdateFormProp
               name="excerpt" 
               placeholder="Enter a brief summary (optional)"
               rows="3"
-            >${update?.excerpt || ''}</textarea>
+            >${updateData.excerpt || ''}</textarea>
             <small>A short summary shown in update lists (optional, auto-generated if empty)</small>
           </div>
 
@@ -437,10 +565,8 @@ export const AdminUpdateFormPage = ({ admin, update, mode }: AdminUpdateFormProp
             <label for="content">
               Content<span class="required">*</span>
             </label>
-            <textarea 
-              id="content" 
-              name="content"
-            >${update?.content || ''}</textarea>
+            <div id="editor"></div>
+            <textarea id="content" name="content" style="display:none;">${updateData.content || ''}</textarea>
             <small>Full content of your update (supports rich text formatting)</small>
           </div>
 
@@ -451,11 +577,11 @@ export const AdminUpdateFormPage = ({ admin, update, mode }: AdminUpdateFormProp
               <label for="category">Category</label>
               <select id="category" name="category">
                 <option value="">Select category (optional)</option>
-                <option value="Feature" ${update?.category === 'Feature' ? 'selected' : ''}>Feature</option>
-                <option value="Improvement" ${update?.category === 'Improvement' ? 'selected' : ''}>Improvement</option>
-                <option value="Bug Fix" ${update?.category === 'Bug Fix' ? 'selected' : ''}>Bug Fix</option>
-                <option value="Announcement" ${update?.category === 'Announcement' ? 'selected' : ''}>Announcement</option>
-                <option value="General" ${update?.category === 'General' ? 'selected' : ''}>General</option>
+                <option value="Feature" ${updateData.category === 'Feature' ? 'selected' : ''}>Feature</option>
+                <option value="Improvement" ${updateData.category === 'Improvement' ? 'selected' : ''}>Improvement</option>
+                <option value="Bug Fix" ${updateData.category === 'Bug Fix' ? 'selected' : ''}>Bug Fix</option>
+                <option value="Announcement" ${updateData.category === 'Announcement' ? 'selected' : ''}>Announcement</option>
+                <option value="General" ${updateData.category === 'General' ? 'selected' : ''}>General</option>
               </select>
             </div>
 
@@ -464,14 +590,14 @@ export const AdminUpdateFormPage = ({ admin, update, mode }: AdminUpdateFormProp
               <label>Status<span class="required">*</span></label>
               <div class="status-badges">
                 <label class="status-badge">
-                  <input type="radio" name="status" value="draft" ${!update || update?.status === 'draft' ? 'checked' : ''}>
+                  <input type="radio" name="status" value="draft" ${!updateData.status || updateData.status === 'draft' ? 'checked' : ''}>
                   <div class="status-badge-content">
                     <span class="status-badge-title">Draft</span>
                     <span class="status-badge-desc">Not visible to users</span>
                   </div>
                 </label>
                 <label class="status-badge">
-                  <input type="radio" name="status" value="published" ${update?.status === 'published' ? 'checked' : ''}>
+                  <input type="radio" name="status" value="published" ${updateData.status === 'published' ? 'checked' : ''}>
                   <div class="status-badge-content">
                     <span class="status-badge-title">Published</span>
                     <span class="status-badge-desc">Visible to all users</span>
@@ -481,26 +607,83 @@ export const AdminUpdateFormPage = ({ admin, update, mode }: AdminUpdateFormProp
             </div>
           </div>
 
-          <!-- Featured Image -->
+          <!-- Media Type Selection -->
           <div class="form-group">
-            <label>Featured Image</label>
-            <div class="image-upload-area" id="imageUploadArea" onclick="document.getElementById('imageUrl').focus()">
-              <img id="imagePreview" class="image-preview ${update?.featured_image_url ? 'visible' : ''}" src="${update?.featured_image_url || ''}" alt="Preview">
-              <div class="upload-icon" style="font-size: 3rem; color: #667eea;">📸</div>
-              <div class="upload-text">
-                <strong>Enter image URL below</strong>
-                <div style="font-size: 0.85rem; margin-top: 0.5rem;">Or use an image hosting service like Imgur, Cloudinary, etc.</div>
+            <label>Media Type</label>
+            <div class="media-type-selector">
+              <div class="media-type-option">
+                <input type="radio" id="mediaTypeNone" name="media_type" value="none" ${updateData.media_type === 'none' ? 'checked' : ''}>
+                <label for="mediaTypeNone" class="media-type-label">
+                  <span class="media-icon">🚫</span>
+                  <span class="media-type-name">No Media</span>
+                </label>
+              </div>
+              <div class="media-type-option">
+                <input type="radio" id="mediaTypeImage" name="media_type" value="image" ${updateData.media_type === 'image' ? 'checked' : ''}>
+                <label for="mediaTypeImage" class="media-type-label">
+                  <span class="media-icon">🖼️</span>
+                  <span class="media-type-name">Single Image</span>
+                </label>
+              </div>
+              <div class="media-type-option">
+                <input type="radio" id="mediaTypeVideo" name="media_type" value="video" ${updateData.media_type === 'video' ? 'checked' : ''}>
+                <label for="mediaTypeVideo" class="media-type-label">
+                  <span class="media-icon">🎥</span>
+                  <span class="media-type-name">Video</span>
+                </label>
+              </div>
+              <div class="media-type-option">
+                <input type="radio" id="mediaTypeGallery" name="media_type" value="gallery" ${updateData.media_type === 'gallery' ? 'checked' : ''}>
+                <label for="mediaTypeGallery" class="media-type-label">
+                  <span class="media-icon">🖼️📸</span>
+                  <span class="media-type-name">Photo Gallery</span>
+                </label>
               </div>
             </div>
+          </div>
+
+          <!-- Single Image Upload -->
+          <div id="singleImageSection" class="media-upload-section ${updateData.media_type === 'image' ? 'active' : ''}">
+            <h3 style="margin-bottom: 1rem;">📸 Featured Image</h3>
             <input 
               type="text" 
               id="imageUrl" 
-              name="featured_image_url" 
               placeholder="https://example.com/image.jpg"
-              value="${update?.featured_image_url || ''}"
-              style="margin-top: 1rem;"
+              value="${updateData.media_type === 'image' ? updateData.media_url : ''}"
+              style="width: 100%; margin-bottom: 1rem;"
             >
-            <small>Enter a URL to an image (JPG, PNG, GIF)</small>
+            <img id="imagePreview" class="media-preview ${updateData.media_type === 'image' && updateData.media_url ? 'visible' : ''}" src="${updateData.media_type === 'image' ? updateData.media_url : ''}" alt="Preview">
+            <small>Enter a URL to an image (JPG, PNG, GIF, WebP)</small>
+          </div>
+
+          <!-- Video Upload -->
+          <div id="videoSection" class="media-upload-section ${updateData.media_type === 'video' ? 'active' : ''}">
+            <h3 style="margin-bottom: 1rem;">🎥 Video</h3>
+            <input 
+              type="text" 
+              id="videoUrl" 
+              placeholder="https://youtube.com/watch?v=... or https://example.com/video.mp4"
+              value="${updateData.media_type === 'video' ? updateData.media_url : ''}"
+              style="width: 100%; margin-bottom: 1rem;"
+            >
+            <div id="videoPreviewContainer"></div>
+            <small>Enter a YouTube URL, Vimeo URL, or direct video file URL (MP4, WebM)</small>
+          </div>
+
+          <!-- Photo Gallery -->
+          <div id="gallerySection" class="media-upload-section ${updateData.media_type === 'gallery' ? 'active' : ''}">
+            <h3 style="margin-bottom: 1rem;">📸 Photo Gallery</h3>
+            <div class="gallery-grid" id="galleryGrid">
+              ${updateData.media_type === 'gallery' && Array.isArray(updateData.gallery_images) ? updateData.gallery_images.map((img: string, idx: number) => `
+                <div class="gallery-item" data-url="${img}">
+                  <img src="${img}" alt="Gallery image ${idx + 1}">
+                  <button type="button" class="gallery-item-remove" onclick="removeGalleryImage(${idx})">×</button>
+                </div>
+              `).join('') : ''}
+              <div class="add-gallery-image" onclick="addGalleryImage()">+</div>
+            </div>
+            <input type="text" id="galleryImageUrl" placeholder="Paste image URL and press Enter" style="width: 100%; margin-top: 1rem;">
+            <small>Add multiple images to create a photo gallery (click + or paste URL)</small>
           </div>
 
           <!-- Form Actions -->
@@ -515,40 +698,174 @@ export const AdminUpdateFormPage = ({ admin, update, mode }: AdminUpdateFormProp
     </div>
 
     <script>
-      // Initialize TinyMCE Rich Text Editor
-      tinymce.init({
-        selector: '#content',
-        height: 500,
-        menubar: false,
-        plugins: [
-          'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
-          'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-          'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount'
-        ],
-        toolbar: 'undo redo | blocks | ' +
-          'bold italic forecolor | alignleft aligncenter ' +
-          'alignright alignjustify | bullist numlist outdent indent | ' +
-          'removeformat | help',
-        content_style: 'body { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 16px; line-height: 1.6; }',
-        branding: false,
+      // Initialize Quill Rich Text Editor
+      const quill = new Quill('#editor', {
+        theme: 'snow',
+        modules: {
+          toolbar: [
+            [{ 'header': [1, 2, 3, false] }],
+            ['bold', 'italic', 'underline', 'strike'],
+            [{ 'color': [] }, { 'background': [] }],
+            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+            [{ 'align': [] }],
+            ['link', 'image'],
+            ['clean']
+          ]
+        },
+        placeholder: 'Write your update content here...'
+      });
+
+      // Load existing content
+      const existingContent = document.getElementById('content').value;
+      if (existingContent) {
+        quill.root.innerHTML = existingContent;
+      }
+
+      // Gallery images array
+      let galleryImages = ${JSON.stringify(updateData.media_type === 'gallery' ? updateData.gallery_images : [])};
+
+      // Media type switching
+      const mediaTypeRadios = document.querySelectorAll('input[name="media_type"]');
+      mediaTypeRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+          document.querySelectorAll('.media-upload-section').forEach(section => {
+            section.classList.remove('active');
+          });
+          
+          if (this.value === 'image') {
+            document.getElementById('singleImageSection').classList.add('active');
+          } else if (this.value === 'video') {
+            document.getElementById('videoSection').classList.add('active');
+          } else if (this.value === 'gallery') {
+            document.getElementById('gallerySection').classList.add('active');
+          }
+        });
       });
 
       // Image preview
       const imageUrl = document.getElementById('imageUrl');
       const imagePreview = document.getElementById('imagePreview');
-      const imageUploadArea = document.getElementById('imageUploadArea');
+      
+      if (imageUrl) {
+        imageUrl.addEventListener('input', function() {
+          const url = this.value.trim();
+          if (url) {
+            imagePreview.src = url;
+            imagePreview.classList.add('visible');
+          } else {
+            imagePreview.classList.remove('visible');
+          }
+        });
+      }
 
-      imageUrl.addEventListener('input', function() {
-        const url = this.value.trim();
-        if (url) {
-          imagePreview.src = url;
-          imagePreview.classList.add('visible');
-          imageUploadArea.classList.add('has-image');
-        } else {
-          imagePreview.classList.remove('visible');
-          imageUploadArea.classList.remove('has-image');
+      // Video preview
+      const videoUrl = document.getElementById('videoUrl');
+      const videoPreviewContainer = document.getElementById('videoPreviewContainer');
+      
+      if (videoUrl) {
+        videoUrl.addEventListener('input', function() {
+          const url = this.value.trim();
+          videoPreviewContainer.innerHTML = '';
+          
+          if (!url) return;
+          
+          // Check if YouTube
+          const youtubeMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
+          if (youtubeMatch) {
+            videoPreviewContainer.innerHTML = \`
+              <iframe 
+                width="100%" 
+                height="400" 
+                src="https://www.youtube.com/embed/\${youtubeMatch[1]}" 
+                frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowfullscreen
+                style="border-radius: 8px; margin-top: 1rem;"
+              ></iframe>
+            \`;
+            return;
+          }
+          
+          // Check if Vimeo
+          const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+          if (vimeoMatch) {
+            videoPreviewContainer.innerHTML = \`
+              <iframe 
+                width="100%" 
+                height="400" 
+                src="https://player.vimeo.com/video/\${vimeoMatch[1]}" 
+                frameborder="0" 
+                allow="autoplay; fullscreen; picture-in-picture" 
+                allowfullscreen
+                style="border-radius: 8px; margin-top: 1rem;"
+              ></iframe>
+            \`;
+            return;
+          }
+          
+          // Assume direct video URL
+          if (url.match(/\.(mp4|webm|ogg)$/i)) {
+            videoPreviewContainer.innerHTML = \`
+              <video 
+                controls 
+                width="100%" 
+                style="border-radius: 8px; margin-top: 1rem; max-height: 400px;"
+              >
+                <source src="\${url}" type="video/mp4">
+                Your browser does not support the video tag.
+              </video>
+            \`;
+          }
+        });
+        
+        // Trigger initial preview if editing
+        if (videoUrl.value) {
+          videoUrl.dispatchEvent(new Event('input'));
         }
-      });
+      }
+
+      // Gallery functions
+      function addGalleryImage() {
+        const input = document.getElementById('galleryImageUrl');
+        const url = prompt('Enter image URL:');
+        if (url && url.trim()) {
+          galleryImages.push(url.trim());
+          renderGallery();
+        }
+      }
+
+      function removeGalleryImage(index) {
+        if (confirm('Remove this image from gallery?')) {
+          galleryImages.splice(index, 1);
+          renderGallery();
+        }
+      }
+
+      function renderGallery() {
+        const grid = document.getElementById('galleryGrid');
+        grid.innerHTML = galleryImages.map((img, idx) => \`
+          <div class="gallery-item" data-url="\${img}">
+            <img src="\${img}" alt="Gallery image \${idx + 1}">
+            <button type="button" class="gallery-item-remove" onclick="removeGalleryImage(\${idx})">×</button>
+          </div>
+        \`).join('') + '<div class="add-gallery-image" onclick="addGalleryImage()">+</div>';
+      }
+
+      // Gallery URL input
+      const galleryImageUrl = document.getElementById('galleryImageUrl');
+      if (galleryImageUrl) {
+        galleryImageUrl.addEventListener('keypress', function(e) {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            const url = this.value.trim();
+            if (url) {
+              galleryImages.push(url);
+              renderGallery();
+              this.value = '';
+            }
+          }
+        });
+      }
 
       // Form submission
       const form = document.getElementById('updateForm');
@@ -562,15 +879,27 @@ export const AdminUpdateFormPage = ({ admin, update, mode }: AdminUpdateFormProp
         // Get form data
         const title = document.getElementById('title').value.trim();
         const excerpt = document.getElementById('excerpt').value.trim();
-        const content = tinymce.get('content').getContent();
+        const content = quill.root.innerHTML;
         const category = document.getElementById('category').value;
         const status = document.querySelector('input[name="status"]:checked').value;
-        const featured_image_url = document.getElementById('imageUrl').value.trim();
+        const mediaType = document.querySelector('input[name="media_type"]:checked').value;
 
         // Validate
-        if (!title || !content) {
+        if (!title || !content || content === '<p><br></p>') {
           showAlert('error', 'Please fill in all required fields');
           return;
+        }
+
+        // Get media data based on type
+        let mediaUrl = '';
+        let galleryData = [];
+        
+        if (mediaType === 'image') {
+          mediaUrl = document.getElementById('imageUrl').value.trim();
+        } else if (mediaType === 'video') {
+          mediaUrl = document.getElementById('videoUrl').value.trim();
+        } else if (mediaType === 'gallery') {
+          galleryData = galleryImages;
         }
 
         // Disable form
@@ -582,7 +911,7 @@ export const AdminUpdateFormPage = ({ admin, update, mode }: AdminUpdateFormProp
           const mode = '${mode}';
           const url = mode === 'create' 
             ? '/api/admin/updates'
-            : '/api/admin/updates/${update?.id || ''}';
+            : '/api/admin/updates/${updateData.id || ''}';
           
           const method = mode === 'create' ? 'POST' : 'PUT';
 
@@ -597,7 +926,9 @@ export const AdminUpdateFormPage = ({ admin, update, mode }: AdminUpdateFormProp
               content,
               category,
               status,
-              featured_image_url: featured_image_url || null,
+              media_type: mediaType,
+              media_url: mediaUrl || null,
+              gallery_images: mediaType === 'gallery' ? galleryData : null,
             }),
           });
 
@@ -638,7 +969,12 @@ export const AdminUpdateFormPage = ({ admin, update, mode }: AdminUpdateFormProp
           window.location.href = '/updates/admin/login';
         }
       }
+
+      // Make functions global
+      window.removeGalleryImage = removeGalleryImage;
+      window.addGalleryImage = addGalleryImage;
     </script>
   </body>
   </html>
 `;
+};
