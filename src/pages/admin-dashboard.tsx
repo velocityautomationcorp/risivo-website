@@ -7,6 +7,59 @@ export const AdminDashboardPage = (admin: any, updates: any[] = []) => {
         draft: updates.filter(u => u.status === 'draft').length,
         totalViews: updates.reduce((sum, u) => sum + (u.view_count || 0), 0)
     };
+    
+    // Generate updates table HTML
+    let updatesHTML = '';
+    if (updates.length > 0) {
+        const rows = updates.map(update => `
+            <tr>
+                <td>
+                    <div class="update-title">${update.title}</div>
+                </td>
+                <td>
+                    <span class="status-badge status-${update.status}">
+                        ${update.status}
+                    </span>
+                </td>
+                <td>${update.category || 'General'}</td>
+                <td>${update.view_count || 0}</td>
+                <td>${new Date(update.created_at).toLocaleDateString()}</td>
+                <td>
+                    <div class="action-buttons">
+                        <button class="btn-icon btn-edit" onclick="editUpdate('${update.slug}')">✏️ Edit</button>
+                        <button class="btn-icon btn-delete" onclick="deleteUpdate('${update.id}')">🗑️ Delete</button>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+        
+        updatesHTML = `
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Status</th>
+                            <th>Category</th>
+                            <th>Views</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rows}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    } else {
+        updatesHTML = `
+            <div class="empty-state">
+                <div class="empty-state-icon">📭</div>
+                <div class="empty-state-text">No updates yet. Create your first one!</div>
+            </div>
+        `;
+    }
 
     return html`
 <!DOCTYPE html>
@@ -405,51 +458,7 @@ export const AdminDashboardPage = (admin: any, updates: any[] = []) => {
             <div class="section-header">
                 <h2 class="section-title">Recent Updates</h2>
             </div>
-            
-            ${updates.length > 0 ? `
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Title</th>
-                            <th>Status</th>
-                            <th>Category</th>
-                            <th>Views</th>
-                            <th>Created</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${updates.map(update => `
-                        <tr>
-                            <td>
-                                <div class="update-title">${update.title}</div>
-                            </td>
-                            <td>
-                                <span class="status-badge status-${update.status}">
-                                    ${update.status}
-                                </span>
-                            </td>
-                            <td>${update.category || 'General'}</td>
-                            <td>${update.view_count || 0}</td>
-                            <td>${new Date(update.created_at).toLocaleDateString()}</td>
-                            <td>
-                                <div class="action-buttons">
-                                    <button class="btn-icon btn-edit" onclick="editUpdate('${update.slug}')">✏️ Edit</button>
-                                    <button class="btn-icon btn-delete" onclick="deleteUpdate('${update.id}')">🗑️ Delete</button>
-                                </div>
-                            </td>
-                        </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            </div>
-            ` : `
-            <div class="empty-state">
-                <div class="empty-state-icon">📭</div>
-                <div class="empty-state-text">No updates yet. Create your first one!</div>
-            </div>
-            `}
+            ${updatesHTML}
         </div>
     </div>
     
