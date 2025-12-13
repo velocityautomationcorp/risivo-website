@@ -825,7 +825,9 @@ app.get("/", (c) => {
             </div>
             
             <button class="waitlist-cta" id="openWaitlistBtn">
-                <span class="cta-text">Get Early Access - 50% OFF Forever</span>
+                <span class="discount-badge">🎉 50% Lifetime Discount</span>
+                <span class="cta-text">Join Our Exclusive Waitlist</span>
+                <span class="cta-subtitle">Be among the first to revolutionize your CRM</span>
             </button>
             
             <!-- Waitlist Modal -->
