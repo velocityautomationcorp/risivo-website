@@ -372,21 +372,182 @@ app.get("/", (c) => {
                 letter-spacing: 1px;
             }
             
-            .email-form {
-                display: flex;
-                gap: 1rem;
-                max-width: 500px;
+            /* Waitlist CTA Button */
+            .waitlist-cta {
                 margin: 3rem auto 2rem;
-                flex-wrap: wrap;
+                padding: 2rem 3rem;
+                background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+                backdrop-filter: blur(20px);
+                border: 2px solid rgba(255, 255, 255, 0.3);
+                border-radius: 20px;
+                cursor: pointer;
+                transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 0.5rem;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            }
+            
+            .waitlist-cta:hover {
+                transform: translateY(-5px) scale(1.02);
+                border-color: rgba(255, 255, 255, 0.5);
+                box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
+            }
+            
+            .discount-badge {
+                background: linear-gradient(135deg, #ffd700, #ffed4e);
+                color: #667eea;
+                padding: 0.5rem 1.5rem;
+                border-radius: 50px;
+                font-size: 0.875rem;
+                font-weight: 800;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                animation: pulse 2s infinite;
+            }
+            
+            @keyframes pulse {
+                0%, 100% { transform: scale(1); }
+                50% { transform: scale(1.05); }
+            }
+            
+            .cta-text {
+                font-size: 1.5rem;
+                font-weight: 800;
+                color: white;
+                letter-spacing: 0.5px;
+            }
+            
+            .cta-subtitle {
+                font-size: 1rem;
+                color: rgba(255, 255, 255, 0.8);
+                font-weight: 400;
+            }
+            
+            /* Modal Styles */
+            .modal-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.8);
+                backdrop-filter: blur(10px);
+                z-index: 1000;
+                padding: 2rem;
+                overflow-y: auto;
+                align-items: center;
                 justify-content: center;
             }
             
-            .email-input {
-                flex: 1;
-                min-width: 250px;
+            .modal-overlay.active {
+                display: flex;
+                animation: fadeIn 0.3s ease;
+            }
+            
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            
+            .modal-content {
+                background: linear-gradient(135deg, rgba(102, 126, 234, 0.95), rgba(118, 75, 162, 0.95));
+                backdrop-filter: blur(20px);
+                border: 2px solid rgba(255, 255, 255, 0.2);
+                border-radius: 24px;
+                padding: 3rem;
+                max-width: 600px;
+                width: 100%;
+                position: relative;
+                animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                box-shadow: 0 30px 90px rgba(0, 0, 0, 0.5);
+            }
+            
+            @keyframes slideUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(50px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            
+            .modal-close {
+                position: absolute;
+                top: 1.5rem;
+                right: 1.5rem;
+                background: rgba(255, 255, 255, 0.2);
+                border: none;
+                color: white;
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                font-size: 1.5rem;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .modal-close:hover {
+                background: rgba(255, 255, 255, 0.3);
+                transform: rotate(90deg);
+            }
+            
+            .modal-header {
+                text-align: center;
+                margin-bottom: 2rem;
+            }
+            
+            .modal-title {
+                font-size: 2rem;
+                font-weight: 800;
+                color: white;
+                margin-bottom: 0.5rem;
+            }
+            
+            .modal-subtitle {
+                font-size: 1.125rem;
+                color: rgba(255, 255, 255, 0.9);
+                font-weight: 600;
+            }
+            
+            .waitlist-form {
+                display: flex;
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+            
+            .form-group {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .form-row {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 1rem;
+            }
+            
+            .form-group label {
+                font-size: 0.875rem;
+                font-weight: 600;
+                color: white;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+            
+            .form-input,
+            .form-select {
                 padding: 1rem 1.5rem;
                 border: 2px solid rgba(255, 255, 255, 0.3);
-                border-radius: 50px;
+                border-radius: 12px;
                 background: rgba(255, 255, 255, 0.1);
                 backdrop-filter: blur(10px);
                 color: white;
@@ -395,36 +556,138 @@ app.get("/", (c) => {
                 transition: all 0.3s ease;
             }
             
-            .email-input::placeholder {
-                color: rgba(255, 255, 255, 0.6);
+            .form-input::placeholder {
+                color: rgba(255, 255, 255, 0.5);
             }
             
-            .email-input:focus {
+            .form-input:focus,
+            .form-select:focus {
                 border-color: rgba(255, 255, 255, 0.6);
                 background: rgba(255, 255, 255, 0.15);
             }
             
-            .submit-btn {
-                padding: 1rem 2.5rem;
+            .form-select {
+                cursor: pointer;
+            }
+            
+            .form-select option {
+                background: #667eea;
+                color: white;
+            }
+            
+            .submit-btn-modal {
+                margin-top: 1rem;
+                padding: 1.25rem 2rem;
                 background: white;
                 color: #667eea;
                 border: none;
-                border-radius: 50px;
-                font-size: 1rem;
+                border-radius: 12px;
+                font-size: 1.125rem;
                 font-weight: 700;
                 cursor: pointer;
                 transition: all 0.3s ease;
-                text-transform: uppercase;
-                letter-spacing: 1px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.5rem;
             }
             
-            .submit-btn:hover {
+            .submit-btn-modal:hover {
                 transform: translateY(-2px);
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
             }
             
-            .submit-btn:active {
+            .submit-btn-modal:active {
                 transform: translateY(0);
+            }
+            
+            .submit-btn-modal:disabled {
+                opacity: 0.6;
+                cursor: not-allowed;
+            }
+            
+            .btn-text {
+                font-size: 1rem;
+                letter-spacing: 0.5px;
+            }
+            
+            .btn-arrow {
+                font-size: 1.5rem;
+                transition: transform 0.3s ease;
+            }
+            
+            .submit-btn-modal:hover .btn-arrow {
+                transform: translateX(5px);
+            }
+            
+            .form-note {
+                font-size: 0.75rem;
+                color: rgba(255, 255, 255, 0.7);
+                text-align: center;
+                margin-top: -0.5rem;
+            }
+            
+            .success-message-modal {
+                display: none;
+                text-align: center;
+                padding: 2rem;
+            }
+            
+            .success-message-modal.show {
+                display: block;
+                animation: fadeIn 0.5s ease;
+            }
+            
+            .success-icon {
+                width: 80px;
+                height: 80px;
+                background: rgba(76, 175, 80, 0.3);
+                border: 3px solid rgba(76, 175, 80, 0.6);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 3rem;
+                color: white;
+                margin: 0 auto 1.5rem;
+                animation: scaleIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            }
+            
+            @keyframes scaleIn {
+                from {
+                    transform: scale(0);
+                }
+                to {
+                    transform: scale(1);
+                }
+            }
+            
+            .success-message-modal h3 {
+                font-size: 1.75rem;
+                font-weight: 800;
+                color: white;
+                margin-bottom: 1rem;
+            }
+            
+            .success-message-modal p {
+                font-size: 1.125rem;
+                color: rgba(255, 255, 255, 0.9);
+                line-height: 1.6;
+                margin-bottom: 1rem;
+            }
+            
+            .waitlist-number {
+                background: rgba(255, 215, 0, 0.2);
+                border: 2px solid rgba(255, 215, 0, 0.4);
+                padding: 1rem;
+                border-radius: 12px;
+                font-size: 1.25rem !important;
+                margin-top: 1.5rem !important;
+            }
+            
+            .waitlist-number strong {
+                color: #ffd700;
+                font-size: 1.5rem;
             }
             
             .social-links {
@@ -461,31 +724,6 @@ app.get("/", (c) => {
                 font-size: 0.875rem;
             }
             
-            .success-message {
-                display: none;
-                background: rgba(76, 175, 80, 0.2);
-                border: 1px solid rgba(76, 175, 80, 0.4);
-                padding: 1rem;
-                border-radius: 12px;
-                margin-top: 1rem;
-            }
-            
-            .success-message.show {
-                display: block;
-                animation: slideIn 0.3s ease;
-            }
-            
-            @keyframes slideIn {
-                from {
-                    opacity: 0;
-                    transform: translateY(-10px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-            }
-            
             @media (max-width: 768px) {
                 .logo img {
                     max-width: 200px;
@@ -504,12 +742,24 @@ app.get("/", (c) => {
                     font-size: 2rem;
                 }
                 
-                .email-form {
-                    flex-direction: column;
+                .waitlist-cta {
+                    padding: 1.5rem 2rem;
                 }
                 
-                .email-input {
-                    min-width: 100%;
+                .cta-text {
+                    font-size: 1.25rem;
+                }
+                
+                .modal-content {
+                    padding: 2rem 1.5rem;
+                }
+                
+                .modal-title {
+                    font-size: 1.5rem;
+                }
+                
+                .form-row {
+                    grid-template-columns: 1fr;
                 }
             }
         </style>
@@ -549,19 +799,73 @@ app.get("/", (c) => {
                 </div>
             </div>
             
-            <form class="email-form" id="emailForm">
-                <input 
-                    type="email" 
-                    class="email-input" 
-                    placeholder="Enter your email address" 
-                    required 
-                    id="emailInput"
-                >
-                <button type="submit" class="submit-btn">Notify Me</button>
-            </form>
+            <button class="waitlist-cta" id="openWaitlistBtn">
+                <span class="discount-badge">🎉 50% Lifetime Discount</span>
+                <span class="cta-text">Join Our Exclusive Waitlist</span>
+                <span class="cta-subtitle">Be among the first to revolutionize your CRM</span>
+            </button>
             
-            <div class="success-message" id="successMessage">
-                ✓ Thanks! We'll notify you when we launch.
+            <!-- Waitlist Modal -->
+            <div class="modal-overlay" id="waitlistModal">
+                <div class="modal-content">
+                    <button class="modal-close" id="closeModalBtn">&times;</button>
+                    
+                    <div class="modal-header">
+                        <h2 class="modal-title">Join the Risivo Revolution</h2>
+                        <p class="modal-subtitle">Get 50% OFF for Life + Exclusive Early Access</p>
+                    </div>
+                    
+                    <form class="waitlist-form" id="waitlistForm">
+                        <div class="form-group">
+                            <label for="language">Preferred Communication Language *</label>
+                            <select id="language" name="language" required class="form-select">
+                                <option value="">Select your language...</option>
+                                <option value="english">English</option>
+                                <option value="spanish">Español (Spanish)</option>
+                                <option value="french">Français (French)</option>
+                                <option value="german">Deutsch (German)</option>
+                                <option value="portuguese">Português (Portuguese)</option>
+                                <option value="chinese">中文 (Chinese)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="businessName">Business Name (Optional)</label>
+                            <input type="text" id="businessName" name="businessName" class="form-input" placeholder="Your Company Name">
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="firstName">First Name *</label>
+                                <input type="text" id="firstName" name="firstName" required class="form-input" placeholder="John">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="lastName">Last Name *</label>
+                                <input type="text" id="lastName" name="lastName" required class="form-input" placeholder="Doe">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email">Email Address *</label>
+                            <input type="email" id="email" name="email" required class="form-input" placeholder="john@company.com">
+                        </div>
+                        
+                        <button type="submit" class="submit-btn-modal" id="submitWaitlistBtn">
+                            <span class="btn-text">Secure My 50% Discount</span>
+                            <span class="btn-arrow">→</span>
+                        </button>
+                        
+                        <p class="form-note">* Required fields. We respect your privacy and will never share your information.</p>
+                    </form>
+                    
+                    <div class="success-message-modal" id="successMessageModal">
+                        <div class="success-icon">✓</div>
+                        <h3>Welcome to Risivo!</h3>
+                        <p>You're on the list! Check your email for your exclusive access link and password setup instructions.</p>
+                        <p class="waitlist-number">You're <strong>#<span id="waitlistNumber">1</span></strong> in line for early access</p>
+                    </div>
+                </div>
             </div>
             
             <div class="social-links">
@@ -642,97 +946,135 @@ app.get("/", (c) => {
                 })
                 .catch(err => console.error('[HEALTH CHECK] Failed:', err));
             
-            // Email Form with Webhook Integration
-            document.getElementById('emailForm').addEventListener('submit', async function(e) {
+            // Modal Controls
+            const modal = document.getElementById('waitlistModal');
+            const openBtn = document.getElementById('openWaitlistBtn');
+            const closeBtn = document.getElementById('closeModalBtn');
+            const waitlistForm = document.getElementById('waitlistForm');
+            const successMessageModal = document.getElementById('successMessageModal');
+            
+            // Open modal
+            openBtn.addEventListener('click', () => {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            });
+            
+            // Close modal
+            closeBtn.addEventListener('click', () => {
+                modal.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            });
+            
+            // Close modal on overlay click
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                }
+            });
+            
+            // Close modal on ESC key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && modal.classList.contains('active')) {
+                    modal.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                }
+            });
+            
+            // Waitlist Form Submission
+            waitlistForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
-                const email = document.getElementById('emailInput').value.trim();
-                const submitBtn = document.querySelector('.submit-btn');
-                const successMessage = document.getElementById('successMessage');
+                // Get form values
+                const formData = {
+                    language: document.getElementById('language').value,
+                    business_name: document.getElementById('businessName').value.trim(),
+                    first_name: document.getElementById('firstName').value.trim(),
+                    last_name: document.getElementById('lastName').value.trim(),
+                    email: document.getElementById('email').value.trim(),
+                    timestamp: new Date().toISOString(),
+                    source: 'waitlist-modal',
+                    discount_offer: '50_percent_lifetime'
+                };
                 
-                console.log('[FORM] Submitting email:', email);
-                console.log('[FORM] Email length:', email.length);
-                console.log('[FORM] Email includes @:', email.includes('@'));
+                const submitBtn = document.getElementById('submitWaitlistBtn');
                 
-                // Very simple email validation - just check for @ and .
-                if (!email || email.length < 5 || !email.includes('@') || !email.includes('.')) {
-                    console.warn('[FORM] Invalid email format');
-                    successMessage.textContent = '⚠ Please enter a valid email address.';
-                    successMessage.style.background = 'rgba(255, 152, 0, 0.2)';
-                    successMessage.style.borderColor = 'rgba(255, 152, 0, 0.4)';
-                    successMessage.classList.add('show');
-                    setTimeout(() => successMessage.classList.remove('show'), 5000);
+                console.log('[WAITLIST] Submitting form:', formData);
+                
+                // Basic validation
+                if (!formData.language || !formData.first_name || !formData.last_name || !formData.email) {
+                    alert('Please fill in all required fields.');
+                    return;
+                }
+                
+                // Email validation
+                if (!formData.email.includes('@') || !formData.email.includes('.')) {
+                    alert('Please enter a valid email address.');
                     return;
                 }
                 
                 // Disable button during submission
                 submitBtn.disabled = true;
-                submitBtn.textContent = 'Submitting...';
+                submitBtn.querySelector('.btn-text').textContent = 'Submitting...';
                 
                 try {
-                    console.log('[FORM] Sending to /api/subscribe...');
+                    console.log('[WAITLIST] Sending to /api/waitlist/join...');
                     
-                    // Send to webhook endpoint
-                    const response = await fetch('/api/subscribe', {
+                    // Send to waitlist endpoint
+                    const response = await fetch('/api/waitlist/join', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({ 
-                            email: email,
-                            timestamp: new Date().toISOString(),
-                            source: 'coming-soon-page'
-                        })
+                        body: JSON.stringify(formData)
                     });
                     
-                    console.log('[FORM] Response status:', response.status);
-                    console.log('[FORM] Response ok:', response.ok);
+                    console.log('[WAITLIST] Response status:', response.status);
+                    console.log('[WAITLIST] Response ok:', response.ok);
                     
                     const data = await response.json();
-                    console.log('[FORM] Response data:', data);
+                    console.log('[WAITLIST] Response data:', data);
                     
                     if (response.ok) {
-                        // Show success message
-                        successMessage.textContent = "✓ Thanks! We'll notify you when we launch.";
-                        successMessage.style.background = 'rgba(76, 175, 80, 0.2)';
-                        successMessage.style.borderColor = 'rgba(76, 175, 80, 0.4)';
-                        successMessage.classList.add('show');
+                        // Hide form and show success message
+                        waitlistForm.style.display = 'none';
+                        successMessageModal.classList.add('show');
                         
-                        // Clear form
-                        document.getElementById('emailInput').value = '';
-                        console.log('[FORM] Subscription successful!');
+                        // Update waitlist number if provided
+                        if (data.waitlist_number) {
+                            document.getElementById('waitlistNumber').textContent = data.waitlist_number;
+                        }
+                        
+                        console.log('[WAITLIST] Submission successful!');
+                        
+                        // Reset form after 5 seconds and close modal
+                        setTimeout(() => {
+                            modal.classList.remove('active');
+                            document.body.style.overflow = 'auto';
+                            waitlistForm.style.display = 'flex';
+                            successMessageModal.classList.remove('show');
+                            waitlistForm.reset();
+                        }, 5000);
                     } else {
                         // Show specific error from server
-                        const errorMsg = data.error || 'Subscription failed';
-                        const errorCode = data.code || 'UNKNOWN';
-                        console.error('[FORM] Subscription error:', errorMsg, 'Code:', errorCode);
-                        console.error('[FORM] Details:', data.details);
-                        throw new Error(errorMsg);
+                        const errorMsg = data.error || 'Submission failed';
+                        console.error('[WAITLIST] Submission error:', errorMsg);
+                        console.error('[WAITLIST] Details:', data.details);
+                        alert(errorMsg);
                     }
                 } catch (error) {
-                    console.error('[FORM] Catch block error:', error);
+                    console.error('[WAITLIST] Catch block error:', error);
                     // Show error message with more details
-                    let errorText = '⚠ Oops! Something went wrong. Please try again.';
+                    let errorText = 'Oops! Something went wrong. Please try again.';
                     if (error.message === 'Failed to fetch') {
-                        errorText = '⚠ Connection error. Please check your internet and try again.';
-                        console.error('[FORM] Network error - Failed to fetch');
-                    } else if (error.message.includes('configuration')) {
-                        errorText = '⚠ Service is being configured. Please try again in a few minutes.';
-                        console.error('[FORM] Configuration error');
+                        errorText = 'Connection error. Please check your internet and try again.';
+                        console.error('[WAITLIST] Network error - Failed to fetch');
                     }
-                    successMessage.textContent = errorText;
-                    successMessage.style.background = 'rgba(244, 67, 54, 0.2)';
-                    successMessage.style.borderColor = 'rgba(244, 67, 54, 0.4)';
-                    successMessage.classList.add('show');
+                    alert(errorText);
                 } finally {
                     // Re-enable button
                     submitBtn.disabled = false;
-                    submitBtn.textContent = 'NOTIFY ME';
-                    
-                    // Hide message after 5 seconds
-                    setTimeout(() => {
-                        successMessage.classList.remove('show');
-                    }, 5000);
+                    submitBtn.querySelector('.btn-text').textContent = 'Secure My 50% Discount';
                 }
             });
         </script>
