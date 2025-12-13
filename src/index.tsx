@@ -415,16 +415,17 @@ app.get("/", (c) => {
             }
             
             .cta-text {
-                font-size: 1.5rem;
+                font-size: 1.3rem;
                 font-weight: 800;
                 color: white;
                 letter-spacing: 0.5px;
             }
             
             .cta-subtitle {
-                font-size: 1rem;
-                color: rgba(255, 255, 255, 0.8);
+                font-size: 0.9rem;
+                color: rgba(255, 255, 255, 0.9);
                 font-weight: 400;
+                line-height: 1.4;
             }
             
             /* Modal Styles */
@@ -826,8 +827,8 @@ app.get("/", (c) => {
             
             <button class="waitlist-cta" id="openWaitlistBtn">
                 <span class="discount-badge">🎉 50% Lifetime Discount</span>
-                <span class="cta-text">Join Our Exclusive Waitlist</span>
-                <span class="cta-subtitle">Be among the first to revolutionize your CRM</span>
+                <span class="cta-text">Join Our Exclusive Waitlist for FREE</span>
+                <span class="cta-subtitle">Be among the first to revolutionize your CRM<br>Get Immediate Access to Our Development Update Platform</span>
             </button>
             
             <!-- Waitlist Modal -->
