@@ -782,51 +782,22 @@ export const AdminUpdateFormPage = ({ admin, update, mode }: AdminUpdateFormProp
           if (!url) return;
           
           // Check if YouTube
-          const youtubeMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
+          const youtubeMatch = url.match(/(?:youtube\\.com\\/watch\\?v=|youtu\\.be\\/)([a-zA-Z0-9_-]+)/);
           if (youtubeMatch) {
-            videoPreviewContainer.innerHTML = \`
-              <iframe 
-                width="100%" 
-                height="400" 
-                src="https://www.youtube.com/embed/\${youtubeMatch[1]}" 
-                frameborder="0" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                allowfullscreen
-                style="border-radius: 8px; margin-top: 1rem;"
-              ></iframe>
-            \`;
+            videoPreviewContainer.innerHTML = '<iframe width="100%" height="400" src="https://www.youtube.com/embed/' + youtubeMatch[1] + '" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius: 8px; margin-top: 1rem;"></iframe>';
             return;
           }
           
           // Check if Vimeo
-          const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+          const vimeoMatch = url.match(/vimeo\\.com\\/(\\d+)/);
           if (vimeoMatch) {
-            videoPreviewContainer.innerHTML = \`
-              <iframe 
-                width="100%" 
-                height="400" 
-                src="https://player.vimeo.com/video/\${vimeoMatch[1]}" 
-                frameborder="0" 
-                allow="autoplay; fullscreen; picture-in-picture" 
-                allowfullscreen
-                style="border-radius: 8px; margin-top: 1rem;"
-              ></iframe>
-            \`;
+            videoPreviewContainer.innerHTML = '<iframe width="100%" height="400" src="https://player.vimeo.com/video/' + vimeoMatch[1] + '" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen style="border-radius: 8px; margin-top: 1rem;"></iframe>';
             return;
           }
           
           // Assume direct video URL
-          if (url.match(/\.(mp4|webm|ogg)$/i)) {
-            videoPreviewContainer.innerHTML = \`
-              <video 
-                controls 
-                width="100%" 
-                style="border-radius: 8px; margin-top: 1rem; max-height: 400px;"
-              >
-                <source src="\${url}" type="video/mp4">
-                Your browser does not support the video tag.
-              </video>
-            \`;
+          if (url.match(/\\.(mp4|webm|ogg)$/i)) {
+            videoPreviewContainer.innerHTML = '<video controls width="100%" style="border-radius: 8px; margin-top: 1rem; max-height: 400px;"><source src="' + url + '" type="video/mp4">Your browser does not support the video tag.</video>';
           }
         });
         
@@ -855,12 +826,12 @@ export const AdminUpdateFormPage = ({ admin, update, mode }: AdminUpdateFormProp
 
       function renderGallery() {
         const grid = document.getElementById('galleryGrid');
-        grid.innerHTML = galleryImages.map((img, idx) => \`
-          <div class="gallery-item" data-url="\${img}">
-            <img src="\${img}" alt="Gallery image \${idx + 1}">
-            <button type="button" class="gallery-item-remove" onclick="removeGalleryImage(\${idx})">×</button>
-          </div>
-        \`).join('') + '<div class="add-gallery-image" onclick="addGalleryImage()">+</div>';
+        grid.innerHTML = galleryImages.map((img, idx) => 
+          '<div class="gallery-item" data-url="' + img + '">' +
+            '<img src="' + img + '" alt="Gallery image ' + (idx + 1) + '">' +
+            '<button type="button" class="gallery-item-remove" onclick="removeGalleryImage(' + idx + ')">×</button>' +
+          '</div>'
+        ).join('') + '<div class="add-gallery-image" onclick="addGalleryImage()">+</div>';
       }
 
       // Gallery URL input
