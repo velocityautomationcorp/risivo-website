@@ -925,7 +925,7 @@ app.get("/", (c) => {
             </div>
             
             <div class="footer">
-                © <span id="currentYear"></span> Risivo. All rights reserved.
+                © <span id="currentYear"></span> Risivo® by Velocity Automation Corp. All rights reserved.
             </div>
         </div>
         
