@@ -381,25 +381,3 @@ export const UpdateDetailPage = (user: any, update: any) => html`
 </body>
 </html>
 `;
-
-function formatDate(dateString: string) {
-    const date = new Date(dateString);
-    const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
-    return date.toLocaleDateString('en-US', options);
-}
-
-function renderMarkdown(content: string) {
-    // Simple markdown to HTML conversion
-    return content
-        .replace(/^# (.+)$/gm, '<h1>$1</h1>')
-        .replace(/^## (.+)$/gm, '<h2>$1</h2>')
-        .replace(/^### (.+)$/gm, '<h3>$1</h3>')
-        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\*(.+?)\*/g, '<em>$1</em>')
-        .replace(/^- (.+)$/gm, '<li>$1</li>')
-        .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
-        .split('\n\n')
-        .map(p => p.trim() ? (p.startsWith('<') ? p : `<p>${p}</p>`) : '')
-        .join('\n');
-}
-`;
