@@ -279,7 +279,8 @@ app.get("/", (c) => {
                 align-items: center;
                 justify-content: center;
                 position: relative;
-                overflow: hidden;
+                overflow-x: hidden;
+                overflow-y: auto;
             }
             
             /* Animated background elements */
