@@ -124,7 +124,7 @@ adminUpdates.post('/', async (c) => {
     const body = await c.req.json();
     
     // Validate required fields
-    const { title, content, excerpt, status, category } = body;
+    const { title, content, excerpt, status, category, push_to_social_media } = body;
     
     if (!title || !content) {
       return c.json({ 
@@ -179,9 +179,40 @@ adminUpdates.post('/', async (c) => {
       }, 500);
     }
     
+    // Post to social media if checkbox was checked and status is published
+    let socialMediaResults = null;
+    if (push_to_social_media && status === 'published') {
+      try {
+        const socialMediaPayload = {
+          title: newUpdate.title,
+          content: newUpdate.content,
+          excerpt: newUpdate.excerpt,
+          slug: newUpdate.slug,
+          featured_image: newUpdate.featured_image_url,
+          tags: body.tags || []
+        };
+        
+        const socialResponse = await fetch(`${new URL(c.req.url).origin}/api/social-media/post`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(socialMediaPayload)
+        });
+        
+        if (socialResponse.ok) {
+          socialMediaResults = await socialResponse.json();
+        }
+      } catch (socialError) {
+        console.error('Social media posting error:', socialError);
+        // Don't fail the update creation if social posting fails
+      }
+    }
+    
     return c.json({ 
       success: true, 
-      update: newUpdate 
+      update: newUpdate,
+      social_media: socialMediaResults
     }, 201);
     
   } catch (error) {
@@ -320,9 +351,43 @@ adminUpdates.put('/:id', async (c) => {
       }, 500);
     }
     
+    // Post to social media if checkbox was checked and status changed to published
+    let socialMediaResults = null;
+    const wasPublished = existing.status === 'published';
+    const isNowPublished = updated.status === 'published';
+    
+    if (body.push_to_social_media && isNowPublished && !wasPublished) {
+      try {
+        const socialMediaPayload = {
+          title: updated.title,
+          content: updated.content,
+          excerpt: updated.excerpt,
+          slug: updated.slug,
+          featured_image: updated.featured_image_url,
+          tags: body.tags || []
+        };
+        
+        const socialResponse = await fetch(`${new URL(c.req.url).origin}/api/social-media/post`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(socialMediaPayload)
+        });
+        
+        if (socialResponse.ok) {
+          socialMediaResults = await socialResponse.json();
+        }
+      } catch (socialError) {
+        console.error('Social media posting error:', socialError);
+        // Don't fail the update if social posting fails
+      }
+    }
+    
     return c.json({ 
       success: true, 
-      update: updated 
+      update: updated,
+      social_media: socialMediaResults
     });
     
   } catch (error) {

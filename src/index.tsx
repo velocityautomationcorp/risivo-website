@@ -11,6 +11,7 @@ import userAuthRoute from './routes/user-auth'
 import updatesRoute from './routes/updates'
 import adminAuthRoute from './routes/admin-auth'
 import adminUpdatesRoute from './routes/admin-updates'
+import socialMediaRoute from './routes/social-media'
 import { UserLoginPage } from './pages/user-login'
 import { UserDashboardPage } from './pages/user-dashboard'
 import { UpdateDetailPage } from './pages/update-detail'
@@ -40,6 +41,7 @@ app.route('/api/user', userAuthRoute)
 app.route('/api/updates', updatesRoute)
 app.route('/api/admin', adminAuthRoute)
 app.route('/api/admin/updates', adminUpdatesRoute)
+app.route('/api/social-media', socialMediaRoute)
 
 
 // Base64 encoded logo
