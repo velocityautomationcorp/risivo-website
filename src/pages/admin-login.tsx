@@ -44,9 +44,11 @@ export const AdminLoginPage = () => html`
         }
         
         .logo img {
-            max-width: 220px;
+            max-width: 100%;
+            width: 220px;
             height: auto;
             margin-bottom: 10px;
+            object-fit: contain;
         }
         
         .logo p {
