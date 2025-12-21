@@ -1,6 +1,6 @@
 import { html } from 'hono/html';
 
-export const InvestorNDAReviewPage = (user: any) => {
+export const InvestorNDAReviewPage = (user: any = { first_name: 'Investor', last_name: '', business_name: '' }) => {
   return html`<!DOCTYPE html>
 <html lang="en">
 <head>
