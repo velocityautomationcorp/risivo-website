@@ -140,10 +140,78 @@ export const InvestorDashboardPageV2 = (userData?: any) => html`
         }
 
         .content-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 24px;
             margin-bottom: 30px;
+        }
+
+        .video-section {
+            margin-bottom: 30px;
+        }
+
+        .video-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .video-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .video-card .card-icon {
+            width: 80px;
+            height: 80px;
+            font-size: 36px;
+            flex-shrink: 0;
+        }
+
+        .video-card .card-content {
+            flex: 1;
+        }
+
+        .video-card .card-title {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .video-card .btn-access {
+            width: auto;
+            padding: 14px 40px;
+            flex-shrink: 0;
+        }
+
+        .documents-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+        }
+
+        @media (max-width: 1200px) {
+            .documents-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .video-card {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .video-card .btn-access {
+                width: 100%;
+            }
+
+            .documents-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         .content-card {
@@ -351,6 +419,13 @@ export const InvestorDashboardPageV2 = (userData?: any) => html`
             </div>
         </div>
 
+        <!-- Video Section (populated by JS) -->
+        <div id="videoSection" class="video-section" style="display: none;"></div>
+
+        <!-- Documents Section (populated by JS) -->
+        <h3 id="documentsTitle" style="color: white; margin-bottom: 20px; display: none;">📄 Investor Documents</h3>
+        <div id="documentsGrid" class="documents-grid"></div>
+
         <!-- Footer -->
         <footer>
             <p>&copy; <span id="copyrightYear"></span> Risivo™ by Velocity Automation Corp. All rights reserved. | Confidential Investor Content</p>
@@ -442,10 +517,17 @@ export const InvestorDashboardPageV2 = (userData?: any) => html`
 
         // Render content cards
         function renderContent(content, investorStatus) {
-            const container = document.getElementById('contentGrid');
+            const loadingContainer = document.getElementById('contentGrid');
+            const videoSection = document.getElementById('videoSection');
+            const documentsTitle = document.getElementById('documentsTitle');
+            const documentsGrid = document.getElementById('documentsGrid');
+
+            // Hide loading
+            loadingContainer.style.display = 'none';
 
             if (content.length === 0) {
-                container.innerHTML = \`
+                loadingContainer.style.display = 'block';
+                loadingContainer.innerHTML = \`
                     <div class="empty-state">
                         <div class="empty-state-icon">📭</div>
                         <h3 style="color: white; margin-bottom: 8px;">No content available yet</h3>
@@ -455,20 +537,59 @@ export const InvestorDashboardPageV2 = (userData?: any) => html`
                 return;
             }
 
-            // Sort content: featured first, then by sort_order
-            const sortedContent = [...content].sort((a, b) => {
-                if (a.is_featured && !b.is_featured) return -1;
-                if (!a.is_featured && b.is_featured) return 1;
-                return a.sort_order - b.sort_order;
-            });
+            // Separate videos and documents
+            const videos = content.filter(item => item.content_type === 'video');
+            const documents = content.filter(item => item.content_type !== 'video');
 
-            let cardsHTML = '';
-            for (const item of sortedContent) {
-                const isLocked = investorStatus === 'nda_signed' && item.visibility === 'active_investors_only';
-                cardsHTML += createContentCard(item, isLocked);
+            // Sort each by sort_order
+            videos.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+            documents.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
+
+            // Render videos at top
+            if (videos.length > 0) {
+                videoSection.style.display = 'block';
+                let videoHTML = '';
+                for (const item of videos) {
+                    const isLocked = investorStatus === 'nda_signed' && item.visibility === 'active_investors_only';
+                    videoHTML += createVideoCard(item, isLocked);
+                }
+                videoSection.innerHTML = videoHTML;
             }
 
-            container.innerHTML = cardsHTML;
+            // Render documents in grid below
+            if (documents.length > 0) {
+                documentsTitle.style.display = 'block';
+                let docsHTML = '';
+                for (const item of documents) {
+                    const isLocked = investorStatus === 'nda_signed' && item.visibility === 'active_investors_only';
+                    docsHTML += createContentCard(item, isLocked);
+                }
+                documentsGrid.innerHTML = docsHTML;
+            }
+        }
+
+        // Create video card HTML (horizontal layout)
+        function createVideoCard(item, isLocked) {
+            const ctaText = item.cta_button_text || 'Watch Video';
+            const formattedDate = item.updated_at ? formatDate(item.updated_at) : 'Recently added';
+
+            return \`
+                <div class="video-card \${isLocked ? 'locked' : ''}" onclick="accessContent('\${item.id}', '\${item.content_type}', \${isLocked})">
+                    \${isLocked ? '<div class="lock-overlay">🔒 Locked</div>' : ''}
+                    <div class="card-icon">\${item.icon || '🎬'}</div>
+                    <div class="card-content">
+                        <h3 class="card-title">\${item.title}</h3>
+                        <p class="card-description">\${item.description || 'Exclusive video content for investors'}</p>
+                        <div class="card-meta">
+                            <span>🎬 Video</span>
+                            <span>Updated: \${formattedDate}</span>
+                        </div>
+                    </div>
+                    <button class="btn-access" \${isLocked ? 'disabled' : ''}>
+                        \${isLocked ? '🔒 Awaiting Approval' : ctaText}
+                    </button>
+                </div>
+            \`;
         }
 
         // Create content card HTML
