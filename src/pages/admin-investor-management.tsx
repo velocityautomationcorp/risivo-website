@@ -1,4 +1,4 @@
-import { html } from 'hono/html';
+import { html, raw } from 'hono/html';
 
 export const AdminInvestorManagementPage = (admin: any, investors: any[] = []) => {
   // Calculate stats
