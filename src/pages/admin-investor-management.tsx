@@ -145,13 +145,14 @@ export const AdminInvestorManagementPage = (admin: any, investors: any[] = []) =
             width: 100%;
             background: white;
             border-radius: 12px;
-            overflow: hidden;
+            overflow-x: auto;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
         }
 
         .investor-table table {
             width: 100%;
             border-collapse: collapse;
+            min-width: 1000px;
         }
 
         .investor-table th {
@@ -161,12 +162,22 @@ export const AdminInvestorManagementPage = (admin: any, investors: any[] = []) =
             font-weight: 600;
             color: #333;
             border-bottom: 2px solid #e9ecef;
+            white-space: nowrap;
+        }
+        
+        .investor-table th:last-child {
+            min-width: 280px;
         }
 
         .investor-table td {
             padding: 16px;
             border-bottom: 1px solid #e9ecef;
             color: #666;
+            vertical-align: middle;
+        }
+        
+        .investor-table td:last-child {
+            min-width: 280px;
         }
 
         .investor-table tbody tr:hover {
@@ -230,13 +241,16 @@ export const AdminInvestorManagementPage = (admin: any, investors: any[] = []) =
         .action-buttons {
             display: flex;
             gap: 8px;
+            flex-wrap: nowrap;
+            align-items: center;
+            justify-content: flex-start;
         }
 
         .btn-action {
-            padding: 12px 20px;
+            padding: 10px 16px;
             border: none;
             border-radius: 8px;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -244,6 +258,8 @@ export const AdminInvestorManagementPage = (admin: any, investors: any[] = []) =
             display: inline-flex;
             align-items: center;
             gap: 6px;
+            white-space: nowrap;
+            flex-shrink: 0;
         }
 
         .btn-action:hover {
