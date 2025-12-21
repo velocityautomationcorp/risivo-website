@@ -529,7 +529,7 @@ export const AdminInvestorManagementPage = (admin: any, investors: any[] = []) =
     </div>
 
     <script>
-        let allInvestors = ${JSON.stringify(investors)};
+        let allInvestors = ${raw(JSON.stringify(investors))};
         let currentFilter = 'all';
 
         // Initialize page
@@ -591,6 +591,13 @@ export const AdminInvestorManagementPage = (admin: any, investors: any[] = []) =
                 const joinedDate = new Date(investor.created_at).toLocaleDateString();
                 const tierDisplay = investor.investor_tier ? formatTier(investor.investor_tier) : '-';
                 
+                // Build action buttons separately to avoid HTML entity encoding
+                let actionButtons = '<button class="btn-action btn-view" onclick="viewInvestor(\'' + investor.id + '\')">👁️ View</button>';
+                if (investor.investor_status === 'nda_signed') {
+                    actionButtons += '<button class="btn-action btn-approve" onclick="approveInvestor(\'' + investor.id + '\')">✅ Approve</button>';
+                    actionButtons += '<button class="btn-action btn-reject" onclick="rejectInvestor(\'' + investor.id + '\')">❌ Reject</button>';
+                }
+                
                 tableHTML += \`
                     <tr>
                         <td>
@@ -609,10 +616,7 @@ export const AdminInvestorManagementPage = (admin: any, investors: any[] = []) =
                         <td>\${joinedDate}</td>
                         <td>
                             <div class="action-buttons">
-                                <button class="btn-action btn-view" onclick="viewInvestor('\${investor.id}')">
-                                    👁️ View
-                                </button>
-                                \${investor.investor_status === 'nda_signed' ? '<button class="btn-action btn-approve" onclick="approveInvestor' + "('" + investor.id + "')" + '">✅ Approve</button><button class="btn-action btn-reject" onclick="rejectInvestor' + "('" + investor.id + "')" + '">❌ Reject</button>' : ''}
+                                \${actionButtons}
                             </div>
                         </td>
                     </tr>
