@@ -45,9 +45,8 @@ export const InvestorDashboardPageV2 = (userData?: any) => html`
         }
 
         .logout-btn-container {
-            position: absolute;
-            top: 20px;
-            right: 30px;
+            text-align: center;
+            margin-top: 20px;
         }
 
         .header-content {
@@ -357,12 +356,6 @@ export const InvestorDashboardPageV2 = (userData?: any) => html`
         }
 
         @media (max-width: 768px) {
-            .logout-btn-container {
-                position: static;
-                text-align: center;
-                margin-bottom: 20px;
-            }
-
             .logo {
                 width: 100px;
             }
@@ -385,11 +378,6 @@ export const InvestorDashboardPageV2 = (userData?: any) => html`
     <div class="dashboard-container">
         <!-- Header -->
         <div class="dashboard-header">
-            <!-- Logout Button (Top Right) -->
-            <div class="logout-btn-container">
-                <button class="btn-logout" onclick="logout()">🚪 Logout</button>
-            </div>
-
             <!-- Centered Logo and Welcome Text -->
             <div class="header-content">
                 <img src="/risivo-logo.png" alt="Risivo Logo" class="logo">
@@ -402,6 +390,11 @@ export const InvestorDashboardPageV2 = (userData?: any) => html`
             <!-- Status Badges (Centered) -->
             <div class="status-badges" id="statusBadges">
                 <span class="investor-badge">🔐 Verified Investor</span>
+            </div>
+
+            <!-- Logout Button (Under Badges) -->
+            <div class="logout-btn-container">
+                <button class="btn-logout" onclick="logout()">🚪 Logout</button>
             </div>
         </div>
 
