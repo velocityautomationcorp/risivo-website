@@ -1950,7 +1950,10 @@ app.get('/updates/reset-password', async (c) => {
 app.get('/updates/dashboard', async (c) => {
   const sessionToken = getCookie(c, 'user_session');
   
+  console.log('[DASHBOARD] Session token:', sessionToken ? 'present' : 'MISSING');
+  
   if (!sessionToken) {
+    console.log('[DASHBOARD] No session token - redirecting to login');
     return c.redirect('/updates/login');
   }
   
@@ -1959,31 +1962,39 @@ app.get('/updates/dashboard', async (c) => {
   const supabaseKey = c.env?.SUPABASE_SERVICE_ROLE_KEY;
   
   if (!supabaseUrl || !supabaseKey) {
+    console.log('[DASHBOARD] Supabase config missing - redirecting to login');
     return c.redirect('/updates/login');
   }
   
   const supabase = createClient(supabaseUrl, supabaseKey);
   
-  const { data: session } = await supabase
+  const { data: session, error: sessionError } = await supabase
     .from('user_sessions')
     .select('user_id, expires_at')
     .eq('session_token', sessionToken)
     .single();
   
+  console.log('[DASHBOARD] Session lookup result:', { session, sessionError });
+  
   if (!session || new Date(session.expires_at) < new Date()) {
+    console.log('[DASHBOARD] Session invalid or expired - redirecting to login');
     return c.redirect('/updates/login');
   }
   
-  const { data: user } = await supabase
+  const { data: user, error: userError } = await supabase
     .from('users')
     .select('id, email, first_name, last_name, business_name, status')
     .eq('id', session.user_id)
     .single();
   
+  console.log('[DASHBOARD] User lookup result:', { user, userError });
+  
   if (!user || user.status !== 'active') {
+    console.log('[DASHBOARD] User not found or not active. Status:', user?.status, '- redirecting to login');
     return c.redirect('/updates/login');
   }
   
+  console.log('[DASHBOARD] Access granted for user:', user.email);
   return c.html(UserDashboardPage(user));
 });
 
