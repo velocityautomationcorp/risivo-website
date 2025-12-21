@@ -591,13 +591,6 @@ export const AdminInvestorManagementPage = (admin: any, investors: any[] = []) =
                 const joinedDate = new Date(investor.created_at).toLocaleDateString();
                 const tierDisplay = investor.investor_tier ? formatTier(investor.investor_tier) : '-';
                 
-                // Build action buttons separately to avoid HTML entity encoding
-                let actionButtons = '<button class="btn-action btn-view" onclick="viewInvestor(\'' + investor.id + '\')">👁️ View</button>';
-                if (investor.investor_status === 'nda_signed') {
-                    actionButtons += '<button class="btn-action btn-approve" onclick="approveInvestor(\'' + investor.id + '\')">✅ Approve</button>';
-                    actionButtons += '<button class="btn-action btn-reject" onclick="rejectInvestor(\'' + investor.id + '\')">❌ Reject</button>';
-                }
-                
                 tableHTML += \`
                     <tr>
                         <td>
@@ -616,7 +609,21 @@ export const AdminInvestorManagementPage = (admin: any, investors: any[] = []) =
                         <td>\${joinedDate}</td>
                         <td>
                             <div class="action-buttons">
-                                \${actionButtons}
+                                <button class="btn-action btn-view" data-investor-id="\${investor.id}">
+                                    👁️ View
+                                </button>\`;
+                
+                if (investor.investor_status === 'nda_signed') {
+                    tableHTML += \`
+                                <button class="btn-action btn-approve" data-investor-id="\${investor.id}">
+                                    ✅ Approve
+                                </button>
+                                <button class="btn-action btn-reject" data-investor-id="\${investor.id}">
+                                    ❌ Reject
+                                </button>\`;
+                }
+                
+                tableHTML += \`
                             </div>
                         </td>
                     </tr>
@@ -629,6 +636,25 @@ export const AdminInvestorManagementPage = (admin: any, investors: any[] = []) =
             \`;
 
             container.innerHTML = tableHTML;
+            
+            // Add event listeners using event delegation
+            container.querySelectorAll('.btn-view').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    viewInvestor(btn.getAttribute('data-investor-id'));
+                });
+            });
+            
+            container.querySelectorAll('.btn-approve').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    approveInvestor(btn.getAttribute('data-investor-id'));
+                });
+            });
+            
+            container.querySelectorAll('.btn-reject').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    rejectInvestor(btn.getAttribute('data-investor-id'));
+                });
+            });
         }
 
         // Format status
@@ -721,14 +747,35 @@ export const AdminInvestorManagementPage = (admin: any, investors: any[] = []) =
             document.getElementById('modalBody').innerHTML = modalContent;
 
             // Build footer actions
-            let footerHTML = '<button class="btn btn-secondary" onclick="closeModal()">Close</button>';
+            const modalFooter = document.getElementById('modalFooter');
+            let footerHTML = '<button class="btn btn-secondary btn-modal-close">Close</button>';
             
             if (investor.investor_status === 'nda_signed') {
-                footerHTML += '<button class="btn btn-approve" onclick="approveInvestor' + "('" + investor.id + "', true)" + '">✅ Approve Investor</button>';
-                footerHTML += '<button class="btn btn-reject" onclick="rejectInvestor' + "('" + investor.id + "', true)" + '">❌ Reject</button>';
+                footerHTML += '<button class="btn btn-approve btn-modal-approve" data-investor-id="' + investor.id + '">✅ Approve Investor</button>';
+                footerHTML += '<button class="btn btn-reject btn-modal-reject" data-investor-id="' + investor.id + '">❌ Reject</button>';
             }
 
-            document.getElementById('modalFooter').innerHTML = footerHTML;
+            modalFooter.innerHTML = footerHTML;
+            
+            // Add event listeners for modal buttons
+            const closeBtn = modalFooter.querySelector('.btn-modal-close');
+            if (closeBtn) {
+                closeBtn.addEventListener('click', closeModal);
+            }
+            
+            const approveBtn = modalFooter.querySelector('.btn-modal-approve');
+            if (approveBtn) {
+                approveBtn.addEventListener('click', () => {
+                    approveInvestor(approveBtn.getAttribute('data-investor-id'), true);
+                });
+            }
+            
+            const rejectBtn = modalFooter.querySelector('.btn-modal-reject');
+            if (rejectBtn) {
+                rejectBtn.addEventListener('click', () => {
+                    rejectInvestor(rejectBtn.getAttribute('data-investor-id'), true);
+                });
+            }
 
             // Show modal
             document.getElementById('investorModal').classList.add('active');
