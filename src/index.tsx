@@ -15,6 +15,7 @@ import adminUpdatesRoute from './routes/admin-updates'
 import adminInvestorRoute from './routes/admin-investor'
 import interactionsRoute from './routes/update-interactions'
 import adminCategoriesRoute from './routes/admin-categories'
+import adminInvestorContentRoute from './routes/admin-investor-content'
 import authNewRoute from './routes/auth-new'
 import { UserLoginPage } from './pages/user-login'
 import { UserDashboardPage } from './pages/user-dashboard'
@@ -29,6 +30,7 @@ import { AdminCategoriesPage } from './pages/admin-categories'
 import { PrivacyPolicyPage } from './pages/privacy-policy'
 import { TermsOfServicePage } from './pages/terms-of-service'
 import { TestCookiePage } from './pages/test-cookie'
+import { AdminInvestorContentPage } from './pages/admin-investor-content'
 
 type Bindings = {
   WEBHOOK_URL?: string
@@ -57,6 +59,7 @@ app.route('/api/admin', adminAuthRoute)
 app.route('/api/admin/updates', adminUpdatesRoute)
 app.route('/api/admin/categories', adminCategoriesRoute)
 app.route('/api/admin', adminInvestorRoute)
+app.route('/api/admin/investor-content', adminInvestorContentRoute)
 app.route('/api/auth', authNewRoute)  // New signup/NDA API routes
 app.route('/updates', authNewRoute)  // New signup/NDA page routes
 
@@ -2183,6 +2186,49 @@ app.get('/updates/admin/investors', async (c) => {
     .order('created_at', { ascending: false });
   
   return c.html(AdminInvestorManagementPage(admin, investors || []));
+});
+
+// Admin Investor Content Management (Protected)
+app.get('/updates/admin/investor-content', async (c) => {
+  const sessionToken = getCookie(c, 'admin_session');
+  
+  if (!sessionToken) {
+    return c.redirect('/updates/admin/login');
+  }
+  
+  // Verify admin session
+  const supabaseUrl = c.env?.SUPABASE_URL;
+  const supabaseKey = c.env?.SUPABASE_SERVICE_ROLE_KEY;
+  
+  if (!supabaseUrl || !supabaseKey) {
+    return c.redirect('/updates/admin/login');
+  }
+  
+  const supabase = createClient(supabaseUrl, supabaseKey);
+  
+  const { data: session } = await supabase
+    .from('admin_sessions')
+    .select('*, admin_users(*)')
+    .eq('session_token', sessionToken)
+    .single();
+  
+  if (!session || new Date(session.expires_at) < new Date()) {
+    return c.redirect('/updates/admin/login');
+  }
+  
+  const admin = session.admin_users;
+  
+  if (!admin || !admin.is_active) {
+    return c.redirect('/updates/admin/login');
+  }
+  
+  // Get all investor content
+  const { data: content } = await supabase
+    .from('investor_content')
+    .select('*')
+    .order('sort_order', { ascending: true });
+  
+  return c.html(AdminInvestorContentPage(admin, content || []));
 });
 
 // Admin Categories Management (Protected)

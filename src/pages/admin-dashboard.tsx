@@ -246,6 +246,10 @@ export const AdminDashboardPage = (admin: any, updates: any[] = []) => {
                 <span>👥</span>
                 <span>Manage Investors</span>
             </button>
+            <button class="btn-secondary" onclick="window.location.href='/updates/admin/investor-content'">
+                <span>📂</span>
+                <span>Manage Investor Content</span>
+            </button>
         </div>
         
         <!-- Updates List -->

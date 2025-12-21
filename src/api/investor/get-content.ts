@@ -69,7 +69,7 @@ export async function getInvestorContent(c: Context<{ Bindings: Bindings }>) {
       return c.json({ success: false, error: 'Access denied' }, 403);
     }
 
-    // Determine which content the user can access
+    // Determine which content the user can access based on investor_status
     let contentQuery = supabase
       .from('investor_content')
       .select('*')
@@ -81,15 +81,22 @@ export async function getInvestorContent(c: Context<{ Bindings: Bindings }>) {
       // Only show content that doesn't require NDA
       contentQuery = contentQuery.eq('requires_nda', false);
     } else if (user.investor_status === 'nda_signed') {
-      // Show all content that allows NDA-signed investors
-      // (admin approval not required for these items)
+      // Show content that allows NDA-signed investors (but not active-only)
       contentQuery = contentQuery.in('visibility', ['all_investors', 'nda_signed_only']);
     } else if (user.investor_status === 'active') {
-      // Show all content except those with specific tier restrictions
-      // Will filter by tier in the code below
+      // ACTIVE INVESTORS: Show ALL content (all visibility levels)
+      // No visibility filter needed - they have full access
+      // Tier filtering happens later if needed
+      console.log('[GET-CONTENT] Active investor - granting full content access');
     }
 
     const { data: content, error: contentError } = await contentQuery;
+    
+    console.log('[GET-CONTENT] Query result:', {
+      investor_status: user.investor_status,
+      content_count: content?.length || 0,
+      content_titles: content?.map(c => c.title) || []
+    });
 
     if (contentError) {
       console.error('[GET-CONTENT] Error fetching content:', contentError);
