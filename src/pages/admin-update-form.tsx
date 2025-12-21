@@ -313,6 +313,12 @@ export const AdminUpdateFormPage = ({ admin, update, mode, categories = [] }: Ad
       </div>
     </div>
 
+    <!-- Footer -->
+    <footer style="text-align: center; padding: 30px 20px; margin-top: 50px; color: #666; font-size: 14px; border-top: 1px solid #e9ecef;">
+        <p>&copy; <span id="copyrightYear"></span> Risivo™ by Velocity Automation Corp. All rights reserved.</p>
+    </footer>
+    <script>document.getElementById('copyrightYear').textContent = new Date().getFullYear();</script>
+
     <script>
       // Wait for Quill to load
       let quill;
