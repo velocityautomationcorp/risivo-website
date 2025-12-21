@@ -61,7 +61,7 @@ export const TestCookiePage = () => html`
                 let html = '<h3>Current Cookies:</h3>';
                 cookieArray.forEach(cookie => {
                     const [name, value] = cookie.split('=');
-                    html += \`<div class="cookie-info"><strong>\${name}:</strong> \${value}</div>\`;
+                    html += '<div class="cookie-info"><strong>' + name + ':</strong> ' + value + '</div>';
                 });
                 resultsDiv.innerHTML = html;
             } else {
@@ -86,12 +86,12 @@ export const TestCookiePage = () => html`
                 const data = await response.json();
                 
                 let html = '<h3>Login API Response:</h3>';
-                html += \`<div class="cookie-info">Status: \${response.status}</div>\`;
-                html += \`<div class="cookie-info">Success: \${data.success}</div>\`;
-                html += \`<div class="cookie-info">Response: \${JSON.stringify(data, null, 2)}</div>\`;
+                html += '<div class="cookie-info">Status: ' + response.status + '</div>';
+                html += '<div class="cookie-info">Success: ' + data.success + '</div>';
+                html += '<div class="cookie-info">Response: ' + JSON.stringify(data, null, 2) + '</div>';
                 
                 // Check Set-Cookie header (won't be visible in JS due to HttpOnly)
-                html += '<p><strong>Note:</strong> If HttpOnly is set, cookie won\'t be visible in document.cookie</p>';
+                html += '<p><strong>Note:</strong> If HttpOnly is set, cookie won\\'t be visible in document.cookie</p>';
                 
                 resultsDiv.innerHTML = html;
                 
@@ -99,7 +99,7 @@ export const TestCookiePage = () => html`
                 setTimeout(showCookies, 1000);
                 
             } catch (error) {
-                resultsDiv.innerHTML = \`<p class="error">❌ Error: \${error.message}</p>\`;
+                resultsDiv.innerHTML = '<p class="error">❌ Error: ' + error.message + '</p>';
             }
         }
 
