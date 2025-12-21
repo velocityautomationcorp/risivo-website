@@ -2,6 +2,7 @@
 // API route for user login
 
 import { Context } from 'hono';
+import { setCookie } from 'hono/cookie';
 import bcrypt from 'bcryptjs';
 
 export async function login(c: Context) {
@@ -111,8 +112,14 @@ export async function login(c: Context) {
       })
     });
     
-    // Set cookie (use 'user_session' to match dashboard expectations)
-    const cookieValue = `user_session=${sessionToken}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=${30 * 24 * 60 * 60}`;
+    // Set cookie using Hono's setCookie helper
+    setCookie(c, 'user_session', sessionToken, {
+      path: '/',
+      httpOnly: true,
+      secure: true,
+      sameSite: 'Strict',
+      maxAge: 30 * 24 * 60 * 60 // 30 days
+    });
     
     return c.json({
       success: true,
@@ -124,8 +131,6 @@ export async function login(c: Context) {
         user_type: user.user_type,
         investor_status: user.investor_status
       }
-    }, 200, {
-      'Set-Cookie': cookieValue
     });
     
   } catch (error) {
