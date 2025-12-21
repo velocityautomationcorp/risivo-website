@@ -117,7 +117,7 @@ export async function login(c: Context) {
       path: '/',
       httpOnly: true,
       secure: true,
-      sameSite: 'Strict',
+      sameSite: 'Lax',  // Changed from 'Strict' to 'Lax' to allow redirects to work
       maxAge: 30 * 24 * 60 * 60 // 30 days
     });
     
