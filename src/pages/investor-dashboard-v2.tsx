@@ -24,15 +24,22 @@ export const InvestorDashboardPageV2 = (userData?: any) => html`
         }
 
         .dashboard-container {
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
+            padding: 0 40px;
+        }
+        
+        @media (max-width: 899px) {
+            .dashboard-container {
+                padding: 0 20px;
+            }
         }
 
         .dashboard-header {
             background: white;
             border-radius: 16px;
             padding: 40px 30px 30px 30px;
-            margin-bottom: 30px;
+            margin-bottom: 60px;  /* Increased spacing */
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
             position: relative;
         }
