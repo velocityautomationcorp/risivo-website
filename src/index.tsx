@@ -28,6 +28,7 @@ import { AdminUpdateFormPage } from './pages/admin-update-form'
 import { AdminCategoriesPage } from './pages/admin-categories'
 import { PrivacyPolicyPage } from './pages/privacy-policy'
 import { TermsOfServicePage } from './pages/terms-of-service'
+import { TestCookiePage } from './pages/test-cookie'
 
 type Bindings = {
   WEBHOOK_URL?: string
@@ -1858,6 +1859,11 @@ app.get("/", (c) => {
 // User Login Page
 app.get('/updates/login', (c) => {
   return c.html(UserLoginPage());
+});
+
+// Cookie Test Page (for debugging)
+app.get('/updates/test-cookie', (c) => {
+  return c.html(TestCookiePage());
 });
 
 // Forgot Password
