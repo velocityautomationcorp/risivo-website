@@ -1,0 +1,255 @@
+import { Context } from 'hono';
+import { createClient } from '@supabase/supabase-js';
+
+type Bindings = {
+  SUPABASE_URL?: string;
+  SUPABASE_SERVICE_ROLE_KEY?: string;
+};
+
+/**
+ * Admin API endpoint to approve an investor
+ * Changes investor_status from 'nda_signed' to 'active'
+ * Sends approval notification email
+ */
+export async function approveInvestor(c: Context<{ Bindings: Bindings }>) {
+  try {
+    const investorId = c.req.param('investor_id');
+
+    if (!investorId) {
+      return c.json({ success: false, error: 'Investor ID required' }, 400);
+    }
+
+    // TODO: Verify admin authentication
+    // For now, assuming route is protected by admin middleware
+
+    // Initialize Supabase
+    const supabaseUrl = c.env?.SUPABASE_URL;
+    const supabaseKey = c.env?.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!supabaseUrl || !supabaseKey) {
+      return c.json({ success: false, error: 'Service configuration error' }, 500);
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Get investor details
+    const { data: investor, error: investorError } = await supabase
+      .from('users')
+      .select('id, email, first_name, last_name, business_name, investor_status')
+      .eq('id', investorId)
+      .eq('user_type', 'investor')
+      .single();
+
+    if (investorError || !investor) {
+      return c.json({ success: false, error: 'Investor not found' }, 404);
+    }
+
+    // Check if investor is eligible for approval
+    if (investor.investor_status !== 'nda_signed') {
+      return c.json({
+        success: false,
+        error: 'Cannot approve',
+        details: `Investor status is '${investor.investor_status}'. Only 'nda_signed' investors can be approved.`
+      }, 400);
+    }
+
+    // Update investor status to 'active'
+    const { error: updateError } = await supabase
+      .from('users')
+      .update({
+        investor_status: 'active',
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', investorId);
+
+    if (updateError) {
+      console.error('[APPROVE-INVESTOR] Update error:', updateError);
+      return c.json({ success: false, error: 'Failed to update investor status' }, 500);
+    }
+
+    // Log approval activity
+    try {
+      await supabase.rpc('log_investor_activity', {
+        p_user_id: investorId,
+        p_action_type: 'approved',
+        p_resource_type: 'investor_status',
+        p_ip_address: c.req.header('cf-connecting-ip') || 'admin',
+        p_user_agent: 'Admin approval'
+      });
+    } catch (logError) {
+      console.error('[APPROVE-INVESTOR] Failed to log activity:', logError);
+    }
+
+    // TODO: Send approval notification email
+    // This would integrate with your email service (Make.com, SendGrid, etc.)
+    console.log('[APPROVE-INVESTOR] TODO: Send approval email to:', investor.email);
+
+    return c.json({
+      success: true,
+      message: 'Investor approved successfully',
+      investor: {
+        id: investor.id,
+        email: investor.email,
+        name: `${investor.first_name} ${investor.last_name}`,
+        status: 'active'
+      }
+    });
+
+  } catch (error) {
+    console.error('[APPROVE-INVESTOR] Error:', error);
+    return c.json(
+      {
+        success: false,
+        error: 'Internal server error',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
+      500
+    );
+  }
+}
+
+/**
+ * Admin API endpoint to reject an investor
+ * Changes investor_status from 'nda_signed' to 'rejected'
+ * Sends rejection notification email with reason
+ */
+export async function rejectInvestor(c: Context<{ Bindings: Bindings }>) {
+  try {
+    const investorId = c.req.param('investor_id');
+    const body = await c.req.json();
+    const { reason } = body;
+
+    if (!investorId) {
+      return c.json({ success: false, error: 'Investor ID required' }, 400);
+    }
+
+    if (!reason) {
+      return c.json({ success: false, error: 'Rejection reason required' }, 400);
+    }
+
+    // Initialize Supabase
+    const supabaseUrl = c.env?.SUPABASE_URL;
+    const supabaseKey = c.env?.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!supabaseUrl || !supabaseKey) {
+      return c.json({ success: false, error: 'Service configuration error' }, 500);
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Get investor details
+    const { data: investor, error: investorError } = await supabase
+      .from('users')
+      .select('id, email, first_name, last_name, investor_status')
+      .eq('id', investorId)
+      .eq('user_type', 'investor')
+      .single();
+
+    if (investorError || !investor) {
+      return c.json({ success: false, error: 'Investor not found' }, 404);
+    }
+
+    // Update investor status to 'rejected'
+    const { error: updateError } = await supabase
+      .from('users')
+      .update({
+        investor_status: 'rejected',
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', investorId);
+
+    if (updateError) {
+      console.error('[REJECT-INVESTOR] Update error:', updateError);
+      return c.json({ success: false, error: 'Failed to update investor status' }, 500);
+    }
+
+    // Log rejection activity
+    try {
+      await supabase.rpc('log_investor_activity', {
+        p_user_id: investorId,
+        p_action_type: 'rejected',
+        p_resource_type: 'investor_status',
+        p_ip_address: c.req.header('cf-connecting-ip') || 'admin',
+        p_user_agent: `Admin rejection: ${reason}`
+      });
+    } catch (logError) {
+      console.error('[REJECT-INVESTOR] Failed to log activity:', logError);
+    }
+
+    // TODO: Send rejection notification email with reason
+    console.log('[REJECT-INVESTOR] TODO: Send rejection email to:', investor.email);
+    console.log('[REJECT-INVESTOR] Rejection reason:', reason);
+
+    return c.json({
+      success: true,
+      message: 'Investor rejected',
+      investor: {
+        id: investor.id,
+        email: investor.email,
+        name: `${investor.first_name} ${investor.last_name}`,
+        status: 'rejected'
+      }
+    });
+
+  } catch (error) {
+    console.error('[REJECT-INVESTOR] Error:', error);
+    return c.json(
+      {
+        success: false,
+        error: 'Internal server error',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
+      500
+    );
+  }
+}
+
+/**
+ * Get detailed information about an investor including NDA signature
+ */
+export async function getInvestorDetails(c: Context<{ Bindings: Bindings }>) {
+  try {
+    const investorId = c.req.param('investor_id');
+
+    if (!investorId) {
+      return c.json({ success: false, error: 'Investor ID required' }, 400);
+    }
+
+    // Initialize Supabase
+    const supabaseUrl = c.env?.SUPABASE_URL;
+    const supabaseKey = c.env?.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!supabaseUrl || !supabaseKey) {
+      return c.json({ success: false, error: 'Service configuration error' }, 500);
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Get NDA signature details
+    const { data: ndaSignature, error: ndaError } = await supabase
+      .from('nda_signatures')
+      .select('*')
+      .eq('user_id', investorId)
+      .single();
+
+    if (ndaError && ndaError.code !== 'PGRST116') { // PGRST116 = no rows found
+      console.error('[GET-INVESTOR-DETAILS] NDA query error:', ndaError);
+    }
+
+    return c.json({
+      success: true,
+      nda_signature: ndaSignature || null
+    });
+
+  } catch (error) {
+    console.error('[GET-INVESTOR-DETAILS] Error:', error);
+    return c.json(
+      {
+        success: false,
+        error: 'Internal server error',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
+      500
+    );
+  }
+}

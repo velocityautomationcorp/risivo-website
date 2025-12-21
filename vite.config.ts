@@ -5,10 +5,21 @@ import { defineConfig } from 'vite'
 
 export default defineConfig({
   plugins: [
-    build(),
+    build({
+      external: ['bcryptjs']
+    }),
     devServer({
       adapter,
       entry: 'src/index.tsx'
     })
-  ]
+  ],
+  build: {
+    rollupOptions: {
+      external: ['bcryptjs']
+    }
+  },
+  ssr: {
+    external: ['bcryptjs'],
+    noExternal: false
+  }
 })

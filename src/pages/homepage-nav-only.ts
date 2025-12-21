@@ -22,14 +22,9 @@ export const HomepageNavOnly = () => {
       <title>Risivo - Navigation Test</title>
       
       <!-- Fonts - JOST -->
-      <link rel="preconnect" href="https://fonts.googleapis.com">
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
       <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700&display=swap" rel="stylesheet">
       
       <!-- Global Styles -->
-      <style>
-        ${globalStyles}
-      </style>
     </head>
     <body>
       ${Navigation({
