@@ -475,13 +475,15 @@ export const InvestorNDAReviewPage = (user: any = { first_name: 'Investor', last
             submitBtn.textContent = '⏳ Processing...';
 
             try {
-                const response = await fetch('/api/investor/sign-nda', {
+                const response = await fetch('/api/auth/investor/sign-nda', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        full_name: fullName
+                        full_name: fullName,
+                        signature_date: new Date().toISOString(),
+                        nda_version: 'v3.0'
                     })
                 });
 
