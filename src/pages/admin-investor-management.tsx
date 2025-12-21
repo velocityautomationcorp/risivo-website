@@ -21,6 +21,13 @@ export const AdminInvestorManagementPage = (admin: any, investors: any[] = []) =
     <link rel="stylesheet" href="/static/risivo-global.css">
     <style>
         /* Investor Management specific styles */
+        
+        /* Override container max-width for wider layout */
+        .container {
+            max-width: 1600px !important;
+            padding: 0 40px;
+        }
+        
         .page-header {
             display: flex;
             justify-content: space-between;
@@ -250,14 +257,14 @@ export const AdminInvestorManagementPage = (admin: any, investors: any[] = []) =
             padding: 10px 16px;
             border: none;
             border-radius: 8px;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.3s ease;
             color: white !important;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
             white-space: nowrap;
             flex-shrink: 0;
         }
@@ -436,6 +443,10 @@ export const AdminInvestorManagementPage = (admin: any, investors: any[] = []) =
         }
 
         @media (max-width: 768px) {
+            .container {
+                padding: 0 20px !important;
+            }
+            
             .investor-table {
                 overflow-x: auto;
             }
@@ -446,6 +457,17 @@ export const AdminInvestorManagementPage = (admin: any, investors: any[] = []) =
 
             .action-buttons {
                 flex-direction: column;
+            }
+            
+            .btn-action {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+        
+        @media (min-width: 1400px) {
+            .investor-table table {
+                min-width: auto;
             }
         }
     </style>
