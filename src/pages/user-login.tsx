@@ -309,30 +309,28 @@ export const UserLoginPage = () => html`
                     
                     // Check if user is an investor
                     if (data.user && data.user.user_type === 'investor') {
+                        console.log('User is investor, investor_status:', data.user.investor_status);
+                        
                         // Check if investor has signed NDA
-                        if (data.user.investor_status !== 'nda_signed') {
+                        if (data.user.investor_status === 'pending_nda') {
                             // Investor hasn't signed NDA - redirect to NDA page
                             redirectUrl = '/updates/investor/nda-review';
-                            console.log('Investor without NDA - redirecting to NDA review');
-                        } else {
-                            // Investor has signed NDA - redirect to investor dashboard
+                            console.log('Investor with pending_nda - redirecting to NDA review');
+                        } else if (data.user.investor_status === 'nda_signed' || data.user.investor_status === 'active') {
+                            // Investor has signed NDA or is active - redirect to investor dashboard
                             redirectUrl = '/updates/investor/dashboard';
-                            console.log('Investor with NDA signed - redirecting to investor dashboard');
+                            console.log('Investor with NDA signed or active - redirecting to investor dashboard');
+                        } else {
+                            // Unknown status, default to dashboard
+                            redirectUrl = '/updates/dashboard';
+                            console.log('Investor with unknown status, using default dashboard');
                         }
                     }
                     
                     console.log('Redirecting to:', redirectUrl);
                     
-                    // Try immediate redirect first
-                    try {
-                        window.location.href = redirectUrl;
-                    } catch (redirectError) {
-                        console.error('Redirect error:', redirectError);
-                        // Fallback: try with setTimeout
-                        setTimeout(() => {
-                            window.location.href = redirectUrl;
-                        }, 100);
-                    }
+                    // Immediate redirect - no setTimeout, just do it
+                    window.location.href = redirectUrl;
                 } else {
                     // Show error
                     console.error('Login failed:', data);
