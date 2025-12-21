@@ -165,7 +165,7 @@ export const AdminDashboardPage = (admin: any, updates: any[] = []) => {
         .btn-secondary {
             padding: 14px 28px;
             background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
-            color: white;
+            color: white !important;
             border: none;
             border-radius: 10px;
             font-size: 16px;
@@ -176,11 +176,17 @@ export const AdminDashboardPage = (admin: any, updates: any[] = []) => {
             align-items: center;
             gap: 10px;
             margin-left: 12px;
+            box-shadow: 0 2px 8px rgba(108, 117, 125, 0.3);
         }
 
         .btn-secondary:hover {
             transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(108, 117, 125, 0.4);
+            box-shadow: 0 8px 20px rgba(108, 117, 125, 0.5);
+        }
+        
+        .btn-secondary span {
+            color: white !important;
+            font-weight: 700;
         }
     </style>
 </head>

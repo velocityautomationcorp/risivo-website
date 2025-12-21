@@ -25,7 +25,7 @@ export const AdminInvestorManagementPage = (admin: any, investors: any[] = []) =
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 40px;
+            margin-bottom: 50px;
             gap: 24px;
         }
 
@@ -33,33 +33,37 @@ export const AdminInvestorManagementPage = (admin: any, investors: any[] = []) =
             font-size: 32px;
             color: #333;
             margin-bottom: 8px;
+            font-weight: 700;
         }
 
         .page-header .subtitle {
             color: #666;
             font-size: 16px;
+            font-weight: 500;
         }
 
         .btn {
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 14px;
+            padding: 14px 28px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 15px;
             text-decoration: none;
             display: inline-block;
             transition: all 0.3s ease;
             cursor: pointer;
             border: none;
-            color: white;
+            color: white !important;
+            line-height: 1.5;
         }
 
         .btn-secondary {
             background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+            box-shadow: 0 2px 8px rgba(108, 117, 125, 0.25);
         }
 
         .btn-secondary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(108, 117, 125, 0.4);
         }
 
         .stats-grid {
@@ -103,21 +107,29 @@ export const AdminInvestorManagementPage = (admin: any, investors: any[] = []) =
         }
 
         .filter-tab {
-            padding: 10px 20px;
+            padding: 12px 24px;
             background: white;
             border: 2px solid #e0e0e0;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
-            font-weight: 600;
-            font-size: 14px;
-            color: #666;
+            font-weight: 700;
+            font-size: 15px;
+            color: #333;
             transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .filter-tab:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-color: #6b3fea;
         }
 
         .filter-tab.active {
             background: linear-gradient(135deg, #6b3fea 0%, #ed632f 100%);
-            color: white;
+            color: white !important;
             border-color: transparent;
+            box-shadow: 0 4px 12px rgba(107, 63, 234, 0.4);
         }
 
         .filter-tab .badge {
@@ -221,14 +233,14 @@ export const AdminInvestorManagementPage = (admin: any, investors: any[] = []) =
         }
 
         .btn-action {
-            padding: 10px 18px;
+            padding: 12px 20px;
             border: none;
             border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
+            font-size: 15px;
+            font-weight: 700;
             cursor: pointer;
             transition: all 0.3s ease;
-            color: white;
+            color: white !important;
             display: inline-flex;
             align-items: center;
             gap: 6px;
@@ -236,19 +248,22 @@ export const AdminInvestorManagementPage = (admin: any, investors: any[] = []) =
 
         .btn-action:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
         }
 
         .btn-approve {
             background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+            box-shadow: 0 2px 8px rgba(40, 167, 69, 0.25);
         }
 
         .btn-reject {
             background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            box-shadow: 0 2px 8px rgba(220, 53, 69, 0.25);
         }
 
         .btn-view {
             background: linear-gradient(135deg, #6b3fea 0%, #5a2fc7 100%);
+            box-shadow: 0 2px 8px rgba(107, 63, 234, 0.25);
         }
 
         .empty-state {
@@ -597,14 +612,7 @@ export const AdminInvestorManagementPage = (admin: any, investors: any[] = []) =
                                 <button class="btn-action btn-view" onclick="viewInvestor('\${investor.id}')">
                                     👁️ View
                                 </button>
-                                \${investor.investor_status === 'nda_signed' ? \`
-                                    <button class="btn-action btn-approve" onclick="approveInvestor('\${investor.id}')">
-                                        ✅ Approve
-                                    </button>
-                                    <button class="btn-action btn-reject" onclick="rejectInvestor('\${investor.id}')">
-                                        ❌ Reject
-                                    </button>
-                                \` : ''}
+                                \${investor.investor_status === 'nda_signed' ? '<button class="btn-action btn-approve" onclick="approveInvestor' + "('" + investor.id + "')" + '">✅ Approve</button><button class="btn-action btn-reject" onclick="rejectInvestor' + "('" + investor.id + "')" + '">❌ Reject</button>' : ''}
                             </div>
                         </td>
                     </tr>
@@ -712,14 +720,8 @@ export const AdminInvestorManagementPage = (admin: any, investors: any[] = []) =
             let footerHTML = '<button class="btn btn-secondary" onclick="closeModal()">Close</button>';
             
             if (investor.investor_status === 'nda_signed') {
-                footerHTML += \`
-                    <button class="btn btn-approve" onclick="approveInvestor('\${investor.id}', true)">
-                        ✅ Approve Investor
-                    </button>
-                    <button class="btn btn-reject" onclick="rejectInvestor('\${investor.id}', true)">
-                        ❌ Reject
-                    </button>
-                \`;
+                footerHTML += '<button class="btn btn-approve" onclick="approveInvestor' + "('" + investor.id + "', true)" + '">✅ Approve Investor</button>';
+                footerHTML += '<button class="btn btn-reject" onclick="rejectInvestor' + "('" + investor.id + "', true)" + '">❌ Reject</button>';
             }
 
             document.getElementById('modalFooter').innerHTML = footerHTML;
