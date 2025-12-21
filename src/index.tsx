@@ -1989,10 +1989,16 @@ app.get('/updates/dashboard', async (c) => {
   
   console.log('[DASHBOARD] User lookup result:', { user, userError });
   
-  if (!user || user.status !== 'active') {
-    console.log('[DASHBOARD] User not found or not active. Status:', user?.status, '- redirecting to login');
+  if (!user) {
+    console.log('[DASHBOARD] User not found - redirecting to login');
     return c.redirect('/updates/login');
   }
+  
+  // REMOVED STATUS CHECK - allowing any user with valid session
+  // if (!user || user.status !== 'active') {
+  //   console.log('[DASHBOARD] User not found or not active. Status:', user?.status, '- redirecting to login');
+  //   return c.redirect('/updates/login');
+  // }
   
   console.log('[DASHBOARD] Access granted for user:', user.email);
   return c.html(UserDashboardPage(user));
@@ -2034,7 +2040,8 @@ app.get('/updates/view/:slug', async (c) => {
       .eq('id', session.user_id)
       .single();
     
-    if (!user || user.status !== 'active') {
+    // REMOVED STATUS CHECK - allowing any user with valid session
+    if (!user) {
       return c.redirect('/updates/login');
     }
     
