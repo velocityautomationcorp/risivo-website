@@ -2141,7 +2141,21 @@ app.get('/updates/admin/dashboard', async (c) => {
     .select('*')
     .order('created_at', { ascending: false });
   
-  return c.html(AdminDashboardPage(admin, updates || []));
+  // Get subscriber stats
+  const { data: allUsers } = await supabase
+    .from('users')
+    .select('user_type, investor_status');
+  
+  const users = allUsers || [];
+  const subscriberStats = {
+    totalSubscribers: users.length,
+    waitlistCount: users.filter(u => u.user_type === 'waitlist').length,
+    pendingInvestors: users.filter(u => u.user_type === 'investor' && u.investor_status === 'pending_nda').length,
+    awaitingNda: users.filter(u => u.user_type === 'investor' && u.investor_status === 'nda_signed').length,
+    approvedInvestors: users.filter(u => u.user_type === 'investor' && u.investor_status === 'active').length
+  };
+  
+  return c.html(AdminDashboardPage(admin, updates || [], subscriberStats));
 });
 
 // Admin Investor Management (Protected)

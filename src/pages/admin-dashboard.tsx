@@ -1,11 +1,20 @@
 import { html, raw } from 'hono/html';
 
-export const AdminDashboardPage = (admin: any, updates: any[] = []) => {
+export const AdminDashboardPage = (admin: any, updates: any[] = [], subscriberStats?: any) => {
     const stats = {
         total: updates.length,
         published: updates.filter(u => u.status === 'published').length,
         draft: updates.filter(u => u.status === 'draft').length,
         totalViews: updates.reduce((sum, u) => sum + (u.view_count || 0), 0)
+    };
+    
+    // Subscriber stats with defaults
+    const subStats = subscriberStats || {
+        totalSubscribers: 0,
+        waitlistCount: 0,
+        pendingInvestors: 0,
+        awaitingNda: 0,
+        approvedInvestors: 0
     };
     
     // Generate updates table HTML
@@ -188,6 +197,110 @@ export const AdminDashboardPage = (admin: any, updates: any[] = []) => {
             color: white !important;
             font-weight: 700;
         }
+
+        /* Subscriber Overview Section */
+        .subscriber-section {
+            margin-bottom: 40px;
+        }
+
+        .subscriber-section h2 {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .subscriber-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+        }
+
+        @media (max-width: 1200px) {
+            .subscriber-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .subscriber-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .subscriber-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .subscriber-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            text-align: center;
+            border-left: 4px solid #6b3fea;
+        }
+
+        .subscriber-card.total {
+            border-left-color: #6b3fea;
+            background: linear-gradient(135deg, #f8f5ff 0%, #ffffff 100%);
+        }
+
+        .subscriber-card.waitlist {
+            border-left-color: #3b82f6;
+        }
+
+        .subscriber-card.pending {
+            border-left-color: #f59e0b;
+        }
+
+        .subscriber-card.awaiting-nda {
+            border-left-color: #8b5cf6;
+        }
+
+        .subscriber-card.approved {
+            border-left-color: #10b981;
+        }
+
+        .subscriber-card .sub-icon {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .subscriber-card .sub-value {
+            font-size: 32px;
+            font-weight: 800;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .subscriber-card .sub-label {
+            font-size: 13px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .subscriber-card.total .sub-value {
+            color: #6b3fea;
+        }
+
+        .subscriber-card.waitlist .sub-value {
+            color: #3b82f6;
+        }
+
+        .subscriber-card.pending .sub-value {
+            color: #f59e0b;
+        }
+
+        .subscriber-card.awaiting-nda .sub-value {
+            color: #8b5cf6;
+        }
+
+        .subscriber-card.approved .sub-value {
+            color: #10b981;
+        }
     </style>
 </head>
 <body>
@@ -232,6 +345,38 @@ export const AdminDashboardPage = (admin: any, updates: any[] = []) => {
                 <div class="stat-icon">👁️</div>
                 <div class="stat-label">Total Views</div>
                 <div class="stat-value">${stats.totalViews}</div>
+            </div>
+        </div>
+
+        <!-- Platform Subscribers Overview -->
+        <div class="subscriber-section">
+            <h2>👥 Platform Subscribers Overview</h2>
+            <div class="subscriber-grid">
+                <div class="subscriber-card total">
+                    <div class="sub-icon">📊</div>
+                    <div class="sub-value">${subStats.totalSubscribers}</div>
+                    <div class="sub-label">Total Subscribers</div>
+                </div>
+                <div class="subscriber-card waitlist">
+                    <div class="sub-icon">📝</div>
+                    <div class="sub-value">${subStats.waitlistCount}</div>
+                    <div class="sub-label">Waitlist Subscribers</div>
+                </div>
+                <div class="subscriber-card pending">
+                    <div class="sub-icon">⏳</div>
+                    <div class="sub-value">${subStats.pendingInvestors}</div>
+                    <div class="sub-label">Pending Investors</div>
+                </div>
+                <div class="subscriber-card awaiting-nda">
+                    <div class="sub-icon">📜</div>
+                    <div class="sub-value">${subStats.awaitingNda}</div>
+                    <div class="sub-label">Awaiting NDA</div>
+                </div>
+                <div class="subscriber-card approved">
+                    <div class="sub-icon">✅</div>
+                    <div class="sub-value">${subStats.approvedInvestors}</div>
+                    <div class="sub-label">Approved Investors</div>
+                </div>
             </div>
         </div>
         
