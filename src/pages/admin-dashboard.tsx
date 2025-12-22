@@ -431,14 +431,36 @@ export const AdminDashboardPage = (admin: any, waitlistUpdates: any[] = [], inve
 
         .quick-actions-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 25px;
+        }
+
+        @media (max-width: 1024px) {
+            .quick-actions-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
 
         @media (max-width: 768px) {
             .quick-actions-grid {
                 grid-template-columns: 1fr;
             }
+        }
+
+        .action-group.social {
+            border-top: 4px solid #6b3fea;
+        }
+
+        .action-group.social .action-group-title {
+            color: #5a2fc7;
+        }
+
+        .btn-social-primary {
+            background: linear-gradient(135deg, #6b3fea 0%, #5a2fc7 100%);
+        }
+
+        .btn-social-secondary {
+            background: linear-gradient(135deg, #8b5cf6 0%, #6b3fea 100%);
         }
 
         .action-group {
@@ -621,6 +643,28 @@ export const AdminDashboardPage = (admin: any, waitlistUpdates: any[] = [], inve
                         <a href="/updates/admin/investor-content" class="btn-action btn-manage">
                             <span>📂</span>
                             <span>Manage Investor Content</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Social Media Actions -->
+                <div class="action-group social">
+                    <div class="action-group-title">
+                        <span>📱</span>
+                        <span>Social Media</span>
+                    </div>
+                    <div class="action-buttons-grid">
+                        <a href="/updates/admin/social" class="btn-action btn-social-primary">
+                            <span>📊</span>
+                            <span>Social Dashboard</span>
+                        </a>
+                        <a href="/updates/admin/social/connections" class="btn-action btn-social-secondary">
+                            <span>🔗</span>
+                            <span>Manage Connections</span>
+                        </a>
+                        <a href="/updates/admin/social/posts" class="btn-action btn-manage">
+                            <span>📤</span>
+                            <span>View Posts</span>
                         </a>
                     </div>
                 </div>

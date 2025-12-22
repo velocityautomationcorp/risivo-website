@@ -242,6 +242,131 @@ export const AdminWaitlistUpdateFormPage = (admin: any, categories: any[] = [], 
         .status-option input {
             display: none;
         }
+        
+        /* Social Posting Styles */
+        .social-posting-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+        }
+        
+        .section-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+        
+        .toggle-switch input { display: none; }
+        
+        .toggle-slider {
+            width: 50px;
+            height: 26px;
+            background: #ccc;
+            border-radius: 26px;
+            position: relative;
+            transition: background 0.3s;
+        }
+        
+        .toggle-slider::after {
+            content: '';
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s;
+        }
+        
+        .toggle-switch input:checked + .toggle-slider {
+            background: #3b82f6;
+        }
+        
+        .toggle-switch input:checked + .toggle-slider::after {
+            transform: translateX(24px);
+        }
+        
+        .toggle-label {
+            font-weight: 600;
+            color: #666;
+        }
+        
+        .platforms-checklist {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .platform-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        
+        .platform-checkbox:hover { border-color: #3b82f6; }
+        .platform-checkbox.checked { border-color: #3b82f6; background: #eff6ff; }
+        .platform-checkbox input { width: 18px; height: 18px; }
+        .platform-icon { font-size: 20px; }
+        .platform-name { font-weight: 500; }
+        .platform-account { font-size: 12px; color: #666; }
+        
+        .timing-options {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .radio-option {
+            flex: 1;
+            padding: 12px;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        
+        .radio-option:hover { border-color: #3b82f6; }
+        .radio-option input { margin-right: 8px; }
+        .radio-label { font-weight: 500; }
+        .radio-desc { display: block; font-size: 12px; color: #666; margin-top: 4px; margin-left: 26px; }
+        
+        .char-counter { text-align: right; font-size: 13px; color: #666; margin-top: 4px; }
+        .char-counter.warning { color: #f59e0b; }
+        .char-counter.error { color: #dc2626; }
+        
+        .toggle-inline {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .toggle-inline input { width: 18px; height: 18px; }
+        
+        .no-platforms {
+            padding: 20px;
+            text-align: center;
+            background: #fff3cd;
+            border-radius: 10px;
+        }
+        
+        .no-platforms a { color: #3b82f6; font-weight: 600; }
+        .loading-text { color: #666; font-style: italic; }
     </style>
 </head>
 <body>
@@ -362,6 +487,76 @@ export const AdminWaitlistUpdateFormPage = (admin: any, categories: any[] = [], 
                     </div>
                 </div>
                 
+                <!-- Social Media Auto-Post -->
+                <div class="form-section social-posting-section" id="socialPostingSection">
+                    <div class="section-header-row">
+                        <h3 class="section-title">📱 Social Media Auto-Post</h3>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="enableSocialPosting" name="enable_social_posting">
+                            <span class="toggle-slider"></span>
+                            <span class="toggle-label">Enable</span>
+                        </label>
+                    </div>
+                    
+                    <div class="social-content" id="socialContent" style="display: none;">
+                        <!-- Platform Selection -->
+                        <div class="form-group">
+                            <label class="form-label">Select Platforms</label>
+                            <div class="platforms-checklist" id="platformsChecklist">
+                                <p class="loading-text">Loading connected platforms...</p>
+                            </div>
+                            <div class="form-hint">Select which platforms to post to. Only connected accounts are shown.</div>
+                        </div>
+                        
+                        <!-- Post Content -->
+                        <div class="form-group">
+                            <label class="form-label">Post Content</label>
+                            <textarea 
+                                id="socialPostContent" 
+                                name="social_post_content" 
+                                class="form-textarea" 
+                                rows="3" 
+                                placeholder="Write your social media post content... A short URL will be automatically added."
+                                maxlength="280"
+                            ></textarea>
+                            <div class="char-counter">
+                                <span id="charCount">0</span>/280 characters
+                            </div>
+                        </div>
+                        
+                        <!-- Post Timing -->
+                        <div class="form-group">
+                            <label class="form-label">When to Post</label>
+                            <div class="timing-options">
+                                <label class="radio-option">
+                                    <input type="radio" name="post_timing" value="immediate" checked>
+                                    <span class="radio-label">Post Immediately</span>
+                                    <span class="radio-desc">When update is published</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="post_timing" value="scheduled">
+                                    <span class="radio-label">Schedule for Later</span>
+                                    <span class="radio-desc">Choose date and time</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Schedule DateTime -->
+                        <div class="form-group" id="scheduleDatetimeGroup" style="display: none;">
+                            <label class="form-label">Schedule Date & Time</label>
+                            <input type="datetime-local" id="scheduleDatetime" name="schedule_datetime" class="form-input">
+                        </div>
+                        
+                        <!-- Include Image -->
+                        <div class="form-group">
+                            <label class="toggle-inline">
+                                <input type="checkbox" id="includeUpdateImage" name="include_update_image" checked>
+                                <span>Include featured image in social posts</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
                 <!-- Actions -->
                 <div class="btn-group">
                     <button type="submit" class="btn btn-primary">
@@ -442,6 +637,85 @@ export const AdminWaitlistUpdateFormPage = (admin: any, categories: any[] = [], 
             document.querySelector(\`input[value="\${status}"]\`).checked = true;
         }
         
+        // Social Posting functionality
+        const enableToggle = document.getElementById('enableSocialPosting');
+        const socialContent = document.getElementById('socialContent');
+        const socialPostContent = document.getElementById('socialPostContent');
+        const charCount = document.getElementById('charCount');
+        const platformsChecklist = document.getElementById('platformsChecklist');
+        const timingRadios = document.querySelectorAll('input[name="post_timing"]');
+        const scheduleDatetimeGroup = document.getElementById('scheduleDatetimeGroup');
+        
+        enableToggle.addEventListener('change', function() {
+            socialContent.style.display = this.checked ? 'block' : 'none';
+            if (this.checked) loadConnectedPlatforms();
+        });
+        
+        socialPostContent.addEventListener('input', function() {
+            const length = this.value.length;
+            charCount.textContent = length;
+            const counter = charCount.parentElement;
+            counter.classList.remove('warning', 'error');
+            if (length > 260) counter.classList.add('warning');
+            if (length > 280) counter.classList.add('error');
+        });
+        
+        timingRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                scheduleDatetimeGroup.style.display = this.value === 'scheduled' ? 'block' : 'none';
+            });
+        });
+        
+        async function loadConnectedPlatforms() {
+            try {
+                const response = await fetch('/api/admin/social/connections');
+                const data = await response.json();
+                
+                if (!data.connections || data.connections.length === 0) {
+                    platformsChecklist.innerHTML = '<div class="no-platforms"><p>No social media accounts connected.</p><p><a href="/updates/admin/social/connections">Connect accounts</a></p></div>';
+                    return;
+                }
+                
+                const connected = data.connections.filter(c => c.is_connected && c.is_active);
+                if (connected.length === 0) {
+                    platformsChecklist.innerHTML = '<div class="no-platforms"><p>No active connections.</p><p><a href="/updates/admin/social/connections">Set up accounts</a></p></div>';
+                    return;
+                }
+                
+                platformsChecklist.innerHTML = connected.map(conn => \`
+                    <label class="platform-checkbox" data-id="\${conn.id}">
+                        <input type="checkbox" name="social_platforms[]" value="\${conn.id}">
+                        <span class="platform-icon">\${conn.platform?.icon || '📱'}</span>
+                        <div>
+                            <div class="platform-name">\${conn.platform?.platform_name || 'Unknown'}</div>
+                            <div class="platform-account">\${conn.connection_name}</div>
+                        </div>
+                    </label>
+                \`).join('');
+                
+                document.querySelectorAll('.platform-checkbox').forEach(label => {
+                    label.addEventListener('click', function(e) {
+                        if (e.target.tagName !== 'INPUT') {
+                            const checkbox = this.querySelector('input');
+                            checkbox.checked = !checkbox.checked;
+                        }
+                        this.classList.toggle('checked', this.querySelector('input').checked);
+                    });
+                });
+            } catch (error) {
+                console.error('Failed to load platforms:', error);
+                platformsChecklist.innerHTML = '<div class="no-platforms"><p>Failed to load platforms.</p></div>';
+            }
+        }
+        
+        // Auto-fill social content from title
+        document.getElementById('title').addEventListener('blur', function() {
+            if (!socialPostContent.value && this.value) {
+                socialPostContent.value = this.value;
+                socialPostContent.dispatchEvent(new Event('input'));
+            }
+        });
+        
         // Save update
         async function saveUpdate(event) {
             event.preventDefault();
@@ -474,6 +748,18 @@ export const AdminWaitlistUpdateFormPage = (admin: any, categories: any[] = [], 
                 author_name: document.getElementById('authorName').value.trim() || 'Risivo Team',
                 status: document.querySelector('input[name="status"]:checked').value
             };
+            
+            // Add social posting data if enabled
+            if (enableToggle.checked) {
+                data.social_posting = {
+                    enabled: true,
+                    content: socialPostContent.value.trim(),
+                    platforms: Array.from(document.querySelectorAll('input[name="social_platforms[]"]:checked')).map(cb => cb.value),
+                    timing: document.querySelector('input[name="post_timing"]:checked').value,
+                    scheduled_for: document.getElementById('scheduleDatetime').value || null,
+                    include_image: document.getElementById('includeUpdateImage').checked
+                };
+            }
             
             const updateId = document.getElementById('updateId').value;
             const isEdit = !!updateId;

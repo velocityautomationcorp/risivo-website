@@ -19,6 +19,8 @@ import adminInvestorContentRoute from './routes/admin-investor-content'
 import adminWaitlistRoute from './routes/admin-waitlist'
 import adminInvestorUpdatesRoute from './routes/admin-investor-updates'
 import authNewRoute from './routes/auth-new'
+import socialMediaRoute from './routes/social-media'
+import urlShortenerRoute from './routes/url-shortener'
 import { UserLoginPage } from './pages/user-login'
 import { UserDashboardPage } from './pages/user-dashboard'
 import { UpdateDetailPage } from './pages/update-detail'
@@ -38,6 +40,8 @@ import { AdminWaitlistCategoriesPage } from './pages/admin-waitlist-categories'
 import { AdminWaitlistUpdateFormPage } from './pages/admin-waitlist-update-form'
 import { AdminInvestorCategoriesPage } from './pages/admin-investor-categories'
 import { AdminInvestorUpdateFormPage } from './pages/admin-investor-update-form'
+import { AdminSocialDashboardPage } from './pages/admin-social-dashboard'
+import { AdminSocialConnectionsPage } from './pages/admin-social-connections'
 
 type Bindings = {
   WEBHOOK_URL?: string
@@ -74,6 +78,8 @@ app.route('/api/admin/investor-updates', adminInvestorUpdatesRoute)
 app.route('/api/admin/investor-categories', adminInvestorUpdatesRoute)  // Alias for categories
 app.route('/api/auth', authNewRoute)  // New signup/NDA API routes
 app.route('/updates', authNewRoute)  // New signup/NDA page routes
+app.route('/api/admin/social', socialMediaRoute)  // Social media management API
+app.route('/api/short-url', urlShortenerRoute)  // URL shortener API
 
 
 // Base64 encoded logo
@@ -2675,6 +2681,164 @@ app.get('/updates/admin/investor-updates/all', async (c) => {
 
   // Redirect to dashboard for now (can build dedicated list page later)
   return c.redirect('/updates/admin/dashboard');
+});
+
+// ==========================================
+// URL SHORTENER REDIRECT
+// ==========================================
+
+// Short URL redirect (risivo.com/s/xyz)
+app.get('/s/:code', async (c) => {
+  const shortCode = c.req.param('code');
+  
+  const supabaseUrl = c.env?.SUPABASE_URL;
+  const supabaseKey = c.env?.SUPABASE_SERVICE_ROLE_KEY;
+  
+  if (!supabaseUrl || !supabaseKey) {
+    return c.redirect('/');
+  }
+  
+  const supabase = createClient(supabaseUrl, supabaseKey);
+  
+  try {
+    // Get the short URL
+    const { data: shortUrl } = await supabase
+      .from('short_urls')
+      .select('*')
+      .eq('short_code', shortCode)
+      .single();
+    
+    if (!shortUrl) {
+      // Redirect to homepage if not found
+      return c.redirect('/');
+    }
+    
+    // Check if expired
+    if (shortUrl.expires_at && new Date(shortUrl.expires_at) < new Date()) {
+      return c.redirect('/');
+    }
+    
+    // Increment click count
+    await supabase
+      .from('short_urls')
+      .update({ click_count: (shortUrl.click_count || 0) + 1 })
+      .eq('id', shortUrl.id);
+    
+    // Record click analytics
+    const userAgent = c.req.header('User-Agent') || '';
+    const referrer = c.req.header('Referer') || '';
+    
+    // Detect device type from user agent
+    let deviceType = 'desktop';
+    if (/Mobile|Android|iPhone|iPad/i.test(userAgent)) {
+      deviceType = /iPad/i.test(userAgent) ? 'tablet' : 'mobile';
+    }
+    
+    // Detect browser
+    let browser = 'unknown';
+    if (/Chrome/i.test(userAgent)) browser = 'Chrome';
+    else if (/Firefox/i.test(userAgent)) browser = 'Firefox';
+    else if (/Safari/i.test(userAgent)) browser = 'Safari';
+    else if (/Edge/i.test(userAgent)) browser = 'Edge';
+    
+    // Get UTM parameters
+    const url = new URL(c.req.url);
+    const utm_source = url.searchParams.get('utm_source');
+    const utm_medium = url.searchParams.get('utm_medium');
+    const utm_campaign = url.searchParams.get('utm_campaign');
+    
+    await supabase
+      .from('url_clicks')
+      .insert({
+        short_url_id: shortUrl.id,
+        user_agent: userAgent,
+        referrer: referrer,
+        device_type: deviceType,
+        browser: browser,
+        utm_source,
+        utm_medium,
+        utm_campaign
+      });
+    
+    // Redirect to original URL
+    return c.redirect(shortUrl.original_url);
+  } catch (error) {
+    console.error('Short URL redirect error:', error);
+    return c.redirect('/');
+  }
+});
+
+// ==========================================
+// SOCIAL MEDIA ADMIN PAGES
+// ==========================================
+
+// Social Media Dashboard
+app.get('/updates/admin/social', async (c) => {
+  const auth = await verifyAdminSession(c);
+  if (!auth) return c.redirect('/updates/admin/login');
+
+  // Get analytics data
+  const analyticsResponse = await fetch(`${c.req.url.split('/updates')[0]}/api/admin/social/analytics/dashboard`, {
+    headers: {
+      'Cookie': `admin_session=${getCookie(c, 'admin_session')}`
+    }
+  });
+  
+  let analyticsData = {};
+  try {
+    analyticsData = await analyticsResponse.json();
+  } catch (e) {
+    // Use empty data if fetch fails
+    analyticsData = { connections: { list: [] }, posts: { recent: [] }, urls: {} };
+  }
+
+  return c.html(AdminSocialDashboardPage(auth.admin, {
+    connections: analyticsData.connections?.list || [],
+    posts: analyticsData.posts?.recent || [],
+    analytics: analyticsData
+  }));
+});
+
+// Social Media Connections Page
+app.get('/updates/admin/social/connections', async (c) => {
+  const auth = await verifyAdminSession(c);
+  if (!auth) return c.redirect('/updates/admin/login');
+
+  // Get all platforms
+  const { data: platforms } = await auth.supabase
+    .from('social_platforms')
+    .select('*')
+    .eq('is_active', true)
+    .order('sort_order', { ascending: true });
+
+  // Get all connections with platform info
+  const { data: connections } = await auth.supabase
+    .from('social_connections')
+    .select(`
+      *,
+      platform:social_platforms(*)
+    `)
+    .order('created_at', { ascending: false });
+
+  return c.html(AdminSocialConnectionsPage(auth.admin, platforms || [], connections || []));
+});
+
+// Social Media Posts List
+app.get('/updates/admin/social/posts', async (c) => {
+  const auth = await verifyAdminSession(c);
+  if (!auth) return c.redirect('/updates/admin/login');
+
+  // For now, redirect to social dashboard - can build dedicated posts page later
+  return c.redirect('/updates/admin/social');
+});
+
+// Social Media Analytics
+app.get('/updates/admin/social/analytics', async (c) => {
+  const auth = await verifyAdminSession(c);
+  if (!auth) return c.redirect('/updates/admin/login');
+
+  // For now, redirect to social dashboard - can build dedicated analytics page later
+  return c.redirect('/updates/admin/social');
 });
 
 // Legal Pages
