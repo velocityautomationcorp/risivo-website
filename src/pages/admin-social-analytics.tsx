@@ -79,17 +79,21 @@ export const AdminSocialAnalyticsPage = (admin: any, analyticsData: any = {}) =>
         .stat-icon {
             font-size: 2.5rem;
             margin-bottom: 10px;
+            color: white;
         }
 
         .stat-value {
             font-size: 2.5rem;
             font-weight: 800;
             margin-bottom: 5px;
+            color: white;
         }
 
         .stat-label {
             font-size: 0.9rem;
-            opacity: 0.9;
+            opacity: 0.95;
+            color: white;
+            font-weight: 500;
         }
 
         .charts-section {
