@@ -14,6 +14,20 @@ const DEFAULT_PLATFORMS = [
     { id: '10', platform_key: 'tiktok', platform_name: 'TikTok', icon: '🎵', color: '#000000', requires_video: true, sort_order: 10 }
 ];
 
+// Platforms that support OAuth (one-click connect)
+const OAUTH_PLATFORMS = ['linkedin_company', 'linkedin_profile', 'linkedin_group', 'facebook_page', 'facebook_group'];
+
+// Get the OAuth connect URL for a platform
+const getOAuthUrl = (platformKey: string): string | null => {
+    if (platformKey.startsWith('linkedin')) {
+        return '/api/admin/social/oauth/connect/linkedin';
+    }
+    if (platformKey.startsWith('facebook')) {
+        return '/api/admin/social/oauth/connect/facebook';
+    }
+    return null;
+};
+
 export const AdminSocialConnectionsPage = (admin: any, platforms: any[] = [], connections: any[] = []) => {
     // Use default platforms if none provided from database
     const platformsList = platforms.length > 0 ? platforms : DEFAULT_PLATFORMS;
@@ -23,6 +37,8 @@ export const AdminSocialConnectionsPage = (admin: any, platforms: any[] = [], co
         const platformConnections = connections.filter(c => c.platform_id === platform.id);
         const hasConnection = platformConnections.length > 0;
         const isConnected = platformConnections.some(c => c.is_connected);
+        const supportsOAuth = OAUTH_PLATFORMS.includes(platform.platform_key);
+        const oauthUrl = getOAuthUrl(platform.platform_key);
 
         return `
             <div class="platform-card ${isConnected ? 'connected' : ''}" data-platform="${platform.platform_key}">
@@ -54,9 +70,18 @@ export const AdminSocialConnectionsPage = (admin: any, platforms: any[] = [], co
                     </div>
                 ` : ''}
                 
-                <button class="btn-add-connection" onclick="openModal('${platform.id}', '${platform.platform_key}', '${platform.platform_name}')">
-                    ➕ Add ${platform.platform_name} Connection
-                </button>
+                ${supportsOAuth && oauthUrl ? `
+                    <a href="${oauthUrl}" class="btn-oauth-connect" style="background: ${platform.color};">
+                        🔗 Connect with ${platform.platform_name.split(' ')[0]}
+                    </a>
+                    <button class="btn-add-connection btn-manual" onclick="openModal('${platform.id}', '${platform.platform_key}', '${platform.platform_name}')">
+                        ⚙️ Manual Setup
+                    </button>
+                ` : `
+                    <button class="btn-add-connection" onclick="openModal('${platform.id}', '${platform.platform_key}', '${platform.platform_name}')">
+                        ➕ Add ${platform.platform_name} Connection
+                    </button>
+                `}
             </div>
         `;
     }).join('');
@@ -199,6 +224,48 @@ export const AdminSocialConnectionsPage = (admin: any, platforms: any[] = [], co
         .btn-add-connection:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(107, 63, 234, 0.4);
+        }
+
+        .btn-add-connection.btn-manual {
+            margin-top: 10px;
+            background: #f8f9fa;
+            color: #666;
+            border: 2px solid #e9ecef;
+            font-size: 12px;
+            padding: 10px;
+        }
+
+        .btn-add-connection.btn-manual:hover {
+            background: #e9ecef;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .btn-oauth-connect {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 14px 20px;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .btn-oauth-connect:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+            filter: brightness(1.1);
+        }
+
+        .btn-oauth-connect:active {
+            transform: translateY(-1px);
         }
 
         /* Modal */
