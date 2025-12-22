@@ -1,5 +1,6 @@
 /**
  * Terms of Service Page
+ * Professional redesign with Risivo branding
  */
 
 import { html } from 'hono/html';
@@ -13,21 +14,329 @@ export const TermsOfServicePage = () => html`
     <title>Terms of Service - Risivo</title>
     <meta name="description" content="Risivo Terms of Service - Read our terms and conditions for using the Risivo Marketing CRM platform.">
     <link rel="icon" type="image/png" href="/favicon.png">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/risivo-global.css">
+    <style>
+      /* Terms of Service Page Specific Styles */
+      .terms-header {
+        background: linear-gradient(135deg, #6b3fea 0%, #ed632f 100%);
+        padding: 60px 20px;
+        text-align: center;
+        margin-bottom: 0;
+      }
+
+      .terms-header .logo {
+        margin-bottom: 30px;
+      }
+
+      .terms-header .logo img {
+        height: 50px;
+        filter: brightness(0) invert(1);
+      }
+
+      .terms-header h1 {
+        color: white;
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+      }
+
+      .terms-header .subtitle {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 1.1rem;
+        margin: 0;
+      }
+
+      .terms-content {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 50px 40px;
+      }
+
+      .last-updated {
+        background: linear-gradient(135deg, rgba(107, 63, 234, 0.1) 0%, rgba(237, 99, 47, 0.1) 100%);
+        border-left: 4px solid var(--color-primary-start);
+        padding: 15px 20px;
+        border-radius: 0 8px 8px 0;
+        margin-bottom: 40px;
+        color: var(--color-text-primary);
+        font-size: 0.95rem;
+      }
+
+      .last-updated strong {
+        color: var(--color-primary-start);
+      }
+
+      .terms-section {
+        background: white;
+        border-radius: 16px;
+        padding: 35px;
+        margin-bottom: 25px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+        border: 1px solid rgba(0, 0, 0, 0.04);
+        transition: all 0.3s ease;
+      }
+
+      .terms-section:hover {
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        transform: translateY(-2px);
+      }
+
+      .terms-section h2 {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: var(--color-text-primary);
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid rgba(107, 63, 234, 0.15);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .terms-section h2 .section-icon {
+        width: 36px;
+        height: 36px;
+        background: linear-gradient(135deg, #6b3fea 0%, #ed632f 100%);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        flex-shrink: 0;
+        color: white;
+      }
+
+      .terms-section h3 {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--color-text-primary);
+        margin: 25px 0 15px;
+      }
+
+      .terms-section p {
+        color: var(--color-text-secondary);
+        line-height: 1.8;
+        margin-bottom: 15px;
+        font-size: 1rem;
+      }
+
+      .terms-section ul {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 15px 0;
+      }
+
+      .terms-section ul li {
+        position: relative;
+        padding: 10px 0 10px 30px;
+        color: var(--color-text-secondary);
+        line-height: 1.7;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+      }
+
+      .terms-section ul li:last-child {
+        border-bottom: none;
+      }
+
+      .terms-section ul li::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 16px;
+        width: 8px;
+        height: 8px;
+        background: linear-gradient(135deg, #6b3fea 0%, #ed632f 100%);
+        border-radius: 50%;
+      }
+
+      .terms-section ul li strong {
+        color: var(--color-text-primary);
+        font-weight: 600;
+      }
+
+      .terms-section a {
+        color: var(--color-primary-start);
+        font-weight: 500;
+        transition: color 0.3s ease;
+      }
+
+      .terms-section a:hover {
+        color: var(--color-primary-end);
+      }
+
+      .highlight-box {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%);
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        border-left: 4px solid #3b82f6;
+        border-radius: 0 10px 10px 0;
+        padding: 20px 25px;
+        margin: 20px 0;
+      }
+
+      .highlight-box strong {
+        color: #1d4ed8;
+        font-weight: 700;
+      }
+
+      .warning-box {
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.05) 100%);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        border-left: 4px solid #ef4444;
+        border-radius: 0 10px 10px 0;
+        padding: 20px 25px;
+        margin: 20px 0;
+      }
+
+      .warning-box strong {
+        color: #b91c1c;
+        font-weight: 700;
+      }
+
+      .contact-card {
+        background: linear-gradient(135deg, rgba(107, 63, 234, 0.05) 0%, rgba(237, 99, 47, 0.05) 100%);
+        border-radius: 12px;
+        padding: 30px;
+        margin-top: 20px;
+      }
+
+      .contact-card h3 {
+        color: var(--color-primary-start);
+        font-size: 1.2rem;
+        margin-bottom: 20px;
+        margin-top: 0;
+      }
+
+      .contact-card p {
+        margin-bottom: 12px;
+      }
+
+      .contact-card a {
+        color: var(--color-primary-start);
+        font-weight: 600;
+        transition: color 0.3s ease;
+      }
+
+      .contact-card a:hover {
+        color: var(--color-primary-end);
+      }
+
+      .back-home-section {
+        text-align: center;
+        margin: 50px 0 30px;
+      }
+
+      .btn-back-home {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 32px;
+        background: linear-gradient(135deg, #6b3fea 0%, #ed632f 100%);
+        color: white !important;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 1rem;
+        text-decoration: none;
+        box-shadow: 0 4px 15px rgba(107, 63, 234, 0.3);
+        transition: all 0.3s ease;
+      }
+
+      .btn-back-home:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(107, 63, 234, 0.4);
+        text-decoration: none;
+      }
+
+      /* Footer */
+      .terms-footer {
+        text-align: center;
+        padding: 40px 20px;
+        margin-top: 30px;
+        color: var(--color-text-secondary);
+        font-size: 0.9rem;
+        border-top: 1px solid rgba(0, 0, 0, 0.08);
+        background: var(--color-gray-50);
+      }
+
+      .terms-footer .footer-logo {
+        margin-bottom: 15px;
+      }
+
+      .terms-footer .footer-logo img {
+        height: 35px;
+        opacity: 0.8;
+      }
+
+      .terms-footer p {
+        margin: 0;
+        color: var(--color-text-muted);
+      }
+
+      .footer-links {
+        margin-top: 15px;
+        display: flex;
+        justify-content: center;
+        gap: 25px;
+        flex-wrap: wrap;
+      }
+
+      .footer-links a {
+        color: var(--color-text-secondary);
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: color 0.3s ease;
+      }
+
+      .footer-links a:hover {
+        color: var(--color-primary-start);
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .terms-header {
+          padding: 40px 20px;
+        }
+
+        .terms-header h1 {
+          font-size: 1.8rem;
+        }
+
+        .terms-content {
+          padding: 30px 20px;
+        }
+
+        .terms-section {
+          padding: 25px 20px;
+        }
+
+        .terms-section h2 {
+          font-size: 1.2rem;
+        }
+
+        .contact-card {
+          padding: 20px;
+        }
+      }
+    </style>
   </head>
   <body>
-    <div class="header">
+    <!-- Header with Logo -->
+    <header class="terms-header">
+      <div class="logo">
+        <a href="/">
+          <img src="/images/risivo-logo.png" alt="Risivo Logo">
+        </a>
+      </div>
       <h1>Terms of Service</h1>
-      <p>Risivo - Marketing CRM Platform</p>
-    </div>
+      <p class="subtitle">Please read these terms carefully before using Risivo</p>
+    </header>
 
-    <div class="container">
+    <div class="terms-content">
       <div class="last-updated">
         <strong>Last Updated:</strong> December 13, 2024
       </div>
 
-      <div class="section">
-        <h2>1. Acceptance of Terms</h2>
+      <div class="terms-section">
+        <h2><span class="section-icon">1</span> Acceptance of Terms</h2>
         <p>
           Welcome to Risivo, a Marketing CRM platform operated by Velocity Automation Corp. ("Risivo," "we," "us," or "our"). 
           By accessing or using our website, mobile applications, and services (collectively, the "Service"), you agree to be 
@@ -44,8 +353,8 @@ export const TermsOfServicePage = () => html`
         </p>
       </div>
 
-      <div class="section">
-        <h2>2. Definitions</h2>
+      <div class="terms-section">
+        <h2><span class="section-icon">2</span> Definitions</h2>
         <ul>
           <li><strong>"Service"</strong> refers to the Risivo platform, including all websites, applications, features, and functionalities</li>
           <li><strong>"User," "you," or "your"</strong> refers to any individual or entity using the Service</li>
@@ -56,8 +365,8 @@ export const TermsOfServicePage = () => html`
         </ul>
       </div>
 
-      <div class="section">
-        <h2>3. Account Registration and Eligibility</h2>
+      <div class="terms-section">
+        <h2><span class="section-icon">3</span> Account Registration and Eligibility</h2>
         
         <h3>3.1 Eligibility</h3>
         <p>You must meet the following requirements to use the Service:</p>
@@ -87,13 +396,13 @@ export const TermsOfServicePage = () => html`
         </ul>
       </div>
 
-      <div class="section">
-        <h2>4. Subscription Plans and Billing</h2>
+      <div class="terms-section">
+        <h2><span class="section-icon">4</span> Subscription Plans and Billing</h2>
         
         <h3>4.1 Subscription Plans</h3>
         <p>
           Risivo offers various subscription plans with different features and pricing. Details of available plans are 
-          available on our website at <a href="https://risivo.com/pricing" style="color: #667eea;">risivo.com/pricing</a>.
+          available on our website at <a href="https://risivo.com/pricing">risivo.com/pricing</a>.
         </p>
 
         <h3>4.2 Free Trial</h3>
@@ -140,8 +449,8 @@ export const TermsOfServicePage = () => html`
         </ul>
       </div>
 
-      <div class="section">
-        <h2>5. Acceptable Use Policy</h2>
+      <div class="terms-section">
+        <h2><span class="section-icon">5</span> Acceptable Use Policy</h2>
         
         <h3>5.1 Permitted Use</h3>
         <p>You may use the Service only for lawful purposes and in accordance with these Terms.</p>
@@ -171,8 +480,8 @@ export const TermsOfServicePage = () => html`
         </div>
       </div>
 
-      <div class="section">
-        <h2>6. Customer Data and Privacy</h2>
+      <div class="terms-section">
+        <h2><span class="section-icon">6</span> Customer Data and Privacy</h2>
         
         <h3>6.1 Your Data</h3>
         <p>
@@ -197,7 +506,7 @@ export const TermsOfServicePage = () => html`
         <h3>6.3 Data Security</h3>
         <p>
           We implement reasonable security measures to protect your data, but we cannot guarantee absolute security. 
-          See our <a href="/privacy-policy" style="color: #667eea;">Privacy Policy</a> for more information.
+          See our <a href="/privacy-policy">Privacy Policy</a> for more information.
         </p>
 
         <h3>6.4 Data Deletion</h3>
@@ -211,8 +520,8 @@ export const TermsOfServicePage = () => html`
         </ul>
       </div>
 
-      <div class="section">
-        <h2>7. Intellectual Property Rights</h2>
+      <div class="terms-section">
+        <h2><span class="section-icon">7</span> Intellectual Property Rights</h2>
         
         <h3>7.1 Our Property</h3>
         <p>
@@ -242,8 +551,8 @@ export const TermsOfServicePage = () => html`
         </p>
       </div>
 
-      <div class="section">
-        <h2>8. Third-Party Services and Integrations</h2>
+      <div class="terms-section">
+        <h2><span class="section-icon">8</span> Third-Party Services and Integrations</h2>
         <p>
           The Service may integrate with third-party services (e.g., email providers, social media platforms, payment processors). 
           Your use of these third-party services is subject to their respective terms and privacy policies.
@@ -256,8 +565,8 @@ export const TermsOfServicePage = () => html`
         </ul>
       </div>
 
-      <div class="section">
-        <h2>9. Service Availability and Modifications</h2>
+      <div class="terms-section">
+        <h2><span class="section-icon">9</span> Service Availability and Modifications</h2>
         
         <h3>9.1 Service Availability</h3>
         <p>
@@ -283,8 +592,8 @@ export const TermsOfServicePage = () => html`
         </p>
       </div>
 
-      <div class="section">
-        <h2>10. Disclaimers and Warranties</h2>
+      <div class="terms-section">
+        <h2><span class="section-icon">10</span> Disclaimers and Warranties</h2>
         
         <div class="warning-box">
           <strong>IMPORTANT:</strong> THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, 
@@ -307,8 +616,8 @@ export const TermsOfServicePage = () => html`
         </p>
       </div>
 
-      <div class="section">
-        <h2>11. Limitation of Liability</h2>
+      <div class="terms-section">
+        <h2><span class="section-icon">11</span> Limitation of Liability</h2>
         
         <div class="warning-box">
           <strong>IMPORTANT LIABILITY LIMITATION:</strong> PLEASE READ THIS SECTION CAREFULLY AS IT LIMITS OUR LIABILITY.
@@ -338,8 +647,8 @@ export const TermsOfServicePage = () => html`
         </p>
       </div>
 
-      <div class="section">
-        <h2>12. Indemnification</h2>
+      <div class="terms-section">
+        <h2><span class="section-icon">12</span> Indemnification</h2>
         <p>
           You agree to indemnify, defend, and hold harmless Velocity Automation Corp and its officers, directors, employees, 
           and agents from and against any claims, liabilities, damages, losses, costs, and expenses (including reasonable 
@@ -354,8 +663,8 @@ export const TermsOfServicePage = () => html`
         </ul>
       </div>
 
-      <div class="section">
-        <h2>13. Termination</h2>
+      <div class="terms-section">
+        <h2><span class="section-icon">13</span> Termination</h2>
         
         <h3>13.1 Termination by You</h3>
         <p>
@@ -391,8 +700,8 @@ export const TermsOfServicePage = () => html`
         </ul>
       </div>
 
-      <div class="section">
-        <h2>14. Dispute Resolution and Arbitration</h2>
+      <div class="terms-section">
+        <h2><span class="section-icon">14</span> Dispute Resolution and Arbitration</h2>
         
         <h3>14.1 Informal Resolution</h3>
         <p>
@@ -417,16 +726,16 @@ export const TermsOfServicePage = () => html`
         </div>
       </div>
 
-      <div class="section">
-        <h2>15. Governing Law and Jurisdiction</h2>
+      <div class="terms-section">
+        <h2><span class="section-icon">15</span> Governing Law and Jurisdiction</h2>
         <p>
-          These Terms are governed by the laws of [Your State/Country], without regard to conflict of law principles. 
-          Any disputes not subject to arbitration shall be brought exclusively in the courts located in [Your Jurisdiction].
+          These Terms are governed by the laws of the State of Delaware, United States, without regard to conflict of law principles. 
+          Any disputes not subject to arbitration shall be brought exclusively in the courts located in Delaware.
         </p>
       </div>
 
-      <div class="section">
-        <h2>16. Changes to Terms</h2>
+      <div class="terms-section">
+        <h2><span class="section-icon">16</span> Changes to Terms</h2>
         <p>
           We may modify these Terms at any time. We will notify you of material changes by:
         </p>
@@ -441,8 +750,8 @@ export const TermsOfServicePage = () => html`
         </p>
       </div>
 
-      <div class="section">
-        <h2>17. General Provisions</h2>
+      <div class="terms-section">
+        <h2><span class="section-icon">17</span> General Provisions</h2>
         
         <h3>17.1 Entire Agreement</h3>
         <p>
@@ -480,33 +789,55 @@ export const TermsOfServicePage = () => html`
         </p>
       </div>
 
-      <div class="section">
-        <h2>18. Contact Information</h2>
-        <div class="contact-info">
+      <div class="terms-section">
+        <h2><span class="section-icon">18</span> Contact Information</h2>
+        <div class="contact-card">
           <h3>Questions About These Terms?</h3>
           <p>If you have any questions about these Terms of Service, please contact us:</p>
-          <p><strong>Email:</strong> legal@risivo.com</p>
-          <p><strong>Support:</strong> support@risivo.com</p>
+          <p><strong>Email:</strong> <a href="mailto:legal@risivo.com">legal@risivo.com</a></p>
+          <p><strong>Support:</strong> <a href="mailto:support@risivo.com">support@risivo.com</a></p>
           <p><strong>Mailing Address:</strong><br>
             Velocity Automation Corp.<br>
             Attn: Legal Department<br>
-            [Your Company Address]<br>
-            [City, State, ZIP Code]
+            1111B S Governors Ave STE 40280<br>
+            Dover, DE 19904, USA
           </p>
-          <p><strong>Website:</strong> <a href="https://risivo.com" style="color: #667eea;">https://risivo.com</a></p>
+          <p><strong>Website:</strong> <a href="https://risivo.com">https://risivo.com</a></p>
         </div>
       </div>
 
-      <div class="section">
-        <h2>19. Acknowledgment</h2>
+      <div class="terms-section">
+        <h2><span class="section-icon">19</span> Acknowledgment</h2>
         <p>
           BY USING THE SERVICE, YOU ACKNOWLEDGE THAT YOU HAVE READ THESE TERMS OF SERVICE, UNDERSTAND THEM, AND AGREE TO BE 
           BOUND BY THEM. IF YOU DO NOT AGREE TO THESE TERMS, YOU MUST NOT USE THE SERVICE.
         </p>
       </div>
 
-      <a href="/" class="back-link">← Back to Home</a>
+      <div class="back-home-section">
+        <a href="/" class="btn-back-home">
+          <span>&#8592;</span> Back to Home
+        </a>
+      </div>
     </div>
+
+    <!-- Footer with Dynamic Copyright -->
+    <footer class="terms-footer">
+      <div class="footer-logo">
+        <img src="/images/risivo-logo.png" alt="Risivo">
+      </div>
+      <p>&copy; <span id="copyrightYear"></span> Risivo by Velocity Automation Corp. All rights reserved.</p>
+      <div class="footer-links">
+        <a href="/terms-of-service">Terms of Service</a>
+        <a href="/privacy-policy">Privacy Policy</a>
+        <a href="/">Home</a>
+      </div>
+    </footer>
+
+    <script>
+      // Dynamic copyright year
+      document.getElementById('copyrightYear').textContent = new Date().getFullYear();
+    </script>
   </body>
   </html>
 `;

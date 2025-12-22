@@ -553,8 +553,8 @@ export const PrivacyPolicyPage = () => html`
           <p><strong>Mailing Address:</strong><br>
             Velocity Automation Corp.<br>
             Attn: Privacy Department<br>
-            [Your Company Address]<br>
-            [City, State, ZIP Code]
+            1111B S Governors Ave STE 40280<br>
+            Dover, DE 19904, USA
           </p>
           <p><strong>Website:</strong> <a href="https://risivo.com">https://risivo.com</a></p>
         </div>
