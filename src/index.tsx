@@ -19,10 +19,7 @@ import adminInvestorContentRoute from './routes/admin-investor-content'
 import adminWaitlistRoute from './routes/admin-waitlist'
 import adminInvestorUpdatesRoute from './routes/admin-investor-updates'
 import authNewRoute from './routes/auth-new'
-import socialMediaRoute from './routes/social-media'
 import urlShortenerRoute from './routes/url-shortener'
-import socialCallbacksRoute from './routes/social-callbacks'
-import socialOAuthRoute from './routes/social-oauth'
 import { UserLoginPage } from './pages/user-login'
 import { UserDashboardPage } from './pages/user-dashboard'
 import { UpdateDetailPage } from './pages/update-detail'
@@ -42,10 +39,7 @@ import { AdminWaitlistCategoriesPage } from './pages/admin-waitlist-categories'
 import { AdminWaitlistUpdateFormPage } from './pages/admin-waitlist-update-form'
 import { AdminInvestorCategoriesPage } from './pages/admin-investor-categories'
 import { AdminInvestorUpdateFormPage } from './pages/admin-investor-update-form'
-import { AdminSocialDashboardPage } from './pages/admin-social-dashboard'
-import { AdminSocialConnectionsPage } from './pages/admin-social-connections'
-import { AdminSocialAnalyticsPage } from './pages/admin-social-analytics'
-import { LinkedInSelectPage, FacebookSelectPage } from './pages/social-select-page'
+
 
 type Bindings = {
   WEBHOOK_URL?: string
@@ -82,10 +76,7 @@ app.route('/api/admin/investor-updates', adminInvestorUpdatesRoute)
 app.route('/api/admin/investor-categories', adminInvestorUpdatesRoute)  // Alias for categories
 app.route('/api/auth', authNewRoute)  // New signup/NDA API routes
 app.route('/updates', authNewRoute)  // New signup/NDA page routes
-app.route('/api/admin/social', socialMediaRoute)  // Social media management API
 app.route('/api/short-url', urlShortenerRoute)  // URL shortener API
-app.route('/api/admin/social', socialCallbacksRoute)  // Social OAuth callbacks & webhooks
-app.route('/api/admin/social/oauth', socialOAuthRoute)  // Social OAuth initiation & token exchange
 
 
 // Base64 encoded logo
@@ -2772,161 +2763,6 @@ app.get('/s/:code', async (c) => {
     console.error('Short URL redirect error:', error);
     return c.redirect('/');
   }
-});
-
-// ==========================================
-// SOCIAL MEDIA ADMIN PAGES
-// ==========================================
-
-// Social Media Dashboard
-app.get('/updates/admin/social', async (c) => {
-  const auth = await verifyAdminSession(c);
-  if (!auth) return c.redirect('/updates/admin/login');
-
-  // Get analytics data
-  const analyticsResponse = await fetch(`${c.req.url.split('/updates')[0]}/api/admin/social/analytics/dashboard`, {
-    headers: {
-      'Cookie': `admin_session=${getCookie(c, 'admin_session')}`
-    }
-  });
-  
-  let analyticsData = {};
-  try {
-    analyticsData = await analyticsResponse.json();
-  } catch (e) {
-    // Use empty data if fetch fails
-    analyticsData = { connections: { list: [] }, posts: { recent: [] }, urls: {} };
-  }
-
-  return c.html(AdminSocialDashboardPage(auth.admin, {
-    connections: analyticsData.connections?.list || [],
-    posts: analyticsData.posts?.recent || [],
-    analytics: analyticsData
-  }));
-});
-
-// Social Media Connections Page
-app.get('/updates/admin/social/connections', async (c) => {
-  const auth = await verifyAdminSession(c);
-  if (!auth) return c.redirect('/updates/admin/login');
-
-  // Get all platforms
-  const { data: platforms } = await auth.supabase
-    .from('social_platforms')
-    .select('*')
-    .eq('is_active', true)
-    .order('sort_order', { ascending: true });
-
-  // Get all connections with platform info
-  const { data: connections } = await auth.supabase
-    .from('social_connections')
-    .select(`
-      *,
-      platform:social_platforms(*)
-    `)
-    .order('created_at', { ascending: false });
-
-  // Check for error query parameter
-  const errorCode = c.req.query('error');
-
-  return c.html(AdminSocialConnectionsPage(auth.admin, platforms || [], connections || [], errorCode));
-});
-
-// Social Media Posts List
-app.get('/updates/admin/social/posts', async (c) => {
-  const auth = await verifyAdminSession(c);
-  if (!auth) return c.redirect('/updates/admin/login');
-
-  // For now, redirect to social dashboard - can build dedicated posts page later
-  return c.redirect('/updates/admin/social');
-});
-
-// Social Media Analytics
-app.get('/updates/admin/social/analytics', async (c) => {
-  const auth = await verifyAdminSession(c);
-  if (!auth) return c.redirect('/updates/admin/login');
-
-  // Get connections
-  const { data: connections } = await auth.supabase
-    .from('social_connections')
-    .select('*, platform:social_platforms(*)')
-    .order('created_at', { ascending: false });
-
-  // Get posts
-  const { data: posts } = await auth.supabase
-    .from('social_posts')
-    .select('*')
-    .order('created_at', { ascending: false });
-
-  // Get URL click count
-  const { count: urlClicks } = await auth.supabase
-    .from('url_clicks')
-    .select('*', { count: 'exact', head: true });
-
-  return c.html(AdminSocialAnalyticsPage(auth.admin, {
-    connections: connections || [],
-    posts: posts || [],
-    urlClicks: urlClicks || 0
-  }));
-});
-
-// LinkedIn Page/Profile Selection after OAuth
-app.get('/updates/admin/social/select/linkedin', async (c) => {
-  const auth = await verifyAdminSession(c);
-  if (!auth) return c.redirect('/updates/admin/login');
-  
-  const sessionId = c.req.query('session');
-  let sessionData = null;
-  let error = null;
-  
-  if (sessionId) {
-    // Try to get session data from database
-    const { data, error: dbError } = await auth.supabase
-      .from('oauth_sessions')
-      .select('*')
-      .eq('session_id', sessionId)
-      .eq('platform', 'linkedin')
-      .single();
-    
-    if (dbError || !data) {
-      error = 'OAuth session expired or not found. Please try connecting again.';
-    } else {
-      sessionData = data;
-    }
-  } else {
-    error = 'No OAuth session provided. Please initiate connection again.';
-  }
-  
-  return c.html(LinkedInSelectPage(auth.admin, sessionData, error || undefined));
-});
-
-// Facebook Page/Group Selection after OAuth
-app.get('/updates/admin/social/select/facebook', async (c) => {
-  const auth = await verifyAdminSession(c);
-  if (!auth) return c.redirect('/updates/admin/login');
-  
-  const sessionId = c.req.query('session');
-  let sessionData = null;
-  let error = null;
-  
-  if (sessionId) {
-    const { data, error: dbError } = await auth.supabase
-      .from('oauth_sessions')
-      .select('*')
-      .eq('session_id', sessionId)
-      .eq('platform', 'facebook')
-      .single();
-    
-    if (dbError || !data) {
-      error = 'OAuth session expired or not found. Please try connecting again.';
-    } else {
-      sessionData = data;
-    }
-  } else {
-    error = 'No OAuth session provided. Please initiate connection again.';
-  }
-  
-  return c.html(FacebookSelectPage(auth.admin, sessionData, error || undefined));
 });
 
 // Legal Pages
