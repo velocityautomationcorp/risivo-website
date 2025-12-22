@@ -43,6 +43,7 @@ import { AdminInvestorCategoriesPage } from './pages/admin-investor-categories'
 import { AdminInvestorUpdateFormPage } from './pages/admin-investor-update-form'
 import { AdminSocialDashboardPage } from './pages/admin-social-dashboard'
 import { AdminSocialConnectionsPage } from './pages/admin-social-connections'
+import { AdminSocialAnalyticsPage } from './pages/admin-social-analytics'
 
 type Bindings = {
   WEBHOOK_URL?: string
@@ -2839,8 +2840,28 @@ app.get('/updates/admin/social/analytics', async (c) => {
   const auth = await verifyAdminSession(c);
   if (!auth) return c.redirect('/updates/admin/login');
 
-  // For now, redirect to social dashboard - can build dedicated analytics page later
-  return c.redirect('/updates/admin/social');
+  // Get connections
+  const { data: connections } = await auth.supabase
+    .from('social_connections')
+    .select('*, platform:social_platforms(*)')
+    .order('created_at', { ascending: false });
+
+  // Get posts
+  const { data: posts } = await auth.supabase
+    .from('social_posts')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  // Get URL click count
+  const { count: urlClicks } = await auth.supabase
+    .from('url_clicks')
+    .select('*', { count: 'exact', head: true });
+
+  return c.html(AdminSocialAnalyticsPage(auth.admin, {
+    connections: connections || [],
+    posts: posts || [],
+    urlClicks: urlClicks || 0
+  }));
 });
 
 // Legal Pages
