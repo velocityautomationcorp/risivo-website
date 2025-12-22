@@ -210,7 +210,7 @@ export const AdminSocialConnectionsPage = (admin: any, platforms: any[] = [], co
             right: 0;
             bottom: 0;
             background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
+            z-index: 9999;
             justify-content: center;
             align-items: center;
             padding: 20px;
