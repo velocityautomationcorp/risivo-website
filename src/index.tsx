@@ -2826,7 +2826,10 @@ app.get('/updates/admin/social/connections', async (c) => {
     `)
     .order('created_at', { ascending: false });
 
-  return c.html(AdminSocialConnectionsPage(auth.admin, platforms || [], connections || []));
+  // Check for error query parameter
+  const errorCode = c.req.query('error');
+
+  return c.html(AdminSocialConnectionsPage(auth.admin, platforms || [], connections || [], errorCode));
 });
 
 // Social Media Posts List

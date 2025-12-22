@@ -28,7 +28,20 @@ const getOAuthUrl = (platformKey: string): string | null => {
     return null;
 };
 
-export const AdminSocialConnectionsPage = (admin: any, platforms: any[] = [], connections: any[] = []) => {
+// Error message mapping for user-friendly display
+const ERROR_MESSAGES: Record<string, string> = {
+    'linkedin_not_configured': 'LinkedIn is not configured. Please add LINKEDIN_CLIENT_ID and LINKEDIN_CLIENT_SECRET to your Cloudflare environment variables.',
+    'facebook_not_configured': 'Facebook is not configured. Please add FACEBOOK_APP_ID and FACEBOOK_APP_SECRET to your Cloudflare environment variables.',
+    'missing_credentials': 'API credentials are missing. Please configure the platform credentials in Cloudflare.',
+    'database_error': 'Database configuration error. Please check your Supabase credentials.',
+    'token_exchange_failed': 'Failed to exchange authorization code for token. Please try again.',
+    'oauth_failed': 'OAuth authentication failed. Please try again.',
+    'invalid_state': 'Security check failed (invalid state). Please try connecting again.',
+    'no_code': 'No authorization code received from the platform.',
+    'invalid_request': 'Invalid OAuth request. Please try again.'
+};
+
+export const AdminSocialConnectionsPage = (admin: any, platforms: any[] = [], connections: any[] = [], errorCode?: string) => {
     // Use default platforms if none provided from database
     const platformsList = platforms.length > 0 ? platforms : DEFAULT_PLATFORMS;
     
@@ -420,6 +433,53 @@ export const AdminSocialConnectionsPage = (admin: any, platforms: any[] = [], co
 
         .back-link:hover { text-decoration: underline; }
 
+        .error-banner {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            border: 2px solid #f87171;
+            border-radius: 16px;
+            padding: 20px 25px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .error-banner .error-icon {
+            font-size: 28px;
+            flex-shrink: 0;
+        }
+
+        .error-banner .error-content {
+            flex: 1;
+        }
+
+        .error-banner .error-title {
+            font-weight: 700;
+            color: #b91c1c;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .error-banner .error-text {
+            color: #991b1b;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .error-banner .error-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #b91c1c;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .error-banner .error-close:hover {
+            color: #7f1d1d;
+        }
+
         .section-info {
             background: #eff6ff;
             border: 1px solid #bfdbfe;
@@ -457,6 +517,9 @@ export const AdminSocialConnectionsPage = (admin: any, platforms: any[] = [], co
         
         <h1 class="page-title">⚙️ Social Media Connections</h1>
         <p class="page-subtitle">Connect your social media accounts to enable auto-posting</p>
+        
+        <!-- Error Message Display -->
+        <div id="errorMessage" class="error-banner" style="display: none;"></div>
         
         <div class="section-info">
             <p>💡 <strong>Tip:</strong> You need to create developer apps on each platform to get API credentials. Click "Setup Guide" on each platform for instructions.</p>
@@ -547,6 +610,37 @@ export const AdminSocialConnectionsPage = (admin: any, platforms: any[] = [], co
         <p>&copy; <span id="copyrightYear"></span> Risivo™ by Velocity Automation Corp. All rights reserved.</p>
     </footer>
     <script>document.getElementById('copyrightYear').textContent = new Date().getFullYear();</script>
+    
+    <script>
+        // Error messages mapping
+        const errorMessages = ${JSON.stringify(ERROR_MESSAGES)};
+        
+        // Check for error in URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const errorCode = urlParams.get('error') || '${errorCode || ''}';
+        
+        if (errorCode) {
+            const errorBanner = document.getElementById('errorMessage');
+            const errorText = errorMessages[errorCode] || decodeURIComponent(errorCode);
+            errorBanner.innerHTML = \`
+                <span class="error-icon">⚠️</span>
+                <div class="error-content">
+                    <div class="error-title">Connection Failed</div>
+                    <div class="error-text">\${errorText}</div>
+                </div>
+                <button class="error-close" onclick="closeError()">&times;</button>
+            \`;
+            errorBanner.style.display = 'flex';
+            
+            // Clear error from URL without refresh
+            const newUrl = window.location.pathname;
+            window.history.replaceState({}, '', newUrl);
+        }
+        
+        function closeError() {
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+    </script>
     
     <script>
         const connections = ${raw(JSON.stringify(connections))};
