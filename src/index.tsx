@@ -16,6 +16,8 @@ import adminInvestorRoute from './routes/admin-investor'
 import interactionsRoute from './routes/update-interactions'
 import adminCategoriesRoute from './routes/admin-categories'
 import adminInvestorContentRoute from './routes/admin-investor-content'
+import adminWaitlistRoute from './routes/admin-waitlist'
+import adminInvestorUpdatesRoute from './routes/admin-investor-updates'
 import authNewRoute from './routes/auth-new'
 import { UserLoginPage } from './pages/user-login'
 import { UserDashboardPage } from './pages/user-dashboard'
@@ -31,6 +33,11 @@ import { PrivacyPolicyPage } from './pages/privacy-policy'
 import { TermsOfServicePage } from './pages/terms-of-service'
 import { TestCookiePage } from './pages/test-cookie'
 import { AdminInvestorContentPage } from './pages/admin-investor-content'
+import { AdminWaitlistManagementPage } from './pages/admin-waitlist-management'
+import { AdminWaitlistCategoriesPage } from './pages/admin-waitlist-categories'
+import { AdminWaitlistUpdateFormPage } from './pages/admin-waitlist-update-form'
+import { AdminInvestorCategoriesPage } from './pages/admin-investor-categories'
+import { AdminInvestorUpdateFormPage } from './pages/admin-investor-update-form'
 
 type Bindings = {
   WEBHOOK_URL?: string
@@ -60,6 +67,11 @@ app.route('/api/admin/updates', adminUpdatesRoute)
 app.route('/api/admin/categories', adminCategoriesRoute)
 app.route('/api/admin', adminInvestorRoute)
 app.route('/api/admin/investor-content', adminInvestorContentRoute)
+app.route('/api/admin/waitlist', adminWaitlistRoute)
+app.route('/api/admin/waitlist-updates', adminWaitlistRoute)  // Alias for /waitlist/updates
+app.route('/api/admin/waitlist-categories', adminWaitlistRoute)  // Alias for /waitlist/categories
+app.route('/api/admin/investor-updates', adminInvestorUpdatesRoute)
+app.route('/api/admin/investor-categories', adminInvestorUpdatesRoute)  // Alias for categories
 app.route('/api/auth', authNewRoute)  // New signup/NDA API routes
 app.route('/updates', authNewRoute)  // New signup/NDA page routes
 
@@ -2135,9 +2147,15 @@ app.get('/updates/admin/dashboard', async (c) => {
     return c.redirect('/updates/admin/login');
   }
   
-  // Get all updates for dashboard
-  const { data: updates } = await supabase
+  // Get waitlist updates (from project_updates)
+  const { data: waitlistUpdates } = await supabase
     .from('project_updates')
+    .select('*')
+    .order('created_at', { ascending: false });
+  
+  // Get investor updates (from investor_updates table)
+  const { data: investorUpdates } = await supabase
+    .from('investor_updates')
     .select('*')
     .order('created_at', { ascending: false });
   
@@ -2155,7 +2173,7 @@ app.get('/updates/admin/dashboard', async (c) => {
     approvedInvestors: users.filter(u => u.user_type === 'investor' && u.investor_status === 'active').length
   };
   
-  return c.html(AdminDashboardPage(admin, updates || [], subscriberStats));
+  return c.html(AdminDashboardPage(admin, waitlistUpdates || [], investorUpdates || [], subscriberStats));
 });
 
 // Admin Investor Management (Protected)
@@ -2496,6 +2514,167 @@ app.get('/updates/admin/edit/:id', async (c) => {
     .order('display_order', { ascending: true });
   
   return c.html(AdminUpdateFormPage({ admin, update, mode: 'edit', categories: categories || [] }));
+});
+
+// ==========================================
+// NEW ADMIN ROUTES - WAITLIST & INVESTOR UPDATES
+// ==========================================
+
+// Helper function to verify admin session
+async function verifyAdminSession(c: any) {
+  const sessionToken = getCookie(c, 'admin_session');
+  if (!sessionToken) return null;
+
+  const supabaseUrl = c.env?.SUPABASE_URL;
+  const supabaseKey = c.env?.SUPABASE_SERVICE_ROLE_KEY;
+  if (!supabaseUrl || !supabaseKey) return null;
+
+  const supabase = createClient(supabaseUrl, supabaseKey);
+  
+  const { data: session } = await supabase
+    .from('admin_sessions')
+    .select('*, admin_users(*)')
+    .eq('session_token', sessionToken)
+    .single();
+
+  if (!session || new Date(session.expires_at) < new Date()) return null;
+  if (!session.admin_users?.is_active) return null;
+
+  return { supabase, admin: session.admin_users };
+}
+
+// Manage Wait List (view waitlist subscribers)
+app.get('/updates/admin/waitlist', async (c) => {
+  const auth = await verifyAdminSession(c);
+  if (!auth) return c.redirect('/updates/admin/login');
+
+  const { data: waitlistUsers } = await auth.supabase
+    .from('users')
+    .select('*')
+    .eq('user_type', 'waitlist')
+    .order('created_at', { ascending: false });
+
+  return c.html(AdminWaitlistManagementPage(auth.admin, waitlistUsers || []));
+});
+
+// Waitlist Categories Management
+app.get('/updates/admin/waitlist/categories', async (c) => {
+  const auth = await verifyAdminSession(c);
+  if (!auth) return c.redirect('/updates/admin/login');
+
+  const { data: categories } = await auth.supabase
+    .from('waitlist_categories')
+    .select('*')
+    .order('sort_order', { ascending: true });
+
+  return c.html(AdminWaitlistCategoriesPage(auth.admin, categories || []));
+});
+
+// Create Waitlist Update
+app.get('/updates/admin/waitlist/create', async (c) => {
+  const auth = await verifyAdminSession(c);
+  if (!auth) return c.redirect('/updates/admin/login');
+
+  const { data: categories } = await auth.supabase
+    .from('waitlist_categories')
+    .select('*')
+    .eq('is_active', true)
+    .order('sort_order', { ascending: true });
+
+  return c.html(AdminWaitlistUpdateFormPage(auth.admin, categories || [], null));
+});
+
+// Edit Waitlist Update
+app.get('/updates/admin/waitlist/edit/:id', async (c) => {
+  const auth = await verifyAdminSession(c);
+  if (!auth) return c.redirect('/updates/admin/login');
+
+  const updateId = c.req.param('id');
+
+  const { data: update } = await auth.supabase
+    .from('project_updates')
+    .select('*')
+    .eq('id', updateId)
+    .single();
+
+  if (!update) return c.redirect('/updates/admin/dashboard');
+
+  const { data: categories } = await auth.supabase
+    .from('waitlist_categories')
+    .select('*')
+    .eq('is_active', true)
+    .order('sort_order', { ascending: true });
+
+  return c.html(AdminWaitlistUpdateFormPage(auth.admin, categories || [], update));
+});
+
+// View All Waitlist Updates
+app.get('/updates/admin/waitlist/all', async (c) => {
+  const auth = await verifyAdminSession(c);
+  if (!auth) return c.redirect('/updates/admin/login');
+
+  // Redirect to dashboard for now (can build dedicated list page later)
+  return c.redirect('/updates/admin/dashboard');
+});
+
+// Investor Update Categories Management
+app.get('/updates/admin/investor-updates/categories', async (c) => {
+  const auth = await verifyAdminSession(c);
+  if (!auth) return c.redirect('/updates/admin/login');
+
+  const { data: categories } = await auth.supabase
+    .from('investor_categories')
+    .select('*')
+    .order('sort_order', { ascending: true });
+
+  return c.html(AdminInvestorCategoriesPage(auth.admin, categories || []));
+});
+
+// Create Investor Update
+app.get('/updates/admin/investor-updates/create', async (c) => {
+  const auth = await verifyAdminSession(c);
+  if (!auth) return c.redirect('/updates/admin/login');
+
+  const { data: categories } = await auth.supabase
+    .from('investor_categories')
+    .select('*')
+    .eq('is_active', true)
+    .order('sort_order', { ascending: true });
+
+  return c.html(AdminInvestorUpdateFormPage(auth.admin, categories || [], null));
+});
+
+// Edit Investor Update
+app.get('/updates/admin/investor-updates/edit/:id', async (c) => {
+  const auth = await verifyAdminSession(c);
+  if (!auth) return c.redirect('/updates/admin/login');
+
+  const updateId = c.req.param('id');
+
+  const { data: update } = await auth.supabase
+    .from('investor_updates')
+    .select('*')
+    .eq('id', updateId)
+    .single();
+
+  if (!update) return c.redirect('/updates/admin/dashboard');
+
+  const { data: categories } = await auth.supabase
+    .from('investor_categories')
+    .select('*')
+    .eq('is_active', true)
+    .order('sort_order', { ascending: true });
+
+  return c.html(AdminInvestorUpdateFormPage(auth.admin, categories || [], update));
+});
+
+// View All Investor Updates
+app.get('/updates/admin/investor-updates/all', async (c) => {
+  const auth = await verifyAdminSession(c);
+  if (!auth) return c.redirect('/updates/admin/login');
+
+  // Redirect to dashboard for now (can build dedicated list page later)
+  return c.redirect('/updates/admin/dashboard');
 });
 
 // Legal Pages
