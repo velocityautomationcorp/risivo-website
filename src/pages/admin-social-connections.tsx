@@ -1,8 +1,25 @@
 import { html, raw } from 'hono/html';
 
+// Default platforms (fallback if database doesn't have them)
+const DEFAULT_PLATFORMS = [
+    { id: '1', platform_key: 'facebook_page', platform_name: 'Facebook Page', icon: '📘', color: '#1877f2', requires_video: false, sort_order: 1 },
+    { id: '2', platform_key: 'facebook_group', platform_name: 'Facebook Group', icon: '👥', color: '#1877f2', requires_video: false, sort_order: 2 },
+    { id: '3', platform_key: 'linkedin_company', platform_name: 'LinkedIn Company Page', icon: '💼', color: '#0a66c2', requires_video: false, sort_order: 3 },
+    { id: '4', platform_key: 'linkedin_profile', platform_name: 'LinkedIn Profile', icon: '👤', color: '#0a66c2', requires_video: false, sort_order: 4 },
+    { id: '5', platform_key: 'linkedin_group', platform_name: 'LinkedIn Group', icon: '👥', color: '#0a66c2', requires_video: false, sort_order: 5 },
+    { id: '6', platform_key: 'twitter', platform_name: 'Twitter/X', icon: '🐦', color: '#1da1f2', requires_video: false, sort_order: 6 },
+    { id: '7', platform_key: 'instagram', platform_name: 'Instagram', icon: '📷', color: '#e4405f', requires_video: false, sort_order: 7 },
+    { id: '8', platform_key: 'youtube', platform_name: 'YouTube', icon: '🎬', color: '#ff0000', requires_video: true, sort_order: 8 },
+    { id: '9', platform_key: 'pinterest', platform_name: 'Pinterest', icon: '📌', color: '#bd081c', requires_video: false, sort_order: 9 },
+    { id: '10', platform_key: 'tiktok', platform_name: 'TikTok', icon: '🎵', color: '#000000', requires_video: true, sort_order: 10 }
+];
+
 export const AdminSocialConnectionsPage = (admin: any, platforms: any[] = [], connections: any[] = []) => {
+    // Use default platforms if none provided from database
+    const platformsList = platforms.length > 0 ? platforms : DEFAULT_PLATFORMS;
+    
     // Generate platform cards
-    const platformsHTML = platforms.map(platform => {
+    const platformsHTML = platformsList.map(platform => {
         const platformConnections = connections.filter(c => c.platform_id === platform.id);
         const hasConnection = platformConnections.length > 0;
         const isConnected = platformConnections.some(c => c.is_connected);
