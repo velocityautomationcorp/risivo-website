@@ -21,6 +21,7 @@ import adminInvestorUpdatesRoute from './routes/admin-investor-updates'
 import authNewRoute from './routes/auth-new'
 import socialMediaRoute from './routes/social-media'
 import urlShortenerRoute from './routes/url-shortener'
+import socialCallbacksRoute from './routes/social-callbacks'
 import { UserLoginPage } from './pages/user-login'
 import { UserDashboardPage } from './pages/user-dashboard'
 import { UpdateDetailPage } from './pages/update-detail'
@@ -80,6 +81,7 @@ app.route('/api/auth', authNewRoute)  // New signup/NDA API routes
 app.route('/updates', authNewRoute)  // New signup/NDA page routes
 app.route('/api/admin/social', socialMediaRoute)  // Social media management API
 app.route('/api/short-url', urlShortenerRoute)  // URL shortener API
+app.route('/api/admin/social', socialCallbacksRoute)  // Social OAuth callbacks & webhooks
 
 
 // Base64 encoded logo
