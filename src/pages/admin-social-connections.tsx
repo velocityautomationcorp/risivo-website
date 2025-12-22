@@ -15,7 +15,9 @@ const DEFAULT_PLATFORMS = [
 ];
 
 // Platforms that support OAuth (one-click connect)
-const OAUTH_PLATFORMS = ['linkedin_company', 'linkedin_profile', 'linkedin_group', 'facebook_page', 'facebook_group'];
+// Note: LinkedIn Company Page and Group require LinkedIn Partner Program access
+// and special organization scopes, so only Profile supports direct OAuth
+const OAUTH_PLATFORMS = ['linkedin_profile', 'facebook_page', 'facebook_group'];
 
 // Get the OAuth connect URL for a platform
 const getOAuthUrl = (platformKey: string): string | null => {

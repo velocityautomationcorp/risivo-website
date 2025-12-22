@@ -67,22 +67,22 @@ socialOAuthRoute.get('/connect/linkedin', async (c) => {
   
   const redirectUri = `${siteUrl}/api/admin/social/oauth/callback/linkedin`;
   
-  // LinkedIn OAuth scopes for pages and posting
+  // LinkedIn OAuth scopes for profile and posting
+  // Basic scopes available to all LinkedIn apps:
   // - openid: OpenID Connect
   // - profile: Basic profile access
   // - email: Email address
   // - w_member_social: Post on behalf of member
-  // - r_organization_admin: Read organization admin data (for pages)
-  // - w_organization_social: Post on behalf of organization
-  // - rw_organization_admin: Read/write organization admin data
+  // - r_basicprofile: Read basic profile info
+  // 
+  // Note: Organization/Company Page scopes (r_organization_admin, w_organization_social, 
+  // rw_organization_admin) require LinkedIn Partner Program access and are NOT included.
+  // For company page posting, users should use "Manual Setup" option.
   const scopes = [
     'openid',
     'profile', 
     'email',
-    'w_member_social',
-    'r_organization_admin',
-    'w_organization_social',
-    'rw_organization_admin'
+    'w_member_social'
   ].join(' ');
   
   const authUrl = new URL('https://www.linkedin.com/oauth/v2/authorization');
