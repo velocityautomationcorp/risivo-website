@@ -11,36 +11,6 @@ const { colors, spacing } = designSystem;
 export const HomepageStep6 = () => {
   // Inline hero content to avoid dependency issues
   const heroContent = `
-    <style>
-      .hero-section-safe {
-        background: linear-gradient(135deg, #683FE9 0%, #7C3AED 100%);
-        padding: 140px 20px 60px;
-        text-align: center;
-        color: white;
-      }
-      .hero-title-safe {
-        font-size: clamp(2.5rem, 6vw, 4rem);
-        font-weight: 700;
-        margin-bottom: 24px;
-      }
-      .hero-subtitle-safe {
-        font-size: 1.25rem;
-        opacity: 0.95;
-        max-width: 700px;
-        margin: 0 auto 40px;
-        line-height: 1.6;
-      }
-      .hero-cta-safe {
-        background: white;
-        color: #683FE9;
-        padding: 18px 40px;
-        border-radius: 8px;
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 1.1rem;
-        display: inline-block;
-      }
-    </style>
     
     <div class="hero-section-safe">
       <h1 class="hero-title-safe">Transform Your Marketing with Risivo CRM</h1>

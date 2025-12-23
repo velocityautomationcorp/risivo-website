@@ -21,32 +21,7 @@ export function ComingSoonPage(): string {
         <title>Risivo - Coming Soon</title>
         <meta name="description" content="Risivo - The Future of CRM is Coming. Transform how you manage customers, close deals, and grow your business.">
         <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64,${FAVICON_BASE64}">
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-        <style>
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }
-            
-            body {
-                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
-                min-height: 100vh;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                position: relative;
-                overflow: hidden;
-            }
-            
-            /* Full styles from current coming soon page... */
-            /* Abbreviated for space - full styles would be included */
-            
-        </style>
     </head>
     <body>
         <!-- Coming soon page content -->

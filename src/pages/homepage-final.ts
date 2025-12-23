@@ -46,14 +46,9 @@ export const HomepageFinal = () => {
       <link rel="icon" type="image/png" href="/favicon.png">
       
       <!-- Fonts - JOST (Official Brand Font) -->
-      <link rel="preconnect" href="https://fonts.googleapis.com">
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
       <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700&display=swap" rel="stylesheet">
       
       <!-- Global Styles -->
-      <style>
-        ${globalStyles}
-      </style>
     </head>
     <body>
       ${Navigation({
@@ -166,7 +161,7 @@ export const HomepageFinal = () => {
             gap: ${spacing.md};
           ">
             <p style="color: #9ca3af; font-size: 0.875rem;">
-              © ${currentYear} Risivo. All rights reserved.
+              © ${currentYear} Risivo™ by Velocity Automation Corp. All rights reserved.
             </p>
             <div style="display: flex; gap: ${spacing.md};">
               <a href="/privacy" style="color: #9ca3af; text-decoration: none; font-size: 0.875rem;">Privacy</a>

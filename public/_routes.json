@@ -8,7 +8,11 @@
     "/icon.png",
     "/risivo-logo.png",
     "/risivo-logo-white.png",
+    "/risivo-icon.png",
+    "/white-favicon.png",
     "/images/*",
-    "/static/*"
+    "/static/*",
+    "/audio/*",
+    "/videos/*"
   ]
 }

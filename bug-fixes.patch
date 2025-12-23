@@ -1,0 +1,341 @@
+diff --git a/public/audio/investment-thesis-brief.mp3 b/public/audio/investment-thesis-brief.mp3
+new file mode 100644
+index 0000000..ad12e3b
+Binary files /dev/null and b/public/audio/investment-thesis-brief.mp3 differ
+diff --git a/src/api/auth/signup-investor.ts b/src/api/auth/signup-investor.ts
+index acc503d..4489a9a 100644
+--- a/src/api/auth/signup-investor.ts
++++ b/src/api/auth/signup-investor.ts
+@@ -84,8 +84,8 @@ export async function signupInvestor(c: Context) {
+       })
+     });
+     
+-    // Set cookie
+-    const cookieValue = `session=${sessionToken}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=${30 * 24 * 60 * 60}`;
++    // Set cookie - use 'user_session' (consistent with login.ts) and 'SameSite=Lax' for redirects
++    const cookieValue = `user_session=${sessionToken}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${30 * 24 * 60 * 60}`;
+     
+     return c.json({
+       success: true,
+diff --git a/src/pages/investor-dashboard-v2.tsx b/src/pages/investor-dashboard-v2.tsx
+index 848be62..305c9c3 100644
+--- a/src/pages/investor-dashboard-v2.tsx
++++ b/src/pages/investor-dashboard-v2.tsx
+@@ -355,6 +355,73 @@ export const InvestorDashboardPageV2 = (userData?: any) => html`
+             opacity: 0.9;
+         }
+ 
++        /* Audio Section Styles */
++        .audio-section {
++            margin-bottom: 40px;
++        }
++
++        .audio-card {
++            background: white;
++            border-radius: 16px;
++            padding: 30px;
++            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
++            display: flex;
++            align-items: flex-start;
++            gap: 24px;
++        }
++
++        .audio-icon {
++            font-size: 48px;
++            flex-shrink: 0;
++            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
++            border-radius: 16px;
++            width: 80px;
++            height: 80px;
++            display: flex;
++            align-items: center;
++            justify-content: center;
++        }
++
++        .audio-content {
++            flex: 1;
++        }
++
++        .audio-content h3 {
++            color: #333;
++            font-size: 20px;
++            font-weight: 700;
++            margin-bottom: 8px;
++        }
++
++        .audio-content p {
++            color: #666;
++            font-size: 14px;
++            margin-bottom: 16px;
++            line-height: 1.6;
++        }
++
++        .audio-content audio {
++            width: 100%;
++            border-radius: 8px;
++            margin-bottom: 8px;
++        }
++
++        .audio-duration {
++            font-size: 12px;
++            color: #999;
++        }
++
++        @media (max-width: 600px) {
++            .audio-card {
++                flex-direction: column;
++                text-align: center;
++            }
++
++            .audio-icon {
++                margin: 0 auto;
++            }
++        }
++
+         @media (max-width: 768px) {
+             .logo {
+                 width: 100px;
+@@ -401,6 +468,22 @@ export const InvestorDashboardPageV2 = (userData?: any) => html`
+         <!-- Status Alert (for pending approval) -->
+         <div id="statusAlert" style="display: none;"></div>
+ 
++        <!-- Audio Podcast Section -->
++        <div class="audio-section">
++            <div class="audio-card">
++                <div class="audio-icon">🎧</div>
++                <div class="audio-content">
++                    <h3>Investment Thesis Brief</h3>
++                    <p>Listen to our comprehensive overview of Risivo's investment opportunity, key features, and market positioning.</p>
++                    <audio controls id="investmentAudio" preload="metadata">
++                        <source src="/audio/investment-thesis-brief.mp3" type="audio/mpeg">
++                        Your browser does not support the audio element.
++                    </audio>
++                    <div class="audio-duration" id="audioDuration">Duration: Loading...</div>
++                </div>
++            </div>
++        </div>
++
+         <!-- Exclusive Content Cards -->
+         <h2 class="section-title" style="color: white; margin-bottom: 24px;">
+             📂 Exclusive Investor Content
+@@ -429,6 +512,21 @@ export const InvestorDashboardPageV2 = (userData?: any) => html`
+         // Set current year dynamically
+         document.getElementById('copyrightYear').textContent = new Date().getFullYear();
+ 
++        // Audio duration display
++        const investmentAudio = document.getElementById('investmentAudio');
++        const audioDuration = document.getElementById('audioDuration');
++        
++        investmentAudio.addEventListener('loadedmetadata', function() {
++            const duration = investmentAudio.duration;
++            const minutes = Math.floor(duration / 60);
++            const seconds = Math.floor(duration % 60);
++            audioDuration.textContent = \`Duration: \${minutes}:\${seconds.toString().padStart(2, '0')}\`;
++        });
++
++        investmentAudio.addEventListener('error', function() {
++            audioDuration.textContent = 'Audio file not available';
++        });
++
+         let userData = null;
+         let contentData = [];
+ 
+diff --git a/src/pages/investor-nda-review.tsx b/src/pages/investor-nda-review.tsx
+index f7a4ee6..f1407bb 100644
+--- a/src/pages/investor-nda-review.tsx
++++ b/src/pages/investor-nda-review.tsx
+@@ -1,6 +1,6 @@
+ import { html } from 'hono/html';
+ 
+-export const InvestorNDAReviewPage = (user: any = { first_name: 'Investor', last_name: '', business_name: '' }) => {
++export const InvestorNDAReviewPage = (user: any = { first_name: '', last_name: '', business_name: '' }) => {
+   return html`<!DOCTYPE html>
+ <html lang="en">
+ <head>
+@@ -261,6 +261,38 @@ export const InvestorNDAReviewPage = (user: any = { first_name: 'Investor', last
+             border-left: 4px solid #22543d;
+         }
+ 
++        .signature-box {
++            background: #fffef0;
++            border: 2px dashed #d4a574;
++            border-radius: 8px;
++            padding: 30px 20px;
++            text-align: center;
++            min-height: 80px;
++            display: flex;
++            align-items: center;
++            justify-content: center;
++        }
++
++        .signature-placeholder {
++            color: #a0aec0;
++            font-style: italic;
++            font-size: 14px;
++        }
++
++        .signature-text {
++            font-family: 'Brush Script MT', 'Segoe Script', 'Bradley Hand', cursive;
++            font-size: 32px;
++            color: #1a365d;
++            letter-spacing: 1px;
++        }
++
++        .signature-hint {
++            font-size: 12px;
++            color: #718096;
++            margin-top: 8px;
++            text-align: center;
++        }
++
+         @media (max-width: 768px) {
+             .content {
+                 padding: 30px 20px;
+@@ -286,7 +318,7 @@ export const InvestorNDAReviewPage = (user: any = { first_name: 'Investor', last
+ 
+         <div class="content">
+             <div class="welcome-message">
+-                <h2>👋 Welcome, ${user.first_name}!</h2>
++                <h2>👋 Welcome${user.first_name ? ', ' + user.first_name : ''}!</h2>
+                 <p>
+                     Thank you for your interest in Risivo. To access confidential investor materials, 
+                     we require all investors to review and electronically sign our Non-Disclosure Agreement (NDA). 
+@@ -301,7 +333,7 @@ export const InvestorNDAReviewPage = (user: any = { first_name: 'Investor', last
+                     <p>
+                         This Mutual Non-Disclosure Agreement (the "Agreement") is entered into as of the date of electronic signature 
+                         (the "Effective Date") by and between <strong>Velocity Automation Corp., doing business as Risivo</strong> 
+-                        ("Disclosing Party") and <strong>${user.first_name} ${user.last_name}</strong> of <strong>${user.business_name || 'Individual Investor'}</strong> ("Receiving Party").
++                        ("Disclosing Party") and <strong id="ndaReceiverName">${user.first_name && user.last_name ? user.first_name + ' ' + user.last_name : '[Your Name]'}</strong> of <strong>${user.business_name || 'Individual Investor'}</strong> ("Receiving Party").
+                     </p>
+ 
+                     <h4>1. Purpose</h4>
+@@ -412,6 +444,16 @@ export const InvestorNDAReviewPage = (user: any = { first_name: 'Investor', last
+                         >
+                     </div>
+ 
++                    <!-- Signature Preview Box -->
++                    <div class="form-group">
++                        <label>Signature Preview</label>
++                        <div class="signature-box" id="signatureBox">
++                            <span class="signature-placeholder" id="signaturePlaceholder">Your signature will appear here</span>
++                            <span class="signature-text" id="signatureText" style="display: none;"></span>
++                        </div>
++                        <p class="signature-hint">This signature image will be generated from your typed name and stored as proof of signing.</p>
++                    </div>
++
+                     <div class="checkbox-group">
+                         <div class="checkbox-wrapper">
+                             <input 
+@@ -443,9 +485,33 @@ export const InvestorNDAReviewPage = (user: any = { first_name: 'Investor', last
+         const successMessage = document.getElementById('successMessage');
+         const fullNameInput = document.getElementById('fullName');
+         const agreementCheckbox = document.getElementById('agreement');
++        const signaturePlaceholder = document.getElementById('signaturePlaceholder');
++        const signatureText = document.getElementById('signatureText');
+ 
+-        // Pre-fill full name
+-        fullNameInput.value = '${user.first_name} ${user.last_name}';
++        // Pre-fill full name only if we have actual user data
++        const firstName = '${user.first_name || ''}'.trim();
++        const lastName = '${user.last_name || ''}'.trim();
++        const fullName = (firstName + ' ' + lastName).trim();
++        if (fullName) {
++            fullNameInput.value = fullName;
++            updateSignature(fullName);
++        }
++
++        // Update signature preview when name is typed
++        fullNameInput.addEventListener('input', function() {
++            updateSignature(this.value.trim());
++        });
++
++        function updateSignature(name) {
++            if (name) {
++                signaturePlaceholder.style.display = 'none';
++                signatureText.style.display = 'block';
++                signatureText.textContent = name;
++            } else {
++                signaturePlaceholder.style.display = 'block';
++                signatureText.style.display = 'none';
++            }
++        }
+ 
+         form.addEventListener('submit', async (e) => {
+             e.preventDefault();
+diff --git a/src/routes/auth-new.ts b/src/routes/auth-new.ts
+index 82a7766..204cacd 100644
+--- a/src/routes/auth-new.ts
++++ b/src/routes/auth-new.ts
+@@ -2,6 +2,8 @@
+ // New authentication routes for waitlist/investor signup
+ 
+ import { Hono } from 'hono';
++import { getCookie } from 'hono/cookie';
++import { createClient } from '@supabase/supabase-js';
+ import { signupWaitlist } from '../api/auth/signup-waitlist';
+ import { signupInvestor } from '../api/auth/signup-investor';
+ import { login } from '../api/auth/login';
+@@ -19,7 +21,12 @@ import { InvestorNDAReviewPage } from '../pages/investor-nda-review';
+ import { InvestorDashboardPageV2 } from '../pages/investor-dashboard-v2';
+ import { requireNDA } from '../middleware/require-nda';
+ 
+-const authNewRoute = new Hono();
++type Bindings = {
++  SUPABASE_URL?: string;
++  SUPABASE_SERVICE_ROLE_KEY?: string;
++};
++
++const authNewRoute = new Hono<{ Bindings: Bindings }>();
+ 
+ // Signup page routes (HTML)
+ authNewRoute.get('/signup/waitlist', (c) => {
+@@ -48,8 +55,47 @@ authNewRoute.get('/reset-password', (c) => {
+ });
+ 
+ // Investor NDA review page (no middleware - this is where they sign)
+-authNewRoute.get('/investor/nda-review', (c) => {
+-  return c.html(InvestorNDAReviewPage());
++authNewRoute.get('/investor/nda-review', async (c) => {
++  // Try to get user data from session for pre-filling the form
++  let userData = { first_name: '', last_name: '', business_name: '' };
++  
++  try {
++    const sessionToken = getCookie(c, 'user_session') || getCookie(c, 'session');
++    
++    if (sessionToken) {
++      const supabaseUrl = c.env?.SUPABASE_URL;
++      const supabaseKey = c.env?.SUPABASE_SERVICE_ROLE_KEY;
++      
++      if (supabaseUrl && supabaseKey) {
++        const supabase = createClient(supabaseUrl, supabaseKey);
++        
++        // Get user from session
++        const { data: session } = await supabase
++          .from('user_sessions')
++          .select('user_id')
++          .eq('session_token', sessionToken)
++          .gt('expires_at', new Date().toISOString())
++          .single();
++        
++        if (session?.user_id) {
++          const { data: user } = await supabase
++            .from('users')
++            .select('first_name, last_name, business_name')
++            .eq('id', session.user_id)
++            .single();
++          
++          if (user) {
++            userData = user;
++          }
++        }
++      }
++    }
++  } catch (error) {
++    console.error('[NDA Page] Error fetching user data:', error);
++    // Continue with empty user data - form will be blank
++  }
++  
++  return c.html(InvestorNDAReviewPage(userData));
+ });
+ 
+ // Investor dashboard page (PROTECTED - requires NDA signature)

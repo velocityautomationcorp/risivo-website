@@ -301,21 +301,6 @@ export function Homepage(): string {
       </div>
     </section>
 
-    <style>
-      @media (max-width: 768px) {
-        .section h2 {
-          font-size: 2rem !important;
-        }
-        
-        .section p {
-          font-size: 1rem !important;
-        }
-
-        [style*="grid-template-columns"] {
-          grid-template-columns: 1fr !important;
-        }
-      }
-    </style>
   `
 
   return BaseLayout({

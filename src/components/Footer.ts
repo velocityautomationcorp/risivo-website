@@ -33,7 +33,7 @@ export interface FooterProps {
 export function Footer({
   columns,
   socialLinks = [],
-  copyrightText = `© ${new Date().getFullYear()} Velocity Automation Corp. All rights reserved.`,
+  copyrightText = `© ${new Date().getFullYear()} Risivo™ by Velocity Automation Corp. All rights reserved.`,
   newsletterLanguages = [
     { code: "en", label: "EN ▼" },
     { code: "es", label: "ES" },

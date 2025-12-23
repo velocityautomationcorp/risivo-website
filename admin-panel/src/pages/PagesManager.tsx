@@ -5,7 +5,7 @@ import { Button } from '../components/ui/Button'
 import { Card, CardContent } from '../components/ui/Card'
 import { Badge } from '../components/ui/Badge'
 import { EmptyState } from '../components/ui/EmptyState'
-import { PlusIcon, PencilIcon, TrashIcon, EyeIcon } from '@heroicons/react/24/outline'
+import { PlusIcon, PencilIcon, TrashIcon, EyeIcon, SparklesIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 
 export function PagesManager() {
@@ -109,6 +109,14 @@ export function PagesManager() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex items-center justify-end space-x-2">
+                        <Button
+                          size="sm"
+                          onClick={() => navigate(`/admin/pages/${page.id}/visual`)}
+                          title="Visual Editor"
+                        >
+                          <SparklesIcon className="h-4 w-4 mr-1" />
+                          Visual
+                        </Button>
                         {page.status !== 'published' && (
                           <Button
                             size="sm"
