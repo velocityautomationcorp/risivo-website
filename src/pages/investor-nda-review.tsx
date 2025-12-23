@@ -546,6 +546,7 @@ export const InvestorNDAReviewPage = (user: any = { first_name: '', last_name: '
                     headers: {
                         'Content-Type': 'application/json'
                     },
+                    credentials: 'include',
                     body: JSON.stringify({
                         full_name: fullName,
                         signature_date: new Date().toISOString(),

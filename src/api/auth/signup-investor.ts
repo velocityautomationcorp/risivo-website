@@ -62,30 +62,49 @@ export async function signupInvestor(c: Context) {
     const userData = await response.json();
     const user = userData[0];
     
-    // Create session
+    // Create session - MUST verify success!
     const sessionToken = crypto.randomUUID();
     const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
     
-    await fetch(`${supabaseUrl}/rest/v1/user_sessions`, {
+    console.log('[SIGNUP] Creating session for user:', user.id);
+    console.log('[SIGNUP] Session token:', sessionToken.substring(0, 10) + '...');
+    
+    const sessionResponse = await fetch(`${supabaseUrl}/rest/v1/user_sessions`, {
       method: 'POST',
       headers: {
         'apikey': supabaseKey,
         'Authorization': `Bearer ${supabaseKey}`,
         'Content-Type': 'application/json',
         'Accept-Profile': 'public',
-        'Content-Profile': 'public'
+        'Content-Profile': 'public',
+        'Prefer': 'return=representation'
       },
       body: JSON.stringify({
         user_id: user.id,
         session_token: sessionToken,
         expires_at: expiresAt.toISOString(),
-        ip_address: c.req.header('CF-Connecting-IP'),
-        user_agent: c.req.header('User-Agent')
+        ip_address: c.req.header('CF-Connecting-IP') || c.req.header('X-Forwarded-For') || 'unknown',
+        user_agent: c.req.header('User-Agent') || 'unknown'
       })
     });
     
+    // CRITICAL: Check if session was created successfully
+    if (!sessionResponse.ok) {
+      const sessionError = await sessionResponse.text();
+      console.error('[SIGNUP] FAILED to create session:', sessionError);
+      console.error('[SIGNUP] Session response status:', sessionResponse.status);
+      return c.json({ 
+        error: 'Failed to create session. Please try again.',
+        details: sessionError 
+      }, 500);
+    }
+    
+    const sessionData = await sessionResponse.json();
+    console.log('[SIGNUP] Session created successfully:', sessionData);
+    
     // Set cookie - use 'user_session' (consistent with login.ts) and 'SameSite=Lax' for redirects
     const cookieValue = `user_session=${sessionToken}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${30 * 24 * 60 * 60}`;
+    console.log('[SIGNUP] Setting cookie:', cookieValue.substring(0, 50) + '...');
     
     return c.json({
       success: true,

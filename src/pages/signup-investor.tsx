@@ -529,12 +529,13 @@ export const InvestorSignupPage = (email: string = '', firstName: string = '', l
             submitBtn.textContent = 'Creating Account...';
 
             try {
-                // Call signup API
+                // Call signup API - credentials: 'include' is REQUIRED to receive cookies
                 const response = await fetch('/api/auth/signup/investor', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
+                    credentials: 'include',
                     body: JSON.stringify({
                         email: email,
                         first_name: firstName,
