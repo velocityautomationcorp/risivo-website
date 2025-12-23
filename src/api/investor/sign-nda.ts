@@ -1,9 +1,12 @@
 import { Context } from 'hono';
 import { createClient } from '@supabase/supabase-js';
+import { sendAdminNewInvestorNotification } from '../../utils/email';
 
 type Bindings = {
   SUPABASE_URL?: string;
   SUPABASE_SERVICE_ROLE_KEY?: string;
+  SENDGRID_API_KEY?: string;
+  ADMIN_EMAIL?: string;
 };
 
 export async function signNDA(c: Context<{ Bindings: Bindings }>) {
@@ -221,6 +224,42 @@ export async function signNDA(c: Context<{ Bindings: Bindings }>) {
       // Don't fail the request - signature is already stored
     } else {
       console.log('[NDA] Investor status updated to: nda_signed');
+    }
+
+    // Get full user info for email notification
+    const { data: fullUser } = await supabase
+      .from('users')
+      .select('first_name, last_name, business_name')
+      .eq('id', userId)
+      .single();
+
+    // Send admin notification email
+    const sendgridKey = c.env?.SENDGRID_API_KEY;
+    const adminEmail = c.env?.ADMIN_EMAIL || 'jp@risivo.com'; // Default admin email
+    
+    if (sendgridKey) {
+      try {
+        await sendAdminNewInvestorNotification(
+          {
+            SENDGRID_API_KEY: sendgridKey,
+            FROM_EMAIL: 'noreply@risivo.com',
+            FROM_NAME: 'Risivo Investor Portal'
+          },
+          {
+            adminEmail: adminEmail,
+            investorEmail: user.email,
+            investorName: fullUser ? `${fullUser.first_name} ${fullUser.last_name}` : full_name,
+            businessName: fullUser?.business_name || undefined,
+            signedAt: signature_date
+          }
+        );
+        console.log('[NDA] Admin notification email sent');
+      } catch (emailError) {
+        console.error('[NDA] Failed to send admin notification:', emailError);
+        // Don't fail the request - NDA is already signed
+      }
+    } else {
+      console.warn('[NDA] SendGrid not configured - skipping admin notification');
     }
 
     // Success response

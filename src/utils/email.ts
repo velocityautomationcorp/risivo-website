@@ -426,3 +426,347 @@ export function generateResetToken(): string {
     .map(b => b.toString(16).padStart(2, '0'))
     .join('');
 }
+
+/**
+ * Send admin notification when new investor signs NDA
+ */
+export async function sendAdminNewInvestorNotification(config: EmailConfig, data: {
+  adminEmail: string;
+  investorEmail: string;
+  investorName: string;
+  businessName?: string;
+  signedAt: string;
+}): Promise<void> {
+  const { adminEmail, investorEmail, investorName, businessName, signedAt } = data;
+  
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Investor Awaiting Approval - Risivo</title>
+  <style>
+    body {
+      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f5f7fa;
+    }
+    .email-container {
+      background: white;
+      border-radius: 15px;
+      padding: 40px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .logo {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #6b3fea 0%, #ed632f 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    h1 {
+      color: #333;
+      font-size: 1.5rem;
+      margin-bottom: 10px;
+    }
+    .alert-badge {
+      display: inline-block;
+      background: #fef3c7;
+      color: #92400e;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+    .investor-details {
+      background: #f9fafb;
+      border-left: 4px solid #6b3fea;
+      padding: 20px;
+      margin: 25px 0;
+      border-radius: 8px;
+    }
+    .investor-details p {
+      margin: 8px 0;
+    }
+    .investor-details strong {
+      color: #6b3fea;
+    }
+    .btn {
+      display: inline-block;
+      padding: 14px 32px;
+      background: linear-gradient(135deg, #6b3fea 0%, #ed632f 100%);
+      color: #ffffff !important;
+      text-decoration: none;
+      border-radius: 10px;
+      font-weight: 600;
+      margin: 20px 0;
+      text-align: center;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid #e0e0e0;
+      color: #666;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="email-container">
+    <div class="header">
+      <div class="logo">RISIVO</div>
+      <h1>🔔 New Investor Awaiting Approval</h1>
+    </div>
+    
+    <div style="text-align: center;">
+      <span class="alert-badge">⏳ Action Required</span>
+    </div>
+    
+    <p>A new investor has signed the NDA and is awaiting your approval to access investor materials.</p>
+    
+    <div class="investor-details">
+      <p><strong>Investor Name:</strong> ${investorName}</p>
+      <p><strong>Email:</strong> ${investorEmail}</p>
+      ${businessName ? `<p><strong>Company:</strong> ${businessName}</p>` : ''}
+      <p><strong>NDA Signed:</strong> ${new Date(signedAt).toLocaleString('en-US', { 
+        dateStyle: 'medium', 
+        timeStyle: 'short' 
+      })}</p>
+    </div>
+    
+    <div style="text-align: center;">
+      <a href="https://risivo.com/admin/investors" class="btn">
+        Review & Approve Investor
+      </a>
+    </div>
+    
+    <p style="color: #666; font-size: 0.9rem;">
+      Once approved, the investor will receive an email notification with access to the investor dashboard.
+    </p>
+    
+    <div class="footer">
+      <p>This is an automated notification from Risivo Investor Portal</p>
+    </div>
+  </div>
+</body>
+</html>
+  `;
+
+  const payload = {
+    personalizations: [{ to: [{ email: adminEmail }] }],
+    from: { email: config.FROM_EMAIL, name: config.FROM_NAME },
+    subject: `🔔 New Investor Awaiting Approval: ${investorName}`,
+    content: [
+      { type: 'text/plain', value: `New investor ${investorName} (${investorEmail}) has signed the NDA and is awaiting approval. Review at: https://risivo.com/admin/investors` },
+      { type: 'text/html', value: html }
+    ]
+  };
+
+  const response = await fetch('https://api.sendgrid.com/v3/mail/send', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${config.SENDGRID_API_KEY}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('[EMAIL] Failed to send admin notification:', errorText);
+    throw new Error(`SendGrid API error: ${response.status}`);
+  }
+  
+  console.log('[EMAIL] Admin notification sent successfully');
+}
+
+/**
+ * Send investor approval notification
+ */
+export async function sendInvestorApprovalEmail(config: EmailConfig, data: {
+  email: string;
+  firstName: string;
+  lastName: string;
+}): Promise<void> {
+  const { email, firstName, lastName } = data;
+  
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Investor Access Approved - Risivo</title>
+  <style>
+    body {
+      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f5f7fa;
+    }
+    .email-container {
+      background: white;
+      border-radius: 15px;
+      padding: 40px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .logo {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #6b3fea 0%, #ed632f 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    h1 {
+      color: #333;
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+    }
+    .success-badge {
+      display: inline-block;
+      background: #d1fae5;
+      color: #065f46;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+    .btn {
+      display: inline-block;
+      padding: 14px 32px;
+      background: linear-gradient(135deg, #6b3fea 0%, #ed632f 100%);
+      color: #ffffff !important;
+      text-decoration: none;
+      border-radius: 10px;
+      font-weight: 600;
+      margin: 20px 0;
+      text-align: center;
+    }
+    .features-box {
+      background: #f0f9ff;
+      border-left: 4px solid #0ea5e9;
+      padding: 20px;
+      margin: 25px 0;
+      border-radius: 8px;
+    }
+    .features-box h3 {
+      margin-top: 0;
+      color: #0369a1;
+    }
+    .features-box ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+    .features-box li {
+      margin: 8px 0;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid #e0e0e0;
+      color: #666;
+      font-size: 0.9rem;
+    }
+    .footer a {
+      color: #6b3fea;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="email-container">
+    <div class="header">
+      <div class="logo">RISIVO</div>
+      <h1>🎉 Investor Access Approved!</h1>
+    </div>
+    
+    <div style="text-align: center;">
+      <span class="success-badge">✅ Full Access Granted</span>
+    </div>
+    
+    <p>Hi ${firstName},</p>
+    
+    <p>Great news! Your investor account has been approved. You now have full access to exclusive investor materials and updates.</p>
+    
+    <div class="features-box">
+      <h3>What You Can Access Now:</h3>
+      <ul>
+        <li>📊 Detailed investor presentations</li>
+        <li>📈 Financial projections and metrics</li>
+        <li>🎙️ Investment thesis audio briefings</li>
+        <li>📋 Company updates and milestones</li>
+        <li>📁 Confidential documents and reports</li>
+      </ul>
+    </div>
+    
+    <div style="text-align: center;">
+      <a href="https://risivo.com/updates/investor/dashboard" class="btn">
+        Access Investor Dashboard
+      </a>
+    </div>
+    
+    <p>If you have any questions about the investment opportunity or need additional information, please don't hesitate to reach out.</p>
+    
+    <p>We look forward to having you as part of the Risivo journey!</p>
+    
+    <p>Best regards,<br>
+    The Risivo Team</p>
+    
+    <div class="footer">
+      <p>This email was sent to ${email}</p>
+      <p>Need help? Contact us at <a href="mailto:investors@risivo.com">investors@risivo.com</a></p>
+    </div>
+  </div>
+</body>
+</html>
+  `;
+
+  const payload = {
+    personalizations: [{ to: [{ email }] }],
+    from: { email: config.FROM_EMAIL, name: config.FROM_NAME },
+    subject: '🎉 Your Risivo Investor Access Has Been Approved!',
+    content: [
+      { type: 'text/plain', value: `Hi ${firstName},\n\nYour investor account has been approved! You now have full access to exclusive investor materials.\n\nAccess your dashboard: https://risivo.com/updates/investor/dashboard\n\nBest regards,\nThe Risivo Team` },
+      { type: 'text/html', value: html }
+    ]
+  };
+
+  const response = await fetch('https://api.sendgrid.com/v3/mail/send', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${config.SENDGRID_API_KEY}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('[EMAIL] Failed to send approval email:', errorText);
+    throw new Error(`SendGrid API error: ${response.status}`);
+  }
+  
+  console.log('[EMAIL] Investor approval email sent successfully');
+}

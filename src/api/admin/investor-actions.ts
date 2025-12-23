@@ -1,9 +1,11 @@
 import { Context } from 'hono';
 import { createClient } from '@supabase/supabase-js';
+import { sendInvestorApprovalEmail } from '../../utils/email';
 
 type Bindings = {
   SUPABASE_URL?: string;
   SUPABASE_SERVICE_ROLE_KEY?: string;
+  SENDGRID_API_KEY?: string;
 };
 
 /**
@@ -80,9 +82,31 @@ export async function approveInvestor(c: Context<{ Bindings: Bindings }>) {
       console.error('[APPROVE-INVESTOR] Failed to log activity:', logError);
     }
 
-    // TODO: Send approval notification email
-    // This would integrate with your email service (Make.com, SendGrid, etc.)
-    console.log('[APPROVE-INVESTOR] TODO: Send approval email to:', investor.email);
+    // Send approval notification email to investor
+    const sendgridKey = c.env?.SENDGRID_API_KEY;
+    
+    if (sendgridKey) {
+      try {
+        await sendInvestorApprovalEmail(
+          {
+            SENDGRID_API_KEY: sendgridKey,
+            FROM_EMAIL: 'noreply@risivo.com',
+            FROM_NAME: 'Risivo Investor Portal'
+          },
+          {
+            email: investor.email,
+            firstName: investor.first_name,
+            lastName: investor.last_name
+          }
+        );
+        console.log('[APPROVE-INVESTOR] Approval email sent to:', investor.email);
+      } catch (emailError) {
+        console.error('[APPROVE-INVESTOR] Failed to send approval email:', emailError);
+        // Don't fail - investor is already approved
+      }
+    } else {
+      console.warn('[APPROVE-INVESTOR] SendGrid not configured - skipping approval email');
+    }
 
     return c.json({
       success: true,
