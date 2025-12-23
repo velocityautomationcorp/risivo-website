@@ -1,6 +1,6 @@
 import { Context } from 'hono';
 import { createClient } from '@supabase/supabase-js';
-import { sendAdminNewInvestorNotification } from '../../utils/email';
+import { sendAdminNewInvestorNotification, sendInvestorNDAConfirmationEmail } from '../../utils/email';
 
 type Bindings = {
   SUPABASE_URL?: string;
@@ -233,33 +233,44 @@ export async function signNDA(c: Context<{ Bindings: Bindings }>) {
       .eq('id', userId)
       .single();
 
-    // Send admin notification email
+    // Send email notifications
     const sendgridKey = c.env?.SENDGRID_API_KEY;
     const adminEmail = c.env?.ADMIN_EMAIL || 'jp@risivo.com'; // Default admin email
     
     if (sendgridKey) {
+      const emailConfig = {
+        SENDGRID_API_KEY: sendgridKey,
+        FROM_EMAIL: 'noreply@risivo.com',
+        FROM_NAME: 'Risivo Investor Portal'
+      };
+
+      // 1. Send confirmation email to investor (NDA received, under review)
       try {
-        await sendAdminNewInvestorNotification(
-          {
-            SENDGRID_API_KEY: sendgridKey,
-            FROM_EMAIL: 'noreply@risivo.com',
-            FROM_NAME: 'Risivo Investor Portal'
-          },
-          {
-            adminEmail: adminEmail,
-            investorEmail: user.email,
-            investorName: fullUser ? `${fullUser.first_name} ${fullUser.last_name}` : full_name,
-            businessName: fullUser?.business_name || undefined,
-            signedAt: signature_date
-          }
-        );
+        await sendInvestorNDAConfirmationEmail(emailConfig, {
+          email: user.email,
+          firstName: fullUser?.first_name || full_name.split(' ')[0],
+          lastName: fullUser?.last_name || ''
+        });
+        console.log('[NDA] Investor confirmation email sent');
+      } catch (emailError) {
+        console.error('[NDA] Failed to send investor confirmation:', emailError);
+      }
+
+      // 2. Send notification to admin (new investor pending approval)
+      try {
+        await sendAdminNewInvestorNotification(emailConfig, {
+          adminEmail: adminEmail,
+          investorEmail: user.email,
+          investorName: fullUser ? `${fullUser.first_name} ${fullUser.last_name}` : full_name,
+          businessName: fullUser?.business_name || undefined,
+          signedAt: signature_date
+        });
         console.log('[NDA] Admin notification email sent');
       } catch (emailError) {
         console.error('[NDA] Failed to send admin notification:', emailError);
-        // Don't fail the request - NDA is already signed
       }
     } else {
-      console.warn('[NDA] SendGrid not configured - skipping admin notification');
+      console.warn('[NDA] SendGrid not configured - skipping email notifications');
     }
 
     // Success response

@@ -428,6 +428,235 @@ export function generateResetToken(): string {
 }
 
 /**
+ * Send investor confirmation that NDA was received and is under review
+ */
+export async function sendInvestorNDAConfirmationEmail(config: EmailConfig, data: {
+  email: string;
+  firstName: string;
+  lastName: string;
+}): Promise<void> {
+  const { email, firstName } = data;
+  
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NDA Received - Risivo</title>
+  <style>
+    body {
+      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f5f7fa;
+    }
+    .email-container {
+      background: white;
+      border-radius: 15px;
+      padding: 40px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .logo {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #6b3fea 0%, #ed632f 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    h1 {
+      color: #333;
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+    }
+    .status-badge {
+      display: inline-block;
+      background: #fef3c7;
+      color: #92400e;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+    .timeline-box {
+      background: #f0f9ff;
+      border-left: 4px solid #0ea5e9;
+      padding: 20px;
+      margin: 25px 0;
+      border-radius: 8px;
+    }
+    .timeline-box h3 {
+      margin-top: 0;
+      color: #0369a1;
+      font-size: 1rem;
+    }
+    .steps {
+      margin: 20px 0;
+    }
+    .step {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 15px;
+    }
+    .step-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 15px;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+    .step-completed {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    .step-current {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    .step-pending {
+      background: #e5e7eb;
+      color: #6b7280;
+    }
+    .step-content h4 {
+      margin: 0 0 4px 0;
+      font-size: 0.95rem;
+    }
+    .step-content p {
+      margin: 0;
+      font-size: 0.85rem;
+      color: #666;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid #e0e0e0;
+      color: #666;
+      font-size: 0.9rem;
+    }
+    .footer a {
+      color: #6b3fea;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="email-container">
+    <div class="header">
+      <div class="logo">RISIVO</div>
+      <h1>📋 NDA Received Successfully</h1>
+    </div>
+    
+    <div style="text-align: center;">
+      <span class="status-badge">⏳ Under Review</span>
+    </div>
+    
+    <p>Hi ${firstName},</p>
+    
+    <p>Thank you for signing our Non-Disclosure Agreement. We've received your signed NDA and your investor access request is now being reviewed by our team.</p>
+    
+    <div class="timeline-box">
+      <h3>⏱️ What Happens Next?</h3>
+      <p>Our team will review your application and you'll receive a confirmation email <strong>within 1 business day</strong> with your access approval.</p>
+    </div>
+    
+    <div class="steps">
+      <div class="step">
+        <div class="step-icon step-completed">✓</div>
+        <div class="step-content">
+          <h4>Account Created</h4>
+          <p>Your investor account has been set up</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-icon step-completed">✓</div>
+        <div class="step-content">
+          <h4>NDA Signed</h4>
+          <p>Your electronic signature has been recorded</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-icon step-current">⏳</div>
+        <div class="step-content">
+          <h4>Under Review</h4>
+          <p>Our team is reviewing your application</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-icon step-pending">4</div>
+        <div class="step-content">
+          <h4>Access Granted</h4>
+          <p>You'll receive full access to investor materials</p>
+        </div>
+      </div>
+    </div>
+    
+    <p>Once approved, you'll have access to:</p>
+    <ul>
+      <li>📊 Detailed investor presentations</li>
+      <li>📈 Financial projections and metrics</li>
+      <li>🎙️ Investment thesis audio briefings</li>
+      <li>📁 Confidential documents and reports</li>
+    </ul>
+    
+    <p>If you have any questions in the meantime, feel free to reach out to us.</p>
+    
+    <p>Thank you for your interest in Risivo!</p>
+    
+    <p>Best regards,<br>
+    The Risivo Team</p>
+    
+    <div class="footer">
+      <p>This email was sent to ${email}</p>
+      <p>Questions? Contact us at <a href="mailto:investors@risivo.com">investors@risivo.com</a></p>
+    </div>
+  </div>
+</body>
+</html>
+  `;
+
+  const payload = {
+    personalizations: [{ to: [{ email }] }],
+    from: { email: config.FROM_EMAIL, name: config.FROM_NAME },
+    subject: '📋 NDA Received - Your Application is Under Review',
+    content: [
+      { type: 'text/plain', value: `Hi ${firstName},\n\nThank you for signing our Non-Disclosure Agreement. Your investor access request is now under review.\n\nYou'll receive a confirmation email within 1 business day with your access approval.\n\nBest regards,\nThe Risivo Team` },
+      { type: 'text/html', value: html }
+    ]
+  };
+
+  const response = await fetch('https://api.sendgrid.com/v3/mail/send', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${config.SENDGRID_API_KEY}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('[EMAIL] Failed to send NDA confirmation email:', errorText);
+    throw new Error(`SendGrid API error: ${response.status}`);
+  }
+  
+  console.log('[EMAIL] NDA confirmation email sent to investor');
+}
+
+/**
  * Send admin notification when new investor signs NDA
  */
 export async function sendAdminNewInvestorNotification(config: EmailConfig, data: {
