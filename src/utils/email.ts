@@ -47,6 +47,13 @@ export class EmailService {
           value: data.html,
         },
       ],
+      // Disable click tracking to prevent URL mangling
+      tracking_settings: {
+        click_tracking: {
+          enable: false,
+          enable_text: false
+        }
+      }
     };
 
     console.log('[EMAIL] ========== SENDGRID API CALL ==========');
@@ -374,12 +381,14 @@ export class EmailService {
         
         <!-- CTA Button -->
         <div style="text-align: center; margin: 30px 0;">
-          <a href="https://risivo.com/admin/investors" style="display: inline-block; padding: 16px 40px; background: linear-gradient(135deg, #6b3fea 0%, #ed632f 100%); color: #ffffff; text-decoration: none; border-radius: 10px; font-weight: 600; font-size: 16px;">
-            Review & Approve Investor
+          <a href="https://supabase.com/dashboard/project/sldpdgdkrakfzwtroglx/editor/29201?schema=public" style="display: inline-block; padding: 16px 40px; background: linear-gradient(135deg, #6b3fea 0%, #ed632f 100%); color: #ffffff; text-decoration: none; border-radius: 10px; font-weight: 600; font-size: 16px;">
+            Review & Approve in Supabase
           </a>
         </div>
         
-        <p style="color: #666; font-size: 14px; line-height: 1.6; margin: 20px 0 0 0;">Once approved, the investor will receive an email notification with access to the investor dashboard.</p>
+        <p style="color: #666; font-size: 14px; line-height: 1.6; margin: 20px 0;">To approve: Change <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 4px;">investor_status</code> from <code style="background: #fff3cd; padding: 2px 6px; border-radius: 4px;">nda_signed</code> to <code style="background: #d4edda; padding: 2px 6px; border-radius: 4px;">active</code></p>
+        
+        <p style="color: #666; font-size: 14px; line-height: 1.6; margin: 0;">Once approved, the investor will receive an email notification with access to the investor dashboard.</p>
       </td>
     </tr>
     <!-- Footer -->
@@ -398,7 +407,7 @@ export class EmailService {
       to: adminEmail,
       subject: `🔔 New Investor Awaiting Approval: ${investorName}`,
       html: html,
-      text: `New investor ${investorName} (${investorEmail}) has signed the NDA and is awaiting approval.\n\nCompany: ${businessName || 'N/A'}\nNDA Signed: ${signedAt}\n\nReview at: https://risivo.com/admin/investors`,
+      text: `New investor ${investorName} (${investorEmail}) has signed the NDA and is awaiting approval.\n\nCompany: ${businessName || 'N/A'}\nNDA Signed: ${signedAt}\n\nReview at Supabase: https://supabase.com/dashboard/project/sldpdgdkrakfzwtroglx/editor/29201?schema=public\n\nTo approve: Change investor_status from 'nda_signed' to 'active'`,
     });
   }
 
