@@ -7,6 +7,7 @@ type Bindings = {
   SUPABASE_SERVICE_ROLE_KEY?: string;
   SENDGRID_API_KEY?: string;
   ADMIN_EMAIL?: string;
+  FROM_EMAIL?: string;
 };
 
 export async function signNDA(c: Context<{ Bindings: Bindings }>) {
@@ -236,11 +237,12 @@ export async function signNDA(c: Context<{ Bindings: Bindings }>) {
     // Send email notifications
     const sendgridKey = c.env?.SENDGRID_API_KEY;
     const adminEmail = c.env?.ADMIN_EMAIL || 'jp@risivo.com'; // Default admin email
+    const fromEmail = c.env?.FROM_EMAIL || 'hello@risivo.com'; // Must be verified in SendGrid
     
     if (sendgridKey) {
       const emailConfig = {
         SENDGRID_API_KEY: sendgridKey,
-        FROM_EMAIL: 'noreply@risivo.com',
+        FROM_EMAIL: fromEmail,
         FROM_NAME: 'Risivo Investor Portal'
       };
 

@@ -6,6 +6,7 @@ type Bindings = {
   SUPABASE_URL?: string;
   SUPABASE_SERVICE_ROLE_KEY?: string;
   SENDGRID_API_KEY?: string;
+  FROM_EMAIL?: string;
 };
 
 /**
@@ -84,13 +85,14 @@ export async function approveInvestor(c: Context<{ Bindings: Bindings }>) {
 
     // Send approval notification email to investor
     const sendgridKey = c.env?.SENDGRID_API_KEY;
+    const fromEmail = c.env?.FROM_EMAIL || 'hello@risivo.com'; // Must be verified in SendGrid
     
     if (sendgridKey) {
       try {
         await sendInvestorApprovalEmail(
           {
             SENDGRID_API_KEY: sendgridKey,
-            FROM_EMAIL: 'noreply@risivo.com',
+            FROM_EMAIL: fromEmail,
             FROM_NAME: 'Risivo Investor Portal'
           },
           {
