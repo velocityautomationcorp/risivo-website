@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { approveInvestor, rejectInvestor, getInvestorDetails } from '../api/admin/investor-actions';
+import { approveInvestor, rejectInvestor, getInvestorDetails, deleteInvestor } from '../api/admin/investor-actions';
 
 const adminInvestorRoute = new Hono();
 
@@ -11,5 +11,8 @@ adminInvestorRoute.post('/investor/:investor_id/reject', rejectInvestor);
 
 // Get investor details including NDA signature
 adminInvestorRoute.get('/investor/:investor_id/details', getInvestorDetails);
+
+// Delete investor permanently (removes user, sessions, NDA signature)
+adminInvestorRoute.delete('/investor/:investor_id/delete', deleteInvestor);
 
 export default adminInvestorRoute;

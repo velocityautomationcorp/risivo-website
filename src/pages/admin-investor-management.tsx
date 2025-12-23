@@ -289,6 +289,16 @@ export const AdminInvestorManagementPage = (admin: any, investors: any[] = []) =
             box-shadow: 0 2px 8px rgba(107, 63, 234, 0.25);
         }
 
+        .btn-delete {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            box-shadow: 0 2px 8px rgba(108, 117, 125, 0.25);
+        }
+
+        .btn-delete:hover {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            box-shadow: 0 6px 16px rgba(220, 53, 69, 0.4);
+        }
+
         .empty-state {
             text-align: center;
             padding: 80px 20px;
@@ -668,6 +678,9 @@ export const AdminInvestorManagementPage = (admin: any, investors: any[] = []) =
                 }
                 
                 tableHTML += \`
+                                <button class="btn-action btn-delete" data-investor-id="\${investor.id}" data-investor-name="\${investor.first_name} \${investor.last_name}">
+                                    🗑️ Delete
+                                </button>
                             </div>
                         </td>
                     </tr>
@@ -697,6 +710,12 @@ export const AdminInvestorManagementPage = (admin: any, investors: any[] = []) =
             container.querySelectorAll('.btn-reject').forEach(btn => {
                 btn.addEventListener('click', () => {
                     rejectInvestor(btn.getAttribute('data-investor-id'));
+                });
+            });
+            
+            container.querySelectorAll('.btn-delete').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    deleteInvestor(btn.getAttribute('data-investor-id'), btn.getAttribute('data-investor-name'));
                 });
             });
         }
@@ -902,6 +921,52 @@ export const AdminInvestorManagementPage = (admin: any, investors: any[] = []) =
             } catch (error) {
                 console.error('Rejection error:', error);
                 alert('❌ Failed to reject investor: ' + error.message);
+            }
+        }
+
+        // Delete investor
+        async function deleteInvestor(investorId, investorName) {
+            const confirmText = \`Are you sure you want to PERMANENTLY DELETE investor "\${investorName}"?\\n\\nThis will delete:\\n- User account\\n- Session data\\n- NDA signature\\n- All related data\\n\\nThis action CANNOT be undone!\`;
+            
+            if (!confirm(confirmText)) {
+                return;
+            }
+            
+            // Double confirmation for safety
+            const doubleConfirm = prompt(\`Type "DELETE" to confirm permanent deletion of \${investorName}:\`);
+            if (doubleConfirm !== 'DELETE') {
+                alert('Deletion cancelled. You must type "DELETE" exactly to confirm.');
+                return;
+            }
+
+            try {
+                const response = await fetch(\`/api/admin/investor/\${investorId}/delete\`, {
+                    method: 'DELETE'
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    throw new Error(data.error || 'Failed to delete investor');
+                }
+
+                alert('✅ Investor deleted successfully!');
+                
+                // Remove from local data
+                allInvestors = allInvestors.filter(inv => inv.id !== investorId);
+                
+                // Close modal if open
+                closeModal();
+
+                // Re-render table
+                renderInvestors();
+                
+                // Reload page to update stats
+                window.location.reload();
+
+            } catch (error) {
+                console.error('Delete error:', error);
+                alert('❌ Failed to delete investor: ' + error.message);
             }
         }
 

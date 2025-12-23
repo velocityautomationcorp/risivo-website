@@ -229,6 +229,138 @@ export async function rejectInvestor(c: Context<{ Bindings: Bindings }>) {
 }
 
 /**
+ * Admin API endpoint to permanently delete an investor
+ * Removes user, sessions, and NDA signature from database
+ */
+export async function deleteInvestor(c: Context<{ Bindings: Bindings }>) {
+  try {
+    const investorId = c.req.param('investor_id');
+
+    if (!investorId) {
+      return c.json({ success: false, error: 'Investor ID required' }, 400);
+    }
+
+    // Initialize Supabase
+    const supabaseUrl = c.env?.SUPABASE_URL;
+    const supabaseKey = c.env?.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!supabaseUrl || !supabaseKey) {
+      return c.json({ success: false, error: 'Service configuration error' }, 500);
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Get investor details first (to confirm they exist and are an investor)
+    const { data: investor, error: investorError } = await supabase
+      .from('users')
+      .select('id, email, first_name, last_name, user_type')
+      .eq('id', investorId)
+      .eq('user_type', 'investor')
+      .single();
+
+    if (investorError || !investor) {
+      return c.json({ success: false, error: 'Investor not found' }, 404);
+    }
+
+    console.log('[DELETE-INVESTOR] Deleting investor:', investor.email);
+
+    // Delete in order to respect foreign key constraints:
+    
+    // 1. Delete NDA signature
+    const { error: ndaError } = await supabase
+      .from('nda_signatures')
+      .delete()
+      .eq('user_id', investorId);
+    
+    if (ndaError) {
+      console.error('[DELETE-INVESTOR] Error deleting NDA signature:', ndaError);
+      // Continue anyway - might not have NDA
+    } else {
+      console.log('[DELETE-INVESTOR] NDA signature deleted');
+    }
+
+    // 2. Delete user sessions
+    const { error: sessionError } = await supabase
+      .from('user_sessions')
+      .delete()
+      .eq('user_id', investorId);
+    
+    if (sessionError) {
+      console.error('[DELETE-INVESTOR] Error deleting sessions:', sessionError);
+      // Continue anyway
+    } else {
+      console.log('[DELETE-INVESTOR] User sessions deleted');
+    }
+
+    // 3. Delete investor activity logs (if table exists)
+    try {
+      const { error: activityError } = await supabase
+        .from('investor_activity_log')
+        .delete()
+        .eq('user_id', investorId);
+      
+      if (!activityError) {
+        console.log('[DELETE-INVESTOR] Activity logs deleted');
+      }
+    } catch (e) {
+      // Table might not exist
+    }
+
+    // 4. Delete content access logs (if table exists)
+    try {
+      const { error: accessError } = await supabase
+        .from('investor_content_access')
+        .delete()
+        .eq('user_id', investorId);
+      
+      if (!accessError) {
+        console.log('[DELETE-INVESTOR] Content access logs deleted');
+      }
+    } catch (e) {
+      // Table might not exist
+    }
+
+    // 5. Finally, delete the user
+    const { error: userError } = await supabase
+      .from('users')
+      .delete()
+      .eq('id', investorId);
+
+    if (userError) {
+      console.error('[DELETE-INVESTOR] Error deleting user:', userError);
+      return c.json({ 
+        success: false, 
+        error: 'Failed to delete user',
+        details: userError.message 
+      }, 500);
+    }
+
+    console.log('[DELETE-INVESTOR] ✅ Investor deleted successfully:', investor.email);
+
+    return c.json({
+      success: true,
+      message: 'Investor deleted successfully',
+      deleted: {
+        id: investor.id,
+        email: investor.email,
+        name: `${investor.first_name} ${investor.last_name}`
+      }
+    });
+
+  } catch (error) {
+    console.error('[DELETE-INVESTOR] Error:', error);
+    return c.json(
+      {
+        success: false,
+        error: 'Internal server error',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
+      500
+    );
+  }
+}
+
+/**
  * Get detailed information about an investor including NDA signature
  */
 export async function getInvestorDetails(c: Context<{ Bindings: Bindings }>) {
