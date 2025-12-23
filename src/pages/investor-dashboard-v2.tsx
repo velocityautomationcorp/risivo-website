@@ -495,8 +495,8 @@ export const InvestorDashboardPageV2 = (userData?: any) => html`
         
         <!-- Static Exclusive Content Cards (2-column) -->
         <div class="exclusive-content-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-bottom: 30px;">
-            <!-- Card 1: Welcome from Founder Video -->
-            <div class="video-card" style="margin-bottom: 0;" onclick="window.open('https://risivo.com/investor-welcome-video', '_blank')">
+            <!-- Card 1: Welcome from Founder Video - Opens in Modal -->
+            <div class="video-card" style="margin-bottom: 0;" onclick="openFounderVideoModal()">
                 <div class="card-icon" style="background: linear-gradient(135deg, #6b3fea, #764ba2); width: 70px; height: 70px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 32px;">
                     🎬
                 </div>
@@ -513,7 +513,7 @@ export const InvestorDashboardPageV2 = (userData?: any) => html`
                 </button>
             </div>
             
-            <!-- Card 2: Schedule Meeting with Founder -->
+            <!-- Card 2: Schedule Meeting with Founder - Opens in New Tab -->
             <div class="video-card" style="margin-bottom: 0;" onclick="window.open('https://calendly.com/jp-risivo/45-min', '_blank')">
                 <div class="card-icon" style="background: linear-gradient(135deg, #22c55e, #16a34a); width: 70px; height: 70px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 32px;">
                     📅
@@ -532,13 +532,27 @@ export const InvestorDashboardPageV2 = (userData?: any) => html`
             </div>
         </div>
         
-        <div id="contentGrid" class="content-grid">
+        <!-- Video Modal for Founder Welcome -->
+        <div id="founderVideoModal" class="video-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center;">
+            <div style="position: relative; width: 90%; max-width: 900px; background: #000; border-radius: 12px; overflow: hidden;">
+                <button onclick="closeFounderVideoModal()" style="position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.2); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 20px; z-index: 10;">✕</button>
+                <div style="padding: 20px;">
+                    <h3 style="color: white; margin-bottom: 15px; font-size: 20px;">🎬 Welcome from Our Founder</h3>
+                    <video id="founderVideo" controls style="width: 100%; border-radius: 8px;" poster="/images/founder-video-poster.jpg">
+                        <source src="/videos/founder-welcome.mp4" type="video/mp4">
+                        Your browser does not support the video element.
+                    </video>
+                </div>
+            </div>
+        </div>
+        
+        <div id="contentGrid" class="content-grid" style="display: none;">
             <div class="loading">
                 ⏳ Loading investor content...
             </div>
         </div>
 
-        <!-- Video Section (populated by JS) -->
+        <!-- Video Section (populated by JS) - HIDDEN since we have static cards -->
         <div id="videoSection" class="video-section" style="display: none;"></div>
 
         <!-- Documents Section (populated by JS) -->
@@ -554,6 +568,38 @@ export const InvestorDashboardPageV2 = (userData?: any) => html`
     <script>
         // Set current year dynamically
         document.getElementById('copyrightYear').textContent = new Date().getFullYear();
+        
+        // Founder Video Modal functions
+        function openFounderVideoModal() {
+            const modal = document.getElementById('founderVideoModal');
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeFounderVideoModal() {
+            const modal = document.getElementById('founderVideoModal');
+            const video = document.getElementById('founderVideo');
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+            if (video) {
+                video.pause();
+                video.currentTime = 0;
+            }
+        }
+        
+        // Close modal on backdrop click
+        document.getElementById('founderVideoModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeFounderVideoModal();
+            }
+        });
+        
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeFounderVideoModal();
+            }
+        });
 
         // Audio duration display
         const investmentAudio = document.getElementById('investmentAudio');
@@ -672,14 +718,18 @@ export const InvestorDashboardPageV2 = (userData?: any) => html`
             }
 
             // Separate videos and documents
-            const videos = content.filter(item => item.content_type === 'video');
+            // Filter out "Welcome from Our Founder" video since we have it as a static card
+            const videos = content.filter(item => 
+                item.content_type === 'video' && 
+                !item.title.toLowerCase().includes('welcome from our founder')
+            );
             const documents = content.filter(item => item.content_type !== 'video');
 
             // Sort each by sort_order
             videos.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
             documents.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
 
-            // Render videos at top
+            // Render videos at top (only if there are other videos besides the founder welcome)
             if (videos.length > 0) {
                 videoSection.style.display = 'block';
                 let videoHTML = '';
