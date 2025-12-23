@@ -211,6 +211,10 @@ export const InvestorDashboardPageV2 = (userData?: any) => html`
             .documents-grid {
                 grid-template-columns: 1fr;
             }
+            
+            .exclusive-content-grid {
+                grid-template-columns: 1fr !important;
+            }
         }
 
         .content-card {
@@ -488,6 +492,45 @@ export const InvestorDashboardPageV2 = (userData?: any) => html`
         <h2 class="section-title" style="color: white; margin-bottom: 24px;">
             📂 Exclusive Investor Content
         </h2>
+        
+        <!-- Static Exclusive Content Cards (2-column) -->
+        <div class="exclusive-content-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-bottom: 30px;">
+            <!-- Card 1: Welcome from Founder Video -->
+            <div class="video-card" style="margin-bottom: 0;" onclick="window.open('https://risivo.com/investor-welcome-video', '_blank')">
+                <div class="card-icon" style="background: linear-gradient(135deg, #6b3fea, #764ba2); width: 70px; height: 70px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 32px;">
+                    🎬
+                </div>
+                <div class="card-content" style="flex: 1;">
+                    <h3 class="card-title" style="font-size: 20px; color: #1a202c; margin-bottom: 8px;">Welcome from Our Founder</h3>
+                    <p class="card-description" style="color: #666; font-size: 14px; margin-bottom: 12px;">A personal message from our founder introducing Risivo and our vision.</p>
+                    <div class="card-meta" style="display: flex; gap: 16px; font-size: 12px; color: #888;">
+                        <span>🎬 Video</span>
+                        <span>Updated: Dec 2025</span>
+                    </div>
+                </div>
+                <button class="btn-access" style="background: linear-gradient(135deg, #6b3fea, #ed632f); color: white; border: none; padding: 12px 28px; border-radius: 10px; font-weight: 600; cursor: pointer; white-space: nowrap;">
+                    Watch Video
+                </button>
+            </div>
+            
+            <!-- Card 2: Schedule Meeting with Founder -->
+            <div class="video-card" style="margin-bottom: 0;" onclick="window.open('https://calendly.com/jp-risivo/45-min', '_blank')">
+                <div class="card-icon" style="background: linear-gradient(135deg, #22c55e, #16a34a); width: 70px; height: 70px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 32px;">
+                    📅
+                </div>
+                <div class="card-content" style="flex: 1;">
+                    <h3 class="card-title" style="font-size: 20px; color: #1a202c; margin-bottom: 8px;">Schedule a Meeting with the Founder</h3>
+                    <p class="card-description" style="color: #666; font-size: 14px; margin-bottom: 12px;">Schedule a one-on-one meeting with Jean Pierre Francois, the founder of Risivo AI CRM.</p>
+                    <div class="card-meta" style="display: flex; gap: 16px; font-size: 12px; color: #888;">
+                        <span>📅 45 min meeting</span>
+                        <span>Via Calendly</span>
+                    </div>
+                </div>
+                <button class="btn-access" style="background: linear-gradient(135deg, #22c55e, #16a34a); color: white; border: none; padding: 12px 28px; border-radius: 10px; font-weight: 600; cursor: pointer; white-space: nowrap;">
+                    Schedule Now
+                </button>
+            </div>
+        </div>
         
         <div id="contentGrid" class="content-grid">
             <div class="loading">
