@@ -534,14 +534,22 @@ export const InvestorDashboardPageV2 = (userData?: any) => html`
         
         <!-- Video Modal for Founder Welcome -->
         <div id="founderVideoModal" class="video-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center;">
-            <div style="position: relative; width: 90%; max-width: 900px; background: #000; border-radius: 12px; overflow: hidden;">
-                <button onclick="closeFounderVideoModal()" style="position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.2); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 20px; z-index: 10;">✕</button>
-                <div style="padding: 20px;">
-                    <h3 style="color: white; margin-bottom: 15px; font-size: 20px;">🎬 Welcome from Our Founder</h3>
-                    <video id="founderVideo" controls style="width: 100%; border-radius: 8px;" poster="/images/founder-video-poster.jpg">
-                        <source src="/videos/founder-welcome.mp4" type="video/mp4">
-                        Your browser does not support the video element.
-                    </video>
+            <div style="position: relative; width: 90%; max-width: 900px; background: linear-gradient(135deg, #1e0a3c 0%, #2d1b4e 100%); border-radius: 16px; overflow: hidden;">
+                <button onclick="closeFounderVideoModal()" style="position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.2); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 20px; z-index: 10;">✕</button>
+                <div style="padding: 40px; text-align: center;">
+                    <div style="font-size: 80px; margin-bottom: 20px;">🎬</div>
+                    <h3 style="color: white; margin-bottom: 15px; font-size: 28px; font-weight: 700;">Welcome from Our Founder</h3>
+                    <p style="color: rgba(255,255,255,0.8); font-size: 16px; margin-bottom: 30px; max-width: 500px; margin-left: auto; margin-right: auto;">
+                        A personal video message from Jean Pierre Francois introducing Risivo AI CRM and sharing our vision for the future.
+                    </p>
+                    <div style="background: rgba(255,255,255,0.1); border-radius: 12px; padding: 30px; margin-bottom: 20px;">
+                        <div style="font-size: 48px; margin-bottom: 15px;">🚧</div>
+                        <p style="color: #ffd700; font-size: 18px; font-weight: 600; margin-bottom: 8px;">Coming Soon</p>
+                        <p style="color: rgba(255,255,255,0.7); font-size: 14px;">The founder welcome video is currently being produced and will be available shortly.</p>
+                    </div>
+                    <p style="color: rgba(255,255,255,0.6); font-size: 14px;">
+                        In the meantime, listen to the <strong>Investment Thesis Brief</strong> audio above for a comprehensive overview.
+                    </p>
                 </div>
             </div>
         </div>

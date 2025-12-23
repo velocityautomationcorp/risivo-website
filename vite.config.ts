@@ -13,10 +13,12 @@ export default defineConfig({
       entry: 'src/index.tsx'
     })
   ],
+  publicDir: 'public',
   build: {
     rollupOptions: {
       external: ['bcryptjs']
-    }
+    },
+    copyPublicDir: true
   },
   ssr: {
     external: ['bcryptjs'],
