@@ -2,6 +2,8 @@
 // New authentication routes for waitlist/investor signup
 
 import { Hono } from 'hono';
+import { getCookie } from 'hono/cookie';
+import { createClient } from '@supabase/supabase-js';
 import { signupWaitlist } from '../api/auth/signup-waitlist';
 import { signupInvestor } from '../api/auth/signup-investor';
 import { login } from '../api/auth/login';
@@ -19,7 +21,12 @@ import { InvestorNDAReviewPage } from '../pages/investor-nda-review';
 import { InvestorDashboardPageV2 } from '../pages/investor-dashboard-v2';
 import { requireNDA } from '../middleware/require-nda';
 
-const authNewRoute = new Hono();
+type Bindings = {
+  SUPABASE_URL?: string;
+  SUPABASE_SERVICE_ROLE_KEY?: string;
+};
+
+const authNewRoute = new Hono<{ Bindings: Bindings }>();
 
 // Signup page routes (HTML)
 authNewRoute.get('/signup/waitlist', (c) => {
@@ -48,8 +55,47 @@ authNewRoute.get('/reset-password', (c) => {
 });
 
 // Investor NDA review page (no middleware - this is where they sign)
-authNewRoute.get('/investor/nda-review', (c) => {
-  return c.html(InvestorNDAReviewPage());
+authNewRoute.get('/investor/nda-review', async (c) => {
+  // Try to get user data from session for pre-filling the form
+  let userData = { first_name: '', last_name: '', business_name: '' };
+  
+  try {
+    const sessionToken = getCookie(c, 'user_session') || getCookie(c, 'session');
+    
+    if (sessionToken) {
+      const supabaseUrl = c.env?.SUPABASE_URL;
+      const supabaseKey = c.env?.SUPABASE_SERVICE_ROLE_KEY;
+      
+      if (supabaseUrl && supabaseKey) {
+        const supabase = createClient(supabaseUrl, supabaseKey);
+        
+        // Get user from session
+        const { data: session } = await supabase
+          .from('user_sessions')
+          .select('user_id')
+          .eq('session_token', sessionToken)
+          .gt('expires_at', new Date().toISOString())
+          .single();
+        
+        if (session?.user_id) {
+          const { data: user } = await supabase
+            .from('users')
+            .select('first_name, last_name, business_name')
+            .eq('id', session.user_id)
+            .single();
+          
+          if (user) {
+            userData = user;
+          }
+        }
+      }
+    }
+  } catch (error) {
+    console.error('[NDA Page] Error fetching user data:', error);
+    // Continue with empty user data - form will be blank
+  }
+  
+  return c.html(InvestorNDAReviewPage(userData));
 });
 
 // Investor dashboard page (PROTECTED - requires NDA signature)

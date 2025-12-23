@@ -355,6 +355,73 @@ export const InvestorDashboardPageV2 = (userData?: any) => html`
             opacity: 0.9;
         }
 
+        /* Audio Section Styles */
+        .audio-section {
+            margin-bottom: 40px;
+        }
+
+        .audio-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: flex-start;
+            gap: 24px;
+        }
+
+        .audio-icon {
+            font-size: 48px;
+            flex-shrink: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .audio-content {
+            flex: 1;
+        }
+
+        .audio-content h3 {
+            color: #333;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .audio-content p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+
+        .audio-content audio {
+            width: 100%;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .audio-duration {
+            font-size: 12px;
+            color: #999;
+        }
+
+        @media (max-width: 600px) {
+            .audio-card {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .audio-icon {
+                margin: 0 auto;
+            }
+        }
+
         @media (max-width: 768px) {
             .logo {
                 width: 100px;
@@ -401,6 +468,22 @@ export const InvestorDashboardPageV2 = (userData?: any) => html`
         <!-- Status Alert (for pending approval) -->
         <div id="statusAlert" style="display: none;"></div>
 
+        <!-- Audio Podcast Section -->
+        <div class="audio-section">
+            <div class="audio-card">
+                <div class="audio-icon">🎧</div>
+                <div class="audio-content">
+                    <h3>Investment Thesis Brief</h3>
+                    <p>Listen to our comprehensive overview of Risivo's investment opportunity, key features, and market positioning.</p>
+                    <audio controls id="investmentAudio" preload="metadata">
+                        <source src="/audio/investment-thesis-brief.mp3" type="audio/mpeg">
+                        Your browser does not support the audio element.
+                    </audio>
+                    <div class="audio-duration" id="audioDuration">Duration: Loading...</div>
+                </div>
+            </div>
+        </div>
+
         <!-- Exclusive Content Cards -->
         <h2 class="section-title" style="color: white; margin-bottom: 24px;">
             📂 Exclusive Investor Content
@@ -428,6 +511,21 @@ export const InvestorDashboardPageV2 = (userData?: any) => html`
     <script>
         // Set current year dynamically
         document.getElementById('copyrightYear').textContent = new Date().getFullYear();
+
+        // Audio duration display
+        const investmentAudio = document.getElementById('investmentAudio');
+        const audioDuration = document.getElementById('audioDuration');
+        
+        investmentAudio.addEventListener('loadedmetadata', function() {
+            const duration = investmentAudio.duration;
+            const minutes = Math.floor(duration / 60);
+            const seconds = Math.floor(duration % 60);
+            audioDuration.textContent = \`Duration: \${minutes}:\${seconds.toString().padStart(2, '0')}\`;
+        });
+
+        investmentAudio.addEventListener('error', function() {
+            audioDuration.textContent = 'Audio file not available';
+        });
 
         let userData = null;
         let contentData = [];

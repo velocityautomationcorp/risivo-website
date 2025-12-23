@@ -84,8 +84,8 @@ export async function signupInvestor(c: Context) {
       })
     });
     
-    // Set cookie
-    const cookieValue = `session=${sessionToken}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=${30 * 24 * 60 * 60}`;
+    // Set cookie - use 'user_session' (consistent with login.ts) and 'SameSite=Lax' for redirects
+    const cookieValue = `user_session=${sessionToken}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${30 * 24 * 60 * 60}`;
     
     return c.json({
       success: true,

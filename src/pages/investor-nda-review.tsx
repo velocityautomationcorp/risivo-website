@@ -1,6 +1,6 @@
 import { html } from 'hono/html';
 
-export const InvestorNDAReviewPage = (user: any = { first_name: 'Investor', last_name: '', business_name: '' }) => {
+export const InvestorNDAReviewPage = (user: any = { first_name: '', last_name: '', business_name: '' }) => {
   return html`<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -261,6 +261,38 @@ export const InvestorNDAReviewPage = (user: any = { first_name: 'Investor', last
             border-left: 4px solid #22543d;
         }
 
+        .signature-box {
+            background: #fffef0;
+            border: 2px dashed #d4a574;
+            border-radius: 8px;
+            padding: 30px 20px;
+            text-align: center;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .signature-placeholder {
+            color: #a0aec0;
+            font-style: italic;
+            font-size: 14px;
+        }
+
+        .signature-text {
+            font-family: 'Brush Script MT', 'Segoe Script', 'Bradley Hand', cursive;
+            font-size: 32px;
+            color: #1a365d;
+            letter-spacing: 1px;
+        }
+
+        .signature-hint {
+            font-size: 12px;
+            color: #718096;
+            margin-top: 8px;
+            text-align: center;
+        }
+
         @media (max-width: 768px) {
             .content {
                 padding: 30px 20px;
@@ -286,7 +318,7 @@ export const InvestorNDAReviewPage = (user: any = { first_name: 'Investor', last
 
         <div class="content">
             <div class="welcome-message">
-                <h2>👋 Welcome, ${user.first_name}!</h2>
+                <h2>👋 Welcome${user.first_name ? ', ' + user.first_name : ''}!</h2>
                 <p>
                     Thank you for your interest in Risivo. To access confidential investor materials, 
                     we require all investors to review and electronically sign our Non-Disclosure Agreement (NDA). 
@@ -301,7 +333,7 @@ export const InvestorNDAReviewPage = (user: any = { first_name: 'Investor', last
                     <p>
                         This Mutual Non-Disclosure Agreement (the "Agreement") is entered into as of the date of electronic signature 
                         (the "Effective Date") by and between <strong>Velocity Automation Corp., doing business as Risivo</strong> 
-                        ("Disclosing Party") and <strong>${user.first_name} ${user.last_name}</strong> of <strong>${user.business_name || 'Individual Investor'}</strong> ("Receiving Party").
+                        ("Disclosing Party") and <strong id="ndaReceiverName">${user.first_name && user.last_name ? user.first_name + ' ' + user.last_name : '[Your Name]'}</strong> of <strong>${user.business_name || 'Individual Investor'}</strong> ("Receiving Party").
                     </p>
 
                     <h4>1. Purpose</h4>
@@ -412,6 +444,16 @@ export const InvestorNDAReviewPage = (user: any = { first_name: 'Investor', last
                         >
                     </div>
 
+                    <!-- Signature Preview Box -->
+                    <div class="form-group">
+                        <label>Signature Preview</label>
+                        <div class="signature-box" id="signatureBox">
+                            <span class="signature-placeholder" id="signaturePlaceholder">Your signature will appear here</span>
+                            <span class="signature-text" id="signatureText" style="display: none;"></span>
+                        </div>
+                        <p class="signature-hint">This signature image will be generated from your typed name and stored as proof of signing.</p>
+                    </div>
+
                     <div class="checkbox-group">
                         <div class="checkbox-wrapper">
                             <input 
@@ -443,9 +485,33 @@ export const InvestorNDAReviewPage = (user: any = { first_name: 'Investor', last
         const successMessage = document.getElementById('successMessage');
         const fullNameInput = document.getElementById('fullName');
         const agreementCheckbox = document.getElementById('agreement');
+        const signaturePlaceholder = document.getElementById('signaturePlaceholder');
+        const signatureText = document.getElementById('signatureText');
 
-        // Pre-fill full name
-        fullNameInput.value = '${user.first_name} ${user.last_name}';
+        // Pre-fill full name only if we have actual user data
+        const firstName = '${user.first_name || ''}'.trim();
+        const lastName = '${user.last_name || ''}'.trim();
+        const fullName = (firstName + ' ' + lastName).trim();
+        if (fullName) {
+            fullNameInput.value = fullName;
+            updateSignature(fullName);
+        }
+
+        // Update signature preview when name is typed
+        fullNameInput.addEventListener('input', function() {
+            updateSignature(this.value.trim());
+        });
+
+        function updateSignature(name) {
+            if (name) {
+                signaturePlaceholder.style.display = 'none';
+                signatureText.style.display = 'block';
+                signatureText.textContent = name;
+            } else {
+                signaturePlaceholder.style.display = 'block';
+                signatureText.style.display = 'none';
+            }
+        }
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
