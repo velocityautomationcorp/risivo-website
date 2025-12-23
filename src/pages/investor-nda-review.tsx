@@ -558,12 +558,12 @@ export const InvestorNDAReviewPage = (user: any = { first_name: '', last_name: '
 
                 if (response.ok && data.success) {
                     // Show success message
-                    successMessage.textContent = '✅ NDA signed successfully! Redirecting to your dashboard...';
+                    successMessage.textContent = '✅ NDA signed successfully! Redirecting to your investor dashboard...';
                     successMessage.style.display = 'block';
 
-                    // Redirect after 2 seconds
+                    // Redirect after 2 seconds to INVESTOR dashboard
                     setTimeout(() => {
-                        window.location.href = '/updates/dashboard';
+                        window.location.href = '/updates/investor/dashboard';
                     }, 2000);
                 } else {
                     // Show error message
