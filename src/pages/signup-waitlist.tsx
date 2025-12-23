@@ -325,14 +325,22 @@ export const WaitlistSignupPage = () => html`
         const urlParams = new URLSearchParams(window.location.search);
         document.getElementById('email').value = urlParams.get('email') || '';
         
+        // Handle both formats: separate first_name/last_name OR combined name
+        const firstName = urlParams.get('first_name') || '';
+        const lastName = urlParams.get('last_name') || '';
         const fullName = urlParams.get('name') || '';
-        if (fullName) {
+        
+        if (firstName) {
+            document.getElementById('first_name').value = firstName;
+            document.getElementById('last_name').value = lastName;
+        } else if (fullName) {
             const parts = fullName.split(' ');
             document.getElementById('first_name').value = parts[0] || '';
             document.getElementById('last_name').value = parts.slice(1).join(' ') || '';
         }
         
-        document.getElementById('business_name').value = urlParams.get('business') || '';
+        // Handle both formats: business_name OR business
+        document.getElementById('business_name').value = urlParams.get('business_name') || urlParams.get('business') || '';
         
         // Password strength indicator
         const passwordInput = document.getElementById('password');

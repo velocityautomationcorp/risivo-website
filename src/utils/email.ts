@@ -71,9 +71,20 @@ export class EmailService {
     email: string;
     firstName: string;
     lastName: string;
+    businessName?: string;
     tempPassword: string;
+    waitlistNumber?: number;
   }): Promise<void> {
-    const { email, firstName, lastName, tempPassword } = data;
+    const { email, firstName, lastName, businessName, tempPassword, waitlistNumber } = data;
+    
+    // Build prefilled signup URL
+    const signupParams = new URLSearchParams({
+      email: email,
+      first_name: firstName,
+      last_name: lastName,
+      ...(businessName && { business_name: businessName })
+    });
+    const createAccountUrl = `https://risivo.com/updates/signup/waitlist?${signupParams.toString()}`;
 
     const html = `
 <!DOCTYPE html>
@@ -205,9 +216,15 @@ export class EmailService {
     
     <div style="text-align: center;">
       <a href="https://risivo.com/updates/login" class="btn">
-        Access Your Dashboard
+        Login to Your Dashboard
       </a>
     </div>
+    
+    ${waitlistNumber ? `
+    <div style="text-align: center; margin-top: 15px; padding: 15px; background: #f0f9ff; border-radius: 10px;">
+      <p style="margin: 0; color: #0369a1; font-size: 1.1rem;">🎉 You're <strong>#${waitlistNumber}</strong> on our waitlist!</p>
+    </div>
+    ` : ''}
     
     <div class="warning">
       <strong>⚠️ Important:</strong> For security reasons, please change your password after your first login. You can do this from your account settings or use the "Forgot Password" option on the login page.

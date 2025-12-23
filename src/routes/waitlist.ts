@@ -184,7 +184,9 @@ app.post('/join', async (c) => {
           email: email,
           firstName: first_name,
           lastName: last_name,
-          tempPassword: tempPassword
+          businessName: business_name,
+          tempPassword: tempPassword,
+          waitlistNumber: newUser.waitlist_number
         });
 
         console.log('[WAITLIST] ✅ Welcome email sent successfully');
