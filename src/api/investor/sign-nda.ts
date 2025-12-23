@@ -257,8 +257,14 @@ export async function signNDA(c: Context<{ Bindings: Bindings }>) {
 
       // 2. Send notification to ADMIN (new investor pending approval)
       try {
-        console.log('[NDA] Sending admin notification email to:', adminEmail);
-        await emailService.sendAdminNewInvestorNotification({
+        console.log('[NDA] ========== SENDING ADMIN EMAIL ==========');
+        console.log('[NDA] Admin email target:', adminEmail);
+        console.log('[NDA] Investor email:', user.email);
+        console.log('[NDA] Investor name:', `${user.first_name} ${user.last_name}`);
+        console.log('[NDA] Business name:', user.business_name || 'N/A');
+        console.log('[NDA] Signature date:', signature_date);
+        
+        const adminEmailResult = await emailService.sendAdminNewInvestorNotification({
           adminEmail: adminEmail,
           investorEmail: user.email,
           investorName: `${user.first_name} ${user.last_name}`,
@@ -266,8 +272,12 @@ export async function signNDA(c: Context<{ Bindings: Bindings }>) {
           signedAt: signature_date
         });
         console.log('[NDA] ✅ Admin notification email sent successfully to:', adminEmail);
-      } catch (emailError) {
-        console.error('[NDA] ❌ Failed to send admin notification email:', emailError);
+        console.log('[NDA] Admin email result:', adminEmailResult);
+      } catch (emailError: any) {
+        console.error('[NDA] ❌ Failed to send admin notification email');
+        console.error('[NDA] Error name:', emailError?.name);
+        console.error('[NDA] Error message:', emailError?.message);
+        console.error('[NDA] Error stack:', emailError?.stack);
       }
     } else {
       console.warn('[NDA] ⚠️ SendGrid not configured - skipping email notifications');

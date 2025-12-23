@@ -49,9 +49,13 @@ export class EmailService {
       ],
     };
 
+    console.log('[EMAIL] ========== SENDGRID API CALL ==========');
     console.log('[EMAIL] Sending email to:', data.to);
     console.log('[EMAIL] Subject:', data.subject);
     console.log('[EMAIL] From:', this.config.FROM_EMAIL);
+    console.log('[EMAIL] API Key exists:', !!this.config.SENDGRID_API_KEY);
+    console.log('[EMAIL] API Key length:', this.config.SENDGRID_API_KEY?.length || 0);
+    console.log('[EMAIL] Payload:', JSON.stringify(payload, null, 2));
 
     const response = await fetch(this.SENDGRID_API_URL, {
       method: 'POST',
@@ -62,13 +66,18 @@ export class EmailService {
       body: JSON.stringify(payload),
     });
 
+    console.log('[EMAIL] SendGrid response status:', response.status);
+    console.log('[EMAIL] SendGrid response ok:', response.ok);
+    
+    const responseText = await response.text();
+    console.log('[EMAIL] SendGrid response body:', responseText);
+
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('[EMAIL] SendGrid error:', response.status, errorText);
-      throw new Error(`SendGrid API error: ${response.status} - ${errorText}`);
+      console.error('[EMAIL] ❌ SendGrid error:', response.status, responseText);
+      throw new Error(`SendGrid API error: ${response.status} - ${responseText}`);
     }
 
-    console.log('[EMAIL] Email sent successfully to:', data.to);
+    console.log('[EMAIL] ✅ Email sent successfully to:', data.to);
   }
 
   /**
