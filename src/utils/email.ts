@@ -461,8 +461,8 @@ export class EmailService {
         
         <!-- CTA Button -->
         <div style="text-align: center; margin: 30px 0;">
-          <a href="https://risivo.com/updates/investor/dashboard" style="display: inline-block; padding: 16px 40px; background: linear-gradient(135deg, #6b3fea 0%, #ed632f 100%); color: #ffffff; text-decoration: none; border-radius: 10px; font-weight: 600; font-size: 16px;">
-            Access Investor Dashboard
+          <a href="https://risivo.com/updates/investor/login?approved=true" style="display: inline-block; padding: 16px 40px; background: linear-gradient(135deg, #6b3fea 0%, #ed632f 100%); color: #ffffff; text-decoration: none; border-radius: 10px; font-weight: 600; font-size: 16px;">
+            Login to Investor Portal
           </a>
         </div>
         
@@ -489,7 +489,7 @@ export class EmailService {
       to: email,
       subject: '🎉 Your Risivo Investor Access Has Been Approved!',
       html: html,
-      text: `Hi ${firstName},\n\nYour investor account has been approved! You now have full access to exclusive investor materials.\n\nAccess your dashboard: https://risivo.com/updates/investor/dashboard\n\nBest regards,\nThe Risivo Team`,
+      text: `Hi ${firstName},\n\nYour investor account has been approved! You now have full access to exclusive investor materials.\n\nLogin to your investor portal: https://risivo.com/updates/investor/login?approved=true\n\nBest regards,\nThe Risivo Team`,
     });
   }
 }

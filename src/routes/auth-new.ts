@@ -19,6 +19,7 @@ import { ForgotPasswordPage } from '../pages/forgot-password-new';
 import { ResetPasswordNewPage } from '../pages/reset-password-new';
 import { InvestorNDAReviewPage } from '../pages/investor-nda-review';
 import { InvestorDashboardPageV2 } from '../pages/investor-dashboard-v2';
+import { InvestorLoginPage } from '../pages/investor-login';
 import { requireNDA } from '../middleware/require-nda';
 
 type Bindings = {
@@ -40,6 +41,11 @@ authNewRoute.get('/signup/investor', (c) => {
   const businessName = c.req.query('business_name') || '';
   
   return c.html(InvestorSignupPage(email, firstName, lastName, businessName));
+});
+
+// Investor login page
+authNewRoute.get('/investor/login', (c) => {
+  return c.html(InvestorLoginPage());
 });
 
 // Password reset page routes
