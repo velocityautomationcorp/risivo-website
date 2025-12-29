@@ -224,7 +224,7 @@ app.get("/updates/admin/login", (c) => {
   `);
 });
 
-// Admin dashboard page
+// Admin dashboard page - Complete CMS with full CRUD functionality
 app.get("/updates/admin/dashboard", (c) => {
   const currentYear = new Date().getFullYear();
   return c.html(`
@@ -233,249 +233,164 @@ app.get("/updates/admin/dashboard", (c) => {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard - Risivo</title>
-  <link rel="icon" type="image/png" href="/favicon.png">
-  <link rel="shortcut icon" href="/favicon.ico">
+  <title>Admin Dashboard - Risivo CMS</title>
+  <link rel="icon" href="/upload_files/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" sizes="180x180" href="/upload_files/apple-touch-icon.png">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #f5f7fa;
-      min-height: 100vh;
-    }
-    .header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 0 40px;
-      box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
-    }
-    .header-inner {
-      max-width: 1400px;
-      margin: 0 auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      height: 70px;
-    }
-    .header-logo {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-    .header-logo img {
-      height: 38px;
-      filter: brightness(0) invert(1);
-    }
-    .header-logo .badge {
-      background: rgba(255,255,255,0.2);
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-    }
-    .header-nav {
-      display: flex;
-      gap: 8px;
-    }
-    .nav-link {
-      color: white;
-      text-decoration: none;
-      padding: 10px 18px;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 500;
-      transition: all 0.2s;
-    }
-    .nav-link:hover, .nav-link.active { background: rgba(255,255,255,0.2); }
-    .header-actions {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-    }
-    .admin-email {
-      font-size: 14px;
-      opacity: 0.9;
-    }
-    .logout-btn {
-      background: rgba(255,255,255,0.15);
-      color: white;
-      border: 1px solid rgba(255,255,255,0.3);
-      padding: 10px 20px;
-      border-radius: 10px;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 600;
-      transition: all 0.2s;
-    }
+    body { font-family: 'Inter', -apple-system, sans-serif; background: #f5f7fa; min-height: 100vh; }
+    
+    /* Header */
+    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 0 24px; box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3); position: sticky; top: 0; z-index: 100; }
+    .header-inner { max-width: 1600px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; height: 64px; }
+    .header-logo { display: flex; align-items: center; gap: 12px; }
+    .header-logo img { height: 32px; filter: brightness(0) invert(1); }
+    .header-logo .badge { background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 16px; font-size: 11px; font-weight: 600; }
+    .header-nav { display: flex; gap: 4px; }
+    .nav-btn { color: white; background: transparent; border: none; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+    .nav-btn:hover, .nav-btn.active { background: rgba(255,255,255,0.2); }
+    .header-actions { display: flex; gap: 12px; align-items: center; }
+    .admin-email { font-size: 13px; opacity: 0.9; }
+    .logout-btn { background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.2s; }
     .logout-btn:hover { background: rgba(255,255,255,0.25); }
     
-    .main-content {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 40px;
-    }
+    /* Main Layout */
+    .main-container { max-width: 1600px; margin: 0 auto; padding: 24px; }
     
-    .welcome-card {
-      background: white;
-      border-radius: 20px;
-      padding: 40px;
-      margin-bottom: 32px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-      border-left: 6px solid #667eea;
-    }
-    .welcome-card h1 {
-      color: #1a1a2e;
-      font-size: 28px;
-      margin-bottom: 8px;
-    }
-    .welcome-card p { color: #666; font-size: 15px; }
+    /* Stats Grid */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .stat-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; align-items: center; gap: 16px; }
+    .stat-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
+    .stat-icon.investors { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .stat-icon.waitlist { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+    .stat-icon.docs { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+    .stat-icon.updates { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+    .stat-icon.pending { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+    .stat-info .stat-number { font-size: 28px; font-weight: 800; color: #1a1a2e; line-height: 1; }
+    .stat-info .stat-label { font-size: 12px; color: #888; margin-top: 4px; }
     
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 24px;
-      margin-bottom: 40px;
-    }
-    .stat-card {
-      background: white;
-      border-radius: 16px;
-      padding: 28px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
-      text-align: center;
-    }
-    .stat-icon {
-      width: 56px;
-      height: 56px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      border-radius: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      margin: 0 auto 16px;
-    }
-    .stat-number {
-      font-size: 32px;
-      font-weight: 800;
-      color: #1a1a2e;
-    }
-    .stat-label {
-      color: #888;
-      font-size: 14px;
-      margin-top: 4px;
-    }
+    /* Tabs */
+    .tabs-container { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 24px; overflow: hidden; }
+    .tabs-header { display: flex; border-bottom: 1px solid #eee; background: #fafafa; padding: 0 16px; overflow-x: auto; }
+    .tab-btn { background: none; border: none; padding: 16px 20px; font-size: 14px; font-weight: 600; color: #666; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; white-space: nowrap; }
+    .tab-btn:hover { color: #667eea; }
+    .tab-btn.active { color: #667eea; border-bottom-color: #667eea; background: white; }
+    .tab-content { display: none; padding: 20px; }
+    .tab-content.active { display: block; }
     
-    .section {
-      margin-bottom: 40px;
-    }
-    .section-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-    .section-title {
-      font-size: 20px;
-      font-weight: 700;
-      color: #1a1a2e;
-    }
-    .add-btn {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 10px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .add-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-    }
+    /* Section Header */
+    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
+    .section-title { font-size: 18px; font-weight: 700; color: #1a1a2e; display: flex; align-items: center; gap: 10px; }
+    .section-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .btn { padding: 10px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); }
+    .btn-secondary { background: #f0f0f0; color: #333; }
+    .btn-secondary:hover { background: #e0e0e0; }
+    .btn-danger { background: #fee2e2; color: #dc2626; }
+    .btn-danger:hover { background: #fecaca; }
+    .btn-success { background: #dcfce7; color: #16a34a; }
+    .btn-success:hover { background: #bbf7d0; }
     
-    .content-table {
-      background: white;
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
-    }
-    .content-table table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    .content-table th, .content-table td {
-      padding: 16px 20px;
-      text-align: left;
-      border-bottom: 1px solid #f0f0f0;
-    }
-    .content-table th {
-      background: #f8f9fc;
-      font-weight: 600;
-      font-size: 13px;
-      color: #666;
-      text-transform: uppercase;
-    }
-    .content-table td { font-size: 14px; color: #333; }
-    .content-table tr:last-child td { border-bottom: none; }
-    .content-table tr:hover td { background: #fafafa; }
+    /* Table */
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table th, .data-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #f0f0f0; }
+    .data-table th { background: #f8f9fc; font-weight: 600; font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; position: sticky; top: 0; }
+    .data-table td { font-size: 14px; color: #333; vertical-align: middle; }
+    .data-table tr:hover td { background: #fafafa; }
+    .data-table .checkbox { width: 40px; }
+    .data-table input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; }
     
-    .status-badge {
-      display: inline-block;
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-    }
-    .status-active { background: #dcfce7; color: #16a34a; }
-    .status-draft { background: #fef3c7; color: #d97706; }
-    .status-inactive { background: #fee2e2; color: #dc2626; }
+    /* Status Badges */
+    .badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; border-radius: 16px; font-size: 11px; font-weight: 600; }
+    .badge-active, .badge-published { background: #dcfce7; color: #16a34a; }
+    .badge-pending, .badge-pending_nda { background: #fef3c7; color: #d97706; }
+    .badge-nda_signed { background: #dbeafe; color: #2563eb; }
+    .badge-draft { background: #f3f4f6; color: #6b7280; }
+    .badge-rejected, .badge-inactive { background: #fee2e2; color: #dc2626; }
+    .badge-standard { background: #e0e7ff; color: #4f46e5; }
+    .badge-premium { background: #fef3c7; color: #d97706; }
+    .badge-enterprise { background: #f3e8ff; color: #9333ea; }
     
-    .action-btn {
-      background: none;
-      border: none;
-      padding: 8px;
-      cursor: pointer;
-      border-radius: 6px;
-      transition: background 0.2s;
-    }
+    /* Action Buttons */
+    .action-btns { display: flex; gap: 4px; }
+    .action-btn { background: none; border: none; padding: 6px 8px; cursor: pointer; border-radius: 6px; transition: all 0.2s; font-size: 14px; }
     .action-btn:hover { background: #f0f0f0; }
+    .action-btn.edit:hover { background: #dbeafe; }
+    .action-btn.delete:hover { background: #fee2e2; }
+    .action-btn.approve:hover { background: #dcfce7; }
+    .action-btn.view:hover { background: #f3e8ff; }
     
-    .loading {
-      text-align: center;
-      padding: 60px;
-      color: #666;
-    }
-    .empty-state {
-      text-align: center;
-      padding: 60px;
-      color: #888;
-    }
+    /* Modal */
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+    .modal-overlay.show { display: flex; }
+    .modal { background: white; border-radius: 16px; max-width: 600px; width: 90%; max-height: 90vh; overflow: auto; }
+    .modal-header { padding: 20px 24px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+    .modal-title { font-size: 18px; font-weight: 700; color: #1a1a2e; }
+    .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: #666; padding: 4px; line-height: 1; }
+    .modal-close:hover { color: #333; }
+    .modal-body { padding: 24px; }
+    .modal-footer { padding: 16px 24px; border-top: 1px solid #eee; display: flex; justify-content: flex-end; gap: 12px; }
     
-    .footer {
-      background: #1a1a2e;
-      color: white;
-      padding: 24px 40px;
-      text-align: center;
-      margin-top: 40px;
+    /* Form */
+    .form-group { margin-bottom: 16px; }
+    .form-label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 13px; color: #333; }
+    .form-input, .form-select, .form-textarea { width: 100%; padding: 10px 14px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; transition: border-color 0.2s; }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: #667eea; }
+    .form-textarea { min-height: 100px; resize: vertical; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-hint { font-size: 12px; color: #888; margin-top: 4px; }
+    
+    /* Empty State */
+    .empty-state { text-align: center; padding: 60px 20px; color: #888; }
+    .empty-state-icon { font-size: 48px; margin-bottom: 16px; }
+    .empty-state h3 { font-size: 18px; color: #333; margin-bottom: 8px; }
+    
+    /* Loading */
+    .loading { text-align: center; padding: 40px; color: #666; }
+    .spinner { width: 32px; height: 32px; border: 3px solid #f0f0f0; border-top-color: #667eea; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    
+    /* Toast */
+    .toast-container { position: fixed; top: 20px; right: 20px; z-index: 2000; }
+    .toast { background: white; border-radius: 8px; padding: 12px 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); margin-bottom: 8px; display: flex; align-items: center; gap: 10px; animation: slideIn 0.3s ease; }
+    .toast.success { border-left: 4px solid #16a34a; }
+    .toast.error { border-left: 4px solid #dc2626; }
+    .toast.info { border-left: 4px solid #2563eb; }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    
+    /* Footer */
+    .footer { background: #1a1a2e; color: white; padding: 20px 24px; text-align: center; margin-top: 40px; }
+    .footer-links { display: flex; justify-content: center; gap: 24px; margin-bottom: 12px; flex-wrap: wrap; }
+    .footer-links a { color: white; text-decoration: none; opacity: 0.7; font-size: 13px; }
+    .footer-links a:hover { opacity: 1; }
+    .footer p { font-size: 12px; opacity: 0.6; }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .header-nav { display: none; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .form-row { grid-template-columns: 1fr; }
+      .section-header { flex-direction: column; align-items: flex-start; }
+      .data-table { font-size: 12px; }
+      .data-table th, .data-table td { padding: 8px 12px; }
     }
-    .footer p { font-size: 13px; opacity: 0.7; }
   </style>
 </head>
 <body>
   <header class="header">
     <div class="header-inner">
       <div class="header-logo">
-        <img src="/images/risivo-logo.png" alt="Risivo" onerror="this.outerHTML='<span style=\\'font-size:24px;font-weight:800\\'>Risivo</span>'">
-        <span class="badge">Admin</span>
+        <img src="/images/risivo-logo.png" alt="Risivo" onerror="this.outerHTML='<span style=\\'font-size:20px;font-weight:800\\'>Risivo</span>'">
+        <span class="badge">Admin CMS</span>
       </div>
       <nav class="header-nav">
-        <a href="/updates/admin/dashboard" class="nav-link active">Dashboard</a>
-        <a href="#investors" class="nav-link" onclick="showSection('investors')">Investors</a>
-        <a href="#content" class="nav-link" onclick="showSection('content')">Content</a>
-        <a href="#updates" class="nav-link" onclick="showSection('updates')">Updates</a>
+        <button class="nav-btn active" onclick="switchTab('overview')">📊 Overview</button>
+        <button class="nav-btn" onclick="switchTab('investors')">👥 Investors</button>
+        <button class="nav-btn" onclick="switchTab('waitlist')">📋 Waitlist</button>
+        <button class="nav-btn" onclick="switchTab('documents')">📁 Documents</button>
+        <button class="nav-btn" onclick="switchTab('updates')">📰 Updates</button>
       </nav>
       <div class="header-actions">
         <span class="admin-email" id="adminEmail">Loading...</span>
@@ -484,90 +399,433 @@ app.get("/updates/admin/dashboard", (c) => {
     </div>
   </header>
   
-  <main class="main-content">
-    <div class="welcome-card">
-      <h1>Welcome, Admin!</h1>
-      <p>Manage investor content, updates, and user access from this dashboard.</p>
-    </div>
-    
+  <main class="main-container">
+    <!-- Stats Grid -->
     <div class="stats-grid">
       <div class="stat-card">
-        <div class="stat-icon">👥</div>
-        <div class="stat-number" id="investorCount">-</div>
-        <div class="stat-label">Total Investors</div>
+        <div class="stat-icon investors">👥</div>
+        <div class="stat-info">
+          <div class="stat-number" id="investorCount">-</div>
+          <div class="stat-label">Total Investors</div>
+        </div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon">📁</div>
-        <div class="stat-number" id="contentCount">-</div>
-        <div class="stat-label">Documents</div>
+        <div class="stat-icon waitlist">📋</div>
+        <div class="stat-info">
+          <div class="stat-number" id="waitlistCount">-</div>
+          <div class="stat-label">Waitlist</div>
+        </div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon">📰</div>
-        <div class="stat-number" id="updateCount">-</div>
-        <div class="stat-label">Updates</div>
+        <div class="stat-icon docs">📁</div>
+        <div class="stat-info">
+          <div class="stat-number" id="documentCount">-</div>
+          <div class="stat-label">Documents</div>
+        </div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon">✅</div>
-        <div class="stat-number" id="activeCount">-</div>
-        <div class="stat-label">Active Users</div>
+        <div class="stat-icon updates">📰</div>
+        <div class="stat-info">
+          <div class="stat-number" id="updateCount">-</div>
+          <div class="stat-label">Updates</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon pending">⏳</div>
+        <div class="stat-info">
+          <div class="stat-number" id="pendingCount">-</div>
+          <div class="stat-label">Pending Approval</div>
+        </div>
       </div>
     </div>
     
-    <div class="section" id="content-section">
-      <div class="section-header">
-        <h2 class="section-title">📁 Investor Documents</h2>
-        <button class="add-btn" onclick="addContent()">+ Add Document</button>
+    <!-- Tabs Container -->
+    <div class="tabs-container">
+      <div class="tabs-header">
+        <button class="tab-btn active" data-tab="overview">📊 Overview</button>
+        <button class="tab-btn" data-tab="investors">👥 Investors</button>
+        <button class="tab-btn" data-tab="waitlist">📋 Waitlist</button>
+        <button class="tab-btn" data-tab="documents">📁 Documents</button>
+        <button class="tab-btn" data-tab="investor-updates">📰 Investor Updates</button>
+        <button class="tab-btn" data-tab="waitlist-updates">📢 Waitlist Updates</button>
+        <button class="tab-btn" data-tab="categories">🏷️ Categories</button>
       </div>
-      <div class="content-table">
-        <table>
-          <thead>
-            <tr>
-              <th>Title</th>
-              <th>Type</th>
-              <th>Status</th>
-              <th>Created</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="contentTableBody">
-            <tr><td colspan="5" class="loading">Loading documents...</td></tr>
-          </tbody>
-        </table>
+      
+      <!-- Overview Tab -->
+      <div class="tab-content active" id="tab-overview">
+        <div class="section-header">
+          <h2 class="section-title">📊 Dashboard Overview</h2>
+        </div>
+        <p style="color: #666; margin-bottom: 20px;">Quick summary of your platform activity. Use the tabs above to manage specific sections.</p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+          <div style="background: #f8f9fc; border-radius: 12px; padding: 20px;">
+            <h3 style="font-size: 16px; margin-bottom: 12px;">📈 Recent Activity</h3>
+            <div id="recentActivity" style="color: #666; font-size: 14px;">Loading...</div>
+          </div>
+          <div style="background: #f8f9fc; border-radius: 12px; padding: 20px;">
+            <h3 style="font-size: 16px; margin-bottom: 12px;">⚡ Quick Actions</h3>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <button class="btn btn-primary" onclick="switchTab('documents'); openAddDocumentModal();">+ Add Document</button>
+              <button class="btn btn-primary" onclick="switchTab('investor-updates'); openAddInvestorUpdateModal();">+ Add Investor Update</button>
+              <button class="btn btn-secondary" onclick="exportInvestorsCSV()">📥 Export Investors CSV</button>
+              <button class="btn btn-secondary" onclick="exportWaitlistCSV()">📥 Export Waitlist CSV</button>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-    
-    <div class="section" id="updates-section">
-      <div class="section-header">
-        <h2 class="section-title">📰 Investor Updates</h2>
-        <button class="add-btn" onclick="addUpdate()">+ Add Update</button>
+      
+      <!-- Investors Tab -->
+      <div class="tab-content" id="tab-investors">
+        <div class="section-header">
+          <h2 class="section-title">👥 Investor Management</h2>
+          <div class="section-actions">
+            <button class="btn btn-secondary" onclick="exportInvestorsCSV()">📥 Export CSV</button>
+            <button class="btn btn-primary" onclick="loadInvestors()">🔄 Refresh</button>
+          </div>
+        </div>
+        <div style="overflow-x: auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Business</th>
+                <th>Status</th>
+                <th>Tier</th>
+                <th>Joined</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="investorsTableBody">
+              <tr><td colspan="7" class="loading"><div class="spinner"></div>Loading investors...</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
-      <div class="content-table">
-        <table>
-          <thead>
-            <tr>
-              <th>Title</th>
-              <th>Category</th>
-              <th>Status</th>
-              <th>Published</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="updatesTableBody">
-            <tr><td colspan="5" class="loading">Loading updates...</td></tr>
-          </tbody>
-        </table>
+      
+      <!-- Waitlist Tab -->
+      <div class="tab-content" id="tab-waitlist">
+        <div class="section-header">
+          <h2 class="section-title">📋 Waitlist Subscribers</h2>
+          <div class="section-actions">
+            <button class="btn btn-secondary" onclick="exportWaitlistCSV()">📥 Export CSV</button>
+            <button class="btn btn-primary" onclick="loadWaitlist()">🔄 Refresh</button>
+          </div>
+        </div>
+        <div style="overflow-x: auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Email</th>
+                <th>Name</th>
+                <th>Source</th>
+                <th>Subscribed</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="waitlistTableBody">
+              <tr><td colspan="5" class="loading"><div class="spinner"></div>Loading waitlist...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <!-- Documents Tab -->
+      <div class="tab-content" id="tab-documents">
+        <div class="section-header">
+          <h2 class="section-title">📁 Investor Documents</h2>
+          <div class="section-actions">
+            <button class="btn btn-primary" onclick="openAddDocumentModal()">+ Add Document</button>
+          </div>
+        </div>
+        <div style="overflow-x: auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Icon</th>
+                <th>Title</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Created</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="documentsTableBody">
+              <tr><td colspan="6" class="loading"><div class="spinner"></div>Loading documents...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <!-- Investor Updates Tab -->
+      <div class="tab-content" id="tab-investor-updates">
+        <div class="section-header">
+          <h2 class="section-title">📰 Investor Updates</h2>
+          <div class="section-actions">
+            <button class="btn btn-primary" onclick="openAddInvestorUpdateModal()">+ Add Update</button>
+          </div>
+        </div>
+        <div style="overflow-x: auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Status</th>
+                <th>Published</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="investorUpdatesTableBody">
+              <tr><td colspan="5" class="loading"><div class="spinner"></div>Loading updates...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <!-- Waitlist Updates Tab -->
+      <div class="tab-content" id="tab-waitlist-updates">
+        <div class="section-header">
+          <h2 class="section-title">📢 Waitlist Updates</h2>
+          <div class="section-actions">
+            <button class="btn btn-primary" onclick="openAddWaitlistUpdateModal()">+ Add Update</button>
+          </div>
+        </div>
+        <div style="overflow-x: auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Status</th>
+                <th>Published</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="waitlistUpdatesTableBody">
+              <tr><td colspan="5" class="loading"><div class="spinner"></div>Loading updates...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <!-- Categories Tab -->
+      <div class="tab-content" id="tab-categories">
+        <div class="section-header">
+          <h2 class="section-title">🏷️ Category Management</h2>
+          <div class="section-actions">
+            <button class="btn btn-primary" onclick="openAddCategoryModal('investor')">+ Investor Category</button>
+            <button class="btn btn-secondary" onclick="openAddCategoryModal('waitlist')">+ Waitlist Category</button>
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+          <div>
+            <h3 style="font-size: 16px; margin-bottom: 12px;">Investor Categories</h3>
+            <div id="investorCategoriesList" style="background: #f8f9fc; border-radius: 8px; padding: 16px;">Loading...</div>
+          </div>
+          <div>
+            <h3 style="font-size: 16px; margin-bottom: 12px;">Waitlist Categories</h3>
+            <div id="waitlistCategoriesList" style="background: #f8f9fc; border-radius: 8px; padding: 16px;">Loading...</div>
+          </div>
+        </div>
       </div>
     </div>
   </main>
   
   <footer class="footer">
-    <p>© ${currentYear} Risivo. Admin Dashboard. All rights reserved.</p>
+    <div class="footer-links">
+      <a href="/">Main Site</a>
+      <a href="/updates/investor/login">Investor Portal</a>
+      <a href="/privacy-policy">Privacy Policy</a>
+      <a href="/terms-of-service">Terms of Service</a>
+    </div>
+    <p>© ${currentYear} Risivo ™ Owned by Velocity Automation Corp. All rights reserved.</p>
   </footer>
   
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+  
+  <!-- Add/Edit Document Modal -->
+  <div class="modal-overlay" id="documentModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title" id="documentModalTitle">Add Document</h3>
+        <button class="modal-close" onclick="closeModal('documentModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="documentForm">
+          <input type="hidden" id="docId">
+          <div class="form-group">
+            <label class="form-label">Title *</label>
+            <input type="text" class="form-input" id="docTitle" required placeholder="e.g., Pitch Deck">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Description</label>
+            <textarea class="form-textarea" id="docDescription" placeholder="Brief description of this document"></textarea>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Content Type *</label>
+              <select class="form-select" id="docType" required>
+                <option value="document">Document</option>
+                <option value="presentation">Presentation</option>
+                <option value="spreadsheet">Spreadsheet</option>
+                <option value="video">Video</option>
+                <option value="image">Image</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Icon</label>
+              <select class="form-select" id="docIcon">
+                <option value="📊">📊 Presentation</option>
+                <option value="📈">📈 Chart</option>
+                <option value="📋">📋 Document</option>
+                <option value="📄">📄 File</option>
+                <option value="📝">📝 Summary</option>
+                <option value="💰">💰 Financial</option>
+                <option value="💼">💼 Business</option>
+                <option value="🎬">🎬 Video</option>
+                <option value="🖼️">🖼️ Image</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">File/Embed URL *</label>
+            <input type="url" class="form-input" id="docFileUrl" required placeholder="https://drive.google.com/file/d/.../preview">
+            <div class="form-hint">Use Google Drive preview links (ending with /preview) for best results</div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">CTA Button Text</label>
+              <input type="text" class="form-input" id="docCta" placeholder="View Document">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Status</label>
+              <select class="form-select" id="docStatus">
+                <option value="active">Active</option>
+                <option value="draft">Draft</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Sort Order</label>
+            <input type="number" class="form-input" id="docSortOrder" value="0" min="0">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('documentModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="saveDocument()">Save Document</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Add/Edit Investor Update Modal -->
+  <div class="modal-overlay" id="investorUpdateModal">
+    <div class="modal" style="max-width: 700px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="investorUpdateModalTitle">Add Investor Update</h3>
+        <button class="modal-close" onclick="closeModal('investorUpdateModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="investorUpdateForm">
+          <input type="hidden" id="invUpdateId">
+          <div class="form-group">
+            <label class="form-label">Title *</label>
+            <input type="text" class="form-input" id="invUpdateTitle" required placeholder="Update title">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Category</label>
+              <select class="form-select" id="invUpdateCategory">
+                <option value="">Select category...</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Status</label>
+              <select class="form-select" id="invUpdateStatus">
+                <option value="draft">Draft</option>
+                <option value="published">Published</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Excerpt</label>
+            <textarea class="form-textarea" id="invUpdateExcerpt" placeholder="Brief summary of this update" style="min-height: 60px;"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Content *</label>
+            <textarea class="form-textarea" id="invUpdateContent" required placeholder="Full update content..." style="min-height: 150px;"></textarea>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Featured Image URL</label>
+              <input type="url" class="form-input" id="invUpdateImage" placeholder="https://...">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Video URL</label>
+              <input type="url" class="form-input" id="invUpdateVideo" placeholder="https://...">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Author Name</label>
+            <input type="text" class="form-input" id="invUpdateAuthor" placeholder="Risivo Team" value="Risivo Team">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('investorUpdateModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="saveInvestorUpdate()">Save Update</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Confirm Delete Modal -->
+  <div class="modal-overlay" id="confirmModal">
+    <div class="modal" style="max-width: 400px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Confirm Delete</h3>
+        <button class="modal-close" onclick="closeModal('confirmModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p id="confirmMessage">Are you sure you want to delete this item? This action cannot be undone.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('confirmModal')">Cancel</button>
+        <button class="btn btn-danger" id="confirmDeleteBtn" onclick="confirmDelete()">Delete</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- View Investor Modal -->
+  <div class="modal-overlay" id="viewInvestorModal">
+    <div class="modal" style="max-width: 500px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Investor Details</h3>
+        <button class="modal-close" onclick="closeModal('viewInvestorModal')">&times;</button>
+      </div>
+      <div class="modal-body" id="investorDetailsContent">
+        <div class="loading"><div class="spinner"></div>Loading...</div>
+      </div>
+      <div class="modal-footer" id="investorDetailsActions"></div>
+    </div>
+  </div>
+  
   <script>
+    // Global state
+    let investors = [];
+    let waitlist = [];
+    let documents = [];
+    let investorUpdates = [];
+    let waitlistUpdates = [];
+    let investorCategories = [];
+    let waitlistCategories = [];
+    let deleteTarget = null;
+    
+    // Initialize
     async function init() {
       try {
-        // Verify admin session
         const meRes = await fetch('/api/admin/me');
         const meData = await meRes.json();
         
@@ -578,33 +836,16 @@ app.get("/updates/admin/dashboard", (c) => {
         
         document.getElementById('adminEmail').textContent = meData.admin.email;
         
-        // Load content
-        const contentRes = await fetch('/api/admin/investor-content');
-        const contentData = await contentRes.json();
+        // Load all data
+        await Promise.all([
+          loadInvestors(),
+          loadDocuments(),
+          loadInvestorUpdates(),
+          loadInvestorCategories(),
+          loadWaitlistCategories()
+        ]);
         
-        if (contentData.success && contentData.content) {
-          document.getElementById('contentCount').textContent = contentData.content.length;
-          renderContent(contentData.content);
-        } else {
-          document.getElementById('contentCount').textContent = '0';
-          document.getElementById('contentTableBody').innerHTML = '<tr><td colspan="5" class="empty-state">No documents yet</td></tr>';
-        }
-        
-        // Load updates
-        const updatesRes = await fetch('/api/admin/investor-updates');
-        const updatesData = await updatesRes.json();
-        
-        if (updatesData.success && updatesData.updates) {
-          document.getElementById('updateCount').textContent = updatesData.updates.length;
-          renderUpdates(updatesData.updates);
-        } else {
-          document.getElementById('updateCount').textContent = '0';
-          document.getElementById('updatesTableBody').innerHTML = '<tr><td colspan="5" class="empty-state">No updates yet</td></tr>';
-        }
-        
-        // Set placeholder stats
-        document.getElementById('investorCount').textContent = '-';
-        document.getElementById('activeCount').textContent = '-';
+        updateRecentActivity();
         
       } catch (error) {
         console.error('Init error:', error);
@@ -612,46 +853,589 @@ app.get("/updates/admin/dashboard", (c) => {
       }
     }
     
-    function renderContent(content) {
-      const tbody = document.getElementById('contentTableBody');
-      if (!content || content.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No documents yet</td></tr>';
+    // Tab switching
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+      });
+    });
+    
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      const tabBtn = document.querySelector(\`.tab-btn[data-tab="\${tabName}"]\`);
+      if (tabBtn) tabBtn.classList.add('active');
+      const tabContent = document.getElementById('tab-' + tabName);
+      if (tabContent) tabContent.classList.add('active');
+    }
+    
+    // Toast notifications
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = 'toast ' + type;
+      toast.innerHTML = \`<span>\${type === 'success' ? '✓' : type === 'error' ? '✕' : 'ℹ'}</span> \${message}\`;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 4000);
+    }
+    
+    // Modal functions
+    function openModal(id) { document.getElementById(id).classList.add('show'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+    
+    // Load Investors
+    async function loadInvestors() {
+      try {
+        const res = await fetch('/api/admin/investors/investors');
+        const data = await res.json();
+        
+        if (data.success && data.investors) {
+          investors = data.investors;
+          const realInvestors = investors.filter(i => i.user_type === 'investor');
+          const waitlistUsers = investors.filter(i => i.user_type === 'waitlist');
+          const pending = realInvestors.filter(i => ['pending_nda', 'nda_signed'].includes(i.investor_status));
+          
+          document.getElementById('investorCount').textContent = realInvestors.length;
+          document.getElementById('waitlistCount').textContent = waitlistUsers.length;
+          document.getElementById('pendingCount').textContent = pending.length;
+          
+          renderInvestorsTable(realInvestors);
+          renderWaitlistTable(waitlistUsers);
+        }
+      } catch (error) {
+        console.error('Load investors error:', error);
+        showToast('Failed to load investors', 'error');
+      }
+    }
+    
+    function renderInvestorsTable(data) {
+      const tbody = document.getElementById('investorsTableBody');
+      if (!data || data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><div class="empty-state-icon">👥</div><h3>No investors yet</h3></td></tr>';
         return;
       }
-      tbody.innerHTML = content.map(item => \`
+      tbody.innerHTML = data.map(inv => \`
         <tr>
-          <td><strong>\${escapeHtml(item.title)}</strong></td>
-          <td>\${item.content_type || 'document'}</td>
-          <td><span class="status-badge status-\${item.status || 'active'}">\${item.status || 'active'}</span></td>
+          <td><strong>\${escapeHtml(inv.first_name || '')} \${escapeHtml(inv.last_name || '')}</strong></td>
+          <td>\${escapeHtml(inv.email)}</td>
+          <td>\${escapeHtml(inv.business_name || '-')}</td>
+          <td><span class="badge badge-\${inv.investor_status || 'pending'}">\${inv.investor_status || 'pending'}</span></td>
+          <td><span class="badge badge-\${inv.investor_tier || 'standard'}">\${inv.investor_tier || 'standard'}</span></td>
+          <td>\${inv.created_at ? new Date(inv.created_at).toLocaleDateString() : '-'}</td>
+          <td class="action-btns">
+            <button class="action-btn view" onclick="viewInvestor('\${inv.id}')" title="View">👁️</button>
+            \${inv.investor_status === 'nda_signed' ? \`<button class="action-btn approve" onclick="approveInvestor('\${inv.id}')" title="Approve">✅</button>\` : ''}
+            <button class="action-btn delete" onclick="confirmDeleteInvestor('\${inv.id}')" title="Delete">🗑️</button>
+          </td>
+        </tr>
+      \`).join('');
+    }
+    
+    function renderWaitlistTable(data) {
+      const tbody = document.getElementById('waitlistTableBody');
+      if (!data || data.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><div class="empty-state-icon">📋</div><h3>No waitlist subscribers</h3></td></tr>';
+        return;
+      }
+      tbody.innerHTML = data.map(item => \`
+        <tr>
+          <td>\${escapeHtml(item.email)}</td>
+          <td>\${escapeHtml(item.first_name || '')} \${escapeHtml(item.last_name || '')}</td>
+          <td>Website</td>
           <td>\${item.created_at ? new Date(item.created_at).toLocaleDateString() : '-'}</td>
-          <td>
-            <button class="action-btn" title="Edit">✏️</button>
-            <button class="action-btn" title="Delete">🗑️</button>
+          <td class="action-btns">
+            <button class="action-btn delete" onclick="confirmDeleteWaitlist('\${item.id}')" title="Delete">🗑️</button>
           </td>
         </tr>
       \`).join('');
     }
     
-    function renderUpdates(updates) {
-      const tbody = document.getElementById('updatesTableBody');
-      if (!updates || updates.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No updates yet</td></tr>';
+    // Load Documents
+    async function loadDocuments() {
+      try {
+        const res = await fetch('/api/admin/investor-content');
+        const data = await res.json();
+        
+        if (data.success && data.content) {
+          documents = data.content;
+          document.getElementById('documentCount').textContent = documents.length;
+          renderDocumentsTable();
+        }
+      } catch (error) {
+        console.error('Load documents error:', error);
+      }
+    }
+    
+    function renderDocumentsTable() {
+      const tbody = document.getElementById('documentsTableBody');
+      if (!documents || documents.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><div class="empty-state-icon">📁</div><h3>No documents yet</h3><p>Add your first investor document</p></td></tr>';
         return;
       }
-      tbody.innerHTML = updates.map(item => \`
+      tbody.innerHTML = documents.map(doc => \`
         <tr>
-          <td><strong>\${escapeHtml(item.title)}</strong></td>
-          <td>\${item.investor_categories?.name || 'General'}</td>
-          <td><span class="status-badge status-\${item.status === 'published' ? 'active' : 'draft'}">\${item.status || 'draft'}</span></td>
-          <td>\${item.published_at ? new Date(item.published_at).toLocaleDateString() : '-'}</td>
-          <td>
-            <button class="action-btn" title="Edit">✏️</button>
-            <button class="action-btn" title="Delete">🗑️</button>
+          <td style="font-size: 24px;">\${doc.icon || '📄'}</td>
+          <td><strong>\${escapeHtml(doc.title)}</strong></td>
+          <td>\${doc.content_type || 'document'}</td>
+          <td><span class="badge badge-\${doc.status || 'active'}">\${doc.status || 'active'}</span></td>
+          <td>\${doc.created_at ? new Date(doc.created_at).toLocaleDateString() : '-'}</td>
+          <td class="action-btns">
+            <button class="action-btn edit" onclick="editDocument('\${doc.id}')" title="Edit">✏️</button>
+            <button class="action-btn delete" onclick="confirmDeleteDocument('\${doc.id}')" title="Delete">🗑️</button>
           </td>
         </tr>
       \`).join('');
     }
     
+    // Load Investor Updates
+    async function loadInvestorUpdates() {
+      try {
+        const res = await fetch('/api/admin/investor-updates');
+        const data = await res.json();
+        
+        if (data.success && data.updates) {
+          investorUpdates = data.updates;
+          document.getElementById('updateCount').textContent = investorUpdates.length;
+          renderInvestorUpdatesTable();
+        }
+      } catch (error) {
+        console.error('Load investor updates error:', error);
+      }
+    }
+    
+    function renderInvestorUpdatesTable() {
+      const tbody = document.getElementById('investorUpdatesTableBody');
+      if (!investorUpdates || investorUpdates.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><div class="empty-state-icon">📰</div><h3>No updates yet</h3></td></tr>';
+        return;
+      }
+      tbody.innerHTML = investorUpdates.map(u => \`
+        <tr>
+          <td><strong>\${escapeHtml(u.title)}</strong></td>
+          <td>\${u.investor_categories?.name || 'General'}</td>
+          <td><span class="badge badge-\${u.status === 'published' ? 'published' : 'draft'}">\${u.status || 'draft'}</span></td>
+          <td>\${u.published_at ? new Date(u.published_at).toLocaleDateString() : '-'}</td>
+          <td class="action-btns">
+            <button class="action-btn edit" onclick="editInvestorUpdate('\${u.id}')" title="Edit">✏️</button>
+            <button class="action-btn delete" onclick="confirmDeleteInvestorUpdate('\${u.id}')" title="Delete">🗑️</button>
+          </td>
+        </tr>
+      \`).join('');
+    }
+    
+    // Load Categories
+    async function loadInvestorCategories() {
+      try {
+        const res = await fetch('/api/admin/categories');
+        const data = await res.json();
+        if (data.categories) {
+          investorCategories = data.categories;
+          updateInvestorCategorySelect();
+          renderInvestorCategoriesList();
+        }
+      } catch (error) {
+        console.error('Load investor categories error:', error);
+      }
+    }
+    
+    async function loadWaitlistCategories() {
+      try {
+        const res = await fetch('/api/admin/waitlist/categories');
+        const data = await res.json();
+        if (data.categories) {
+          waitlistCategories = data.categories;
+          renderWaitlistCategoriesList();
+        }
+      } catch (error) {
+        console.error('Load waitlist categories error:', error);
+      }
+    }
+    
+    function updateInvestorCategorySelect() {
+      const select = document.getElementById('invUpdateCategory');
+      select.innerHTML = '<option value="">Select category...</option>' + 
+        investorCategories.map(c => \`<option value="\${c.id}">\${c.icon || '📌'} \${escapeHtml(c.name)}</option>\`).join('');
+    }
+    
+    function renderInvestorCategoriesList() {
+      const container = document.getElementById('investorCategoriesList');
+      if (!investorCategories.length) {
+        container.innerHTML = '<p style="color: #888;">No categories yet</p>';
+        return;
+      }
+      container.innerHTML = investorCategories.map(c => \`
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee;">
+          <span>\${c.icon || '📌'} \${escapeHtml(c.name)}</span>
+          <button class="action-btn delete" onclick="deleteCategory('investor', '\${c.id}')" title="Delete">🗑️</button>
+        </div>
+      \`).join('');
+    }
+    
+    function renderWaitlistCategoriesList() {
+      const container = document.getElementById('waitlistCategoriesList');
+      if (!waitlistCategories.length) {
+        container.innerHTML = '<p style="color: #888;">No categories yet</p>';
+        return;
+      }
+      container.innerHTML = waitlistCategories.map(c => \`
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee;">
+          <span>\${c.icon || '📌'} \${escapeHtml(c.name)}</span>
+          <button class="action-btn delete" onclick="deleteCategory('waitlist', '\${c.id}')" title="Delete">🗑️</button>
+        </div>
+      \`).join('');
+    }
+    
+    // Document CRUD
+    function openAddDocumentModal() {
+      document.getElementById('documentModalTitle').textContent = 'Add Document';
+      document.getElementById('documentForm').reset();
+      document.getElementById('docId').value = '';
+      openModal('documentModal');
+    }
+    
+    function editDocument(id) {
+      const doc = documents.find(d => d.id === id);
+      if (!doc) return;
+      
+      document.getElementById('documentModalTitle').textContent = 'Edit Document';
+      document.getElementById('docId').value = doc.id;
+      document.getElementById('docTitle').value = doc.title || '';
+      document.getElementById('docDescription').value = doc.description || '';
+      document.getElementById('docType').value = doc.content_type || 'document';
+      document.getElementById('docIcon').value = doc.icon || '📄';
+      document.getElementById('docFileUrl').value = doc.file_url || '';
+      document.getElementById('docCta').value = doc.cta_button_text || '';
+      document.getElementById('docStatus').value = doc.status || 'active';
+      document.getElementById('docSortOrder').value = doc.sort_order || 0;
+      openModal('documentModal');
+    }
+    
+    async function saveDocument() {
+      const id = document.getElementById('docId').value;
+      const data = {
+        title: document.getElementById('docTitle').value,
+        description: document.getElementById('docDescription').value,
+        content_type: document.getElementById('docType').value,
+        icon: document.getElementById('docIcon').value,
+        file_url: document.getElementById('docFileUrl').value,
+        cta_button_text: document.getElementById('docCta').value || 'View Document',
+        status: document.getElementById('docStatus').value,
+        sort_order: parseInt(document.getElementById('docSortOrder').value) || 0
+      };
+      
+      try {
+        const url = id ? \`/api/admin/investor-content/\${id}\` : '/api/admin/investor-content';
+        const method = id ? 'PUT' : 'POST';
+        
+        const res = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        
+        const result = await res.json();
+        
+        if (result.success) {
+          showToast(id ? 'Document updated!' : 'Document created!', 'success');
+          closeModal('documentModal');
+          await loadDocuments();
+        } else {
+          showToast(result.error || 'Failed to save document', 'error');
+        }
+      } catch (error) {
+        console.error('Save document error:', error);
+        showToast('Failed to save document', 'error');
+      }
+    }
+    
+    // Investor Update CRUD
+    function openAddInvestorUpdateModal() {
+      document.getElementById('investorUpdateModalTitle').textContent = 'Add Investor Update';
+      document.getElementById('investorUpdateForm').reset();
+      document.getElementById('invUpdateId').value = '';
+      document.getElementById('invUpdateAuthor').value = 'Risivo Team';
+      openModal('investorUpdateModal');
+    }
+    
+    function editInvestorUpdate(id) {
+      const update = investorUpdates.find(u => u.id === id);
+      if (!update) return;
+      
+      document.getElementById('investorUpdateModalTitle').textContent = 'Edit Update';
+      document.getElementById('invUpdateId').value = update.id;
+      document.getElementById('invUpdateTitle').value = update.title || '';
+      document.getElementById('invUpdateCategory').value = update.category_id || '';
+      document.getElementById('invUpdateStatus').value = update.status || 'draft';
+      document.getElementById('invUpdateExcerpt').value = update.excerpt || '';
+      document.getElementById('invUpdateContent').value = update.content || '';
+      document.getElementById('invUpdateImage').value = update.featured_image_url || '';
+      document.getElementById('invUpdateVideo').value = update.video_url || '';
+      document.getElementById('invUpdateAuthor').value = update.author_name || 'Risivo Team';
+      openModal('investorUpdateModal');
+    }
+    
+    async function saveInvestorUpdate() {
+      const id = document.getElementById('invUpdateId').value;
+      const data = {
+        title: document.getElementById('invUpdateTitle').value,
+        category_id: document.getElementById('invUpdateCategory').value || null,
+        status: document.getElementById('invUpdateStatus').value,
+        excerpt: document.getElementById('invUpdateExcerpt').value,
+        content: document.getElementById('invUpdateContent').value,
+        featured_image_url: document.getElementById('invUpdateImage').value || null,
+        video_url: document.getElementById('invUpdateVideo').value || null,
+        author_name: document.getElementById('invUpdateAuthor').value || 'Risivo Team'
+      };
+      
+      try {
+        const url = id ? \`/api/admin/investor-updates/\${id}\` : '/api/admin/investor-updates';
+        const method = id ? 'PUT' : 'POST';
+        
+        const res = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        
+        const result = await res.json();
+        
+        if (result.success) {
+          showToast(id ? 'Update saved!' : 'Update created!', 'success');
+          closeModal('investorUpdateModal');
+          await loadInvestorUpdates();
+        } else {
+          showToast(result.error || 'Failed to save update', 'error');
+        }
+      } catch (error) {
+        console.error('Save update error:', error);
+        showToast('Failed to save update', 'error');
+      }
+    }
+    
+    // Delete functions
+    function confirmDeleteDocument(id) {
+      deleteTarget = { type: 'document', id };
+      document.getElementById('confirmMessage').textContent = 'Are you sure you want to delete this document? This action cannot be undone.';
+      openModal('confirmModal');
+    }
+    
+    function confirmDeleteInvestorUpdate(id) {
+      deleteTarget = { type: 'investor-update', id };
+      document.getElementById('confirmMessage').textContent = 'Are you sure you want to delete this update? This action cannot be undone.';
+      openModal('confirmModal');
+    }
+    
+    function confirmDeleteInvestor(id) {
+      deleteTarget = { type: 'investor', id };
+      document.getElementById('confirmMessage').textContent = 'Are you sure you want to delete this investor? All their data will be permanently removed.';
+      openModal('confirmModal');
+    }
+    
+    function confirmDeleteWaitlist(id) {
+      deleteTarget = { type: 'waitlist', id };
+      document.getElementById('confirmMessage').textContent = 'Are you sure you want to remove this subscriber from the waitlist?';
+      openModal('confirmModal');
+    }
+    
+    async function confirmDelete() {
+      if (!deleteTarget) return;
+      
+      try {
+        let url;
+        switch (deleteTarget.type) {
+          case 'document':
+            url = \`/api/admin/investor-content/\${deleteTarget.id}\`;
+            break;
+          case 'investor-update':
+            url = \`/api/admin/investor-updates/\${deleteTarget.id}\`;
+            break;
+          case 'investor':
+            url = \`/api/admin/investors/investor/\${deleteTarget.id}/delete\`;
+            break;
+          case 'waitlist':
+            url = \`/api/admin/waitlist/\${deleteTarget.id}\`;
+            break;
+        }
+        
+        const res = await fetch(url, { method: 'DELETE' });
+        const result = await res.json();
+        
+        if (result.success) {
+          showToast('Deleted successfully', 'success');
+          closeModal('confirmModal');
+          
+          // Refresh appropriate data
+          if (deleteTarget.type === 'document') await loadDocuments();
+          else if (deleteTarget.type === 'investor-update') await loadInvestorUpdates();
+          else if (deleteTarget.type === 'investor' || deleteTarget.type === 'waitlist') await loadInvestors();
+        } else {
+          showToast(result.error || 'Delete failed', 'error');
+        }
+      } catch (error) {
+        console.error('Delete error:', error);
+        showToast('Delete failed', 'error');
+      }
+      
+      deleteTarget = null;
+    }
+    
+    // Investor management
+    async function viewInvestor(id) {
+      const content = document.getElementById('investorDetailsContent');
+      const actions = document.getElementById('investorDetailsActions');
+      content.innerHTML = '<div class="loading"><div class="spinner"></div>Loading...</div>';
+      actions.innerHTML = '';
+      openModal('viewInvestorModal');
+      
+      try {
+        const res = await fetch(\`/api/admin/investors/investor/\${id}/details\`);
+        const data = await res.json();
+        
+        if (data.success && data.investor) {
+          const inv = data.investor;
+          const nda = data.nda_signature;
+          
+          content.innerHTML = \`
+            <div style="margin-bottom: 16px;">
+              <p style="margin-bottom: 8px;"><strong>Name:</strong> \${escapeHtml(inv.first_name || '')} \${escapeHtml(inv.last_name || '')}</p>
+              <p style="margin-bottom: 8px;"><strong>Email:</strong> \${escapeHtml(inv.email)}</p>
+              <p style="margin-bottom: 8px;"><strong>Business:</strong> \${escapeHtml(inv.business_name || 'N/A')}</p>
+              <p style="margin-bottom: 8px;"><strong>Status:</strong> <span class="badge badge-\${inv.investor_status || 'pending'}">\${inv.investor_status || 'pending'}</span></p>
+              <p style="margin-bottom: 8px;"><strong>Tier:</strong> <span class="badge badge-\${inv.investor_tier || 'standard'}">\${inv.investor_tier || 'standard'}</span></p>
+              <p style="margin-bottom: 8px;"><strong>Joined:</strong> \${inv.created_at ? new Date(inv.created_at).toLocaleString() : 'N/A'}</p>
+              <p style="margin-bottom: 8px;"><strong>Last Login:</strong> \${inv.last_login ? new Date(inv.last_login).toLocaleString() : 'Never'}</p>
+            </div>
+            \${nda ? \`
+            <div style="background: #f8f9fc; padding: 12px; border-radius: 8px; margin-top: 16px;">
+              <h4 style="margin-bottom: 8px;">📝 NDA Signature</h4>
+              <p style="font-size: 13px; margin-bottom: 4px;"><strong>Signed as:</strong> \${escapeHtml(nda.full_name_typed)}</p>
+              <p style="font-size: 13px; margin-bottom: 4px;"><strong>Date:</strong> \${new Date(nda.signed_at).toLocaleString()}</p>
+              <p style="font-size: 13px;"><strong>IP:</strong> \${nda.ip_address || 'N/A'}</p>
+            </div>
+            \` : '<p style="color: #888; font-style: italic;">No NDA signed yet</p>'}
+          \`;
+          
+          actions.innerHTML = \`
+            \${inv.investor_status === 'nda_signed' ? \`<button class="btn btn-success" onclick="approveInvestor('\${id}'); closeModal('viewInvestorModal');">✅ Approve</button>\` : ''}
+            <button class="btn btn-secondary" onclick="closeModal('viewInvestorModal')">Close</button>
+          \`;
+        } else {
+          content.innerHTML = '<p style="color: red;">Failed to load investor details</p>';
+        }
+      } catch (error) {
+        console.error('View investor error:', error);
+        content.innerHTML = '<p style="color: red;">Error loading details</p>';
+      }
+    }
+    
+    async function approveInvestor(id) {
+      try {
+        const res = await fetch(\`/api/admin/investors/investor/\${id}/approve\`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tier: 'standard' })
+        });
+        const result = await res.json();
+        
+        if (result.success) {
+          showToast('Investor approved!', 'success');
+          await loadInvestors();
+        } else {
+          showToast(result.error || 'Approval failed', 'error');
+        }
+      } catch (error) {
+        console.error('Approve error:', error);
+        showToast('Approval failed', 'error');
+      }
+    }
+    
+    // CSV Export
+    function exportInvestorsCSV() {
+      const realInvestors = investors.filter(i => i.user_type === 'investor');
+      if (!realInvestors.length) {
+        showToast('No investors to export', 'info');
+        return;
+      }
+      
+      const headers = ['Email', 'First Name', 'Last Name', 'Business', 'Status', 'Tier', 'Joined'];
+      const rows = realInvestors.map(i => [
+        i.email,
+        i.first_name || '',
+        i.last_name || '',
+        i.business_name || '',
+        i.investor_status || '',
+        i.investor_tier || '',
+        i.created_at ? new Date(i.created_at).toISOString() : ''
+      ]);
+      
+      downloadCSV(headers, rows, 'risivo_investors_' + new Date().toISOString().split('T')[0] + '.csv');
+      showToast('Investors exported!', 'success');
+    }
+    
+    function exportWaitlistCSV() {
+      const waitlistUsers = investors.filter(i => i.user_type === 'waitlist');
+      if (!waitlistUsers.length) {
+        showToast('No waitlist subscribers to export', 'info');
+        return;
+      }
+      
+      const headers = ['Email', 'First Name', 'Last Name', 'Subscribed'];
+      const rows = waitlistUsers.map(i => [
+        i.email,
+        i.first_name || '',
+        i.last_name || '',
+        i.created_at ? new Date(i.created_at).toISOString() : ''
+      ]);
+      
+      downloadCSV(headers, rows, 'risivo_waitlist_' + new Date().toISOString().split('T')[0] + '.csv');
+      showToast('Waitlist exported!', 'success');
+    }
+    
+    function downloadCSV(headers, rows, filename) {
+      const csvContent = [headers, ...rows].map(row => 
+        row.map(cell => '"' + String(cell).replace(/"/g, '""') + '"').join(',')
+      ).join('\\n');
+      
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      link.click();
+    }
+    
+    // Recent Activity
+    function updateRecentActivity() {
+      const container = document.getElementById('recentActivity');
+      const activities = [];
+      
+      if (investorUpdates.length > 0) {
+        const latest = investorUpdates[0];
+        activities.push(\`📰 Latest update: "\${escapeHtml(latest.title)}" (\${latest.status})\`);
+      }
+      
+      const pending = investors.filter(i => i.investor_status === 'nda_signed');
+      if (pending.length > 0) {
+        activities.push(\`⏳ \${pending.length} investor(s) pending approval\`);
+      }
+      
+      const active = investors.filter(i => i.investor_status === 'active');
+      if (active.length > 0) {
+        activities.push(\`✅ \${active.length} active investor(s)\`);
+      }
+      
+      if (documents.length > 0) {
+        activities.push(\`📁 \${documents.length} document(s) available\`);
+      }
+      
+      container.innerHTML = activities.length > 0 
+        ? activities.map(a => \`<p style="margin-bottom: 8px;">\${a}</p>\`).join('')
+        : '<p style="color: #888;">No recent activity</p>';
+    }
+    
+    // Utilities
     function escapeHtml(text) {
       if (!text) return '';
       const div = document.createElement('div');
@@ -659,15 +1443,66 @@ app.get("/updates/admin/dashboard", (c) => {
       return div.innerHTML;
     }
     
-    function addContent() { alert('Add Document feature coming soon'); }
-    function addUpdate() { alert('Add Update feature coming soon'); }
-    function showSection(section) { console.log('Show section:', section); }
-    
     async function logout() {
       await fetch('/api/admin/logout', { method: 'POST' });
       window.location.href = '/updates/admin/login';
     }
     
+    // Placeholder functions for waitlist updates
+    function openAddWaitlistUpdateModal() {
+      showToast('Waitlist updates feature coming soon', 'info');
+    }
+    
+    function openAddCategoryModal(type) {
+      const name = prompt('Enter category name:');
+      if (name) {
+        createCategory(type, name);
+      }
+    }
+    
+    async function createCategory(type, name) {
+      try {
+        const url = type === 'investor' ? '/api/admin/categories' : '/api/admin/waitlist/categories';
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, icon: '📌' })
+        });
+        const result = await res.json();
+        
+        if (result.success) {
+          showToast('Category created!', 'success');
+          if (type === 'investor') await loadInvestorCategories();
+          else await loadWaitlistCategories();
+        } else {
+          showToast(result.error || 'Failed to create category', 'error');
+        }
+      } catch (error) {
+        showToast('Failed to create category', 'error');
+      }
+    }
+    
+    async function deleteCategory(type, id) {
+      if (!confirm('Delete this category?')) return;
+      
+      try {
+        const url = type === 'investor' ? \`/api/admin/categories/\${id}\` : \`/api/admin/waitlist/categories/\${id}\`;
+        const res = await fetch(url, { method: 'DELETE' });
+        const result = await res.json();
+        
+        if (result.success) {
+          showToast('Category deleted!', 'success');
+          if (type === 'investor') await loadInvestorCategories();
+          else await loadWaitlistCategories();
+        } else {
+          showToast(result.error || 'Failed to delete category', 'error');
+        }
+      } catch (error) {
+        showToast('Failed to delete category', 'error');
+      }
+    }
+    
+    // Initialize on load
     init();
   </script>
 </body>
@@ -2119,10 +2954,9 @@ app.post("/api/subscribe", async (c) => {
   }
 });
 
-// Coming Soon Page
+// Coming Soon Page - Complete with Wistia video, proper branding, social links, footer
 app.get("/", (c) => {
-  const launchDate = new Date("2026-03-01T00:00:00Z").getTime();
-
+  const currentYear = new Date().getFullYear();
   return c.html(`
     <!DOCTYPE html>
     <html lang="en">
@@ -2131,171 +2965,117 @@ app.get("/", (c) => {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Risivo - Coming Soon</title>
         <meta name="description" content="Risivo - The AI-powered business operating system combining CRM, marketing, projects, digital creation, and communications.">
-        <link rel="icon" type="image/png" href="/favicon.png">
-        <link rel="shortcut icon" href="/favicon.ico">
+        <link rel="icon" href="/upload_files/favicon.ico" type="image/x-icon">
+        <link rel="apple-touch-icon" sizes="180x180" href="/upload_files/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="192x192" href="/upload_files/android-chrome-192x192.png">
+        <link rel="icon" type="image/png" sizes="512x512" href="/upload_files/android-chrome-512x512.png">
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+        <script src="https://fast.wistia.com/player.js" async></script>
+        <script src="https://fast.wistia.com/embed/fqt1aw1yl3.js" async type="module"></script>
         <style>
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }
-            
+            * { margin: 0; padding: 0; box-sizing: border-box; }
             body {
-                font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                 color: white;
                 min-height: 100vh;
                 display: flex;
+                flex-direction: column;
                 align-items: center;
                 justify-content: center;
                 position: relative;
-                overflow: hidden;
+                overflow-x: hidden;
             }
-            
-            /* Animated background elements */
             .bg-shape {
                 position: absolute;
                 border-radius: 50%;
                 background: rgba(255, 255, 255, 0.05);
                 animation: float 20s infinite ease-in-out;
             }
-            
-            .shape-1 {
-                width: 300px;
-                height: 300px;
-                top: -100px;
-                left: -100px;
-                animation-delay: 0s;
-            }
-            
-            .shape-2 {
-                width: 200px;
-                height: 200px;
-                bottom: -50px;
-                right: -50px;
-                animation-delay: 5s;
-            }
-            
-            .shape-3 {
-                width: 150px;
-                height: 150px;
-                top: 50%;
-                right: 10%;
-                animation-delay: 10s;
-            }
-            
+            .shape-1 { width: 300px; height: 300px; top: -100px; left: -100px; }
+            .shape-2 { width: 200px; height: 200px; bottom: -50px; right: -50px; animation-delay: 5s; }
+            .shape-3 { width: 150px; height: 150px; top: 50%; right: 10%; animation-delay: 10s; }
             @keyframes float {
                 0%, 100% { transform: translate(0, 0) scale(1); }
                 50% { transform: translate(30px, 30px) scale(1.1); }
             }
-            
             .container {
                 position: relative;
                 z-index: 1;
                 text-align: center;
                 padding: 2rem;
-                max-width: 800px;
+                max-width: 900px;
                 width: 100%;
             }
-            
-            .logo {
-                margin-bottom: 2rem;
-                display: flex;
-                justify-content: center;
-            }
-            
-            .logo img {
-                max-width: 250px;
-                height: auto;
-                filter: drop-shadow(0 4px 20px rgba(0, 0, 0, 0.15));
-            }
-            
-            .subtitle {
-                font-size: 1.25rem;
-                font-weight: 600;
-                margin-bottom: 1rem;
-                opacity: 0.9;
-            }
-            
+            .logo { margin-bottom: 1.5rem; display: flex; justify-content: center; }
+            .logo img { max-width: 220px; height: auto; filter: drop-shadow(0 4px 20px rgba(0,0,0,0.15)); }
+            .subtitle { font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; opacity: 0.95; }
             .description {
-                font-size: 1.125rem;
-                line-height: 1.6;
-                opacity: 0.8;
-                margin-bottom: 3rem;
-                max-width: 600px;
+                font-size: 1rem;
+                line-height: 1.7;
+                opacity: 0.9;
+                margin-bottom: 2rem;
+                max-width: 750px;
                 margin-left: auto;
                 margin-right: auto;
             }
-            
+            .video-container {
+                max-width: 700px;
+                margin: 0 auto 2.5rem;
+                border-radius: 16px;
+                overflow: hidden;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            }
+            wistia-player[media-id='fqt1aw1yl3']:not(:defined) {
+                background: center / contain no-repeat url('https://fast.wistia.com/embed/medias/fqt1aw1yl3/swatch');
+                display: block;
+                filter: blur(5px);
+                padding-top: 56.25%;
+            }
             .countdown {
                 display: flex;
                 justify-content: center;
-                gap: 2rem;
-                margin: 3rem 0;
+                gap: 1.5rem;
+                margin: 2rem 0;
                 flex-wrap: wrap;
             }
-            
             .countdown-item {
-                background: rgba(255, 255, 255, 0.1);
+                background: rgba(255,255,255,0.1);
                 backdrop-filter: blur(10px);
                 border-radius: 16px;
-                padding: 1.5rem 2rem;
-                min-width: 120px;
-                border: 1px solid rgba(255, 255, 255, 0.2);
+                padding: 1.25rem 1.75rem;
+                min-width: 100px;
+                border: 1px solid rgba(255,255,255,0.2);
             }
-            
-            .countdown-number {
-                font-size: 3rem;
-                font-weight: 800;
-                display: block;
-                line-height: 1;
-            }
-            
-            .countdown-label {
-                font-size: 0.875rem;
-                text-transform: uppercase;
-                opacity: 0.7;
-                margin-top: 0.5rem;
-                letter-spacing: 1px;
-            }
-            
+            .countdown-number { font-size: 2.5rem; font-weight: 800; display: block; line-height: 1; }
+            .countdown-label { font-size: 0.75rem; text-transform: uppercase; opacity: 0.7; margin-top: 0.5rem; letter-spacing: 1px; }
             .email-form {
                 display: flex;
                 gap: 1rem;
                 max-width: 500px;
-                margin: 3rem auto 2rem;
+                margin: 2rem auto;
                 flex-wrap: wrap;
                 justify-content: center;
             }
-            
             .email-input {
                 flex: 1;
                 min-width: 250px;
                 padding: 1rem 1.5rem;
-                border: 2px solid rgba(255, 255, 255, 0.3);
+                border: 2px solid rgba(255,255,255,0.3);
                 border-radius: 50px;
-                background: rgba(255, 255, 255, 0.1);
+                background: rgba(255,255,255,0.1);
                 backdrop-filter: blur(10px);
                 color: white;
                 font-size: 1rem;
                 outline: none;
-                transition: all 0.3s ease;
+                transition: all 0.3s;
             }
-            
-            .email-input::placeholder {
-                color: rgba(255, 255, 255, 0.6);
-            }
-            
-            .email-input:focus {
-                border-color: rgba(255, 255, 255, 0.6);
-                background: rgba(255, 255, 255, 0.15);
-            }
-            
+            .email-input::placeholder { color: rgba(255,255,255,0.6); }
+            .email-input:focus { border-color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.15); }
             .submit-btn {
-                padding: 1rem 2.5rem;
+                padding: 1rem 2rem;
                 background: white;
                 color: #667eea;
                 border: none;
@@ -2303,104 +3083,90 @@ app.get("/", (c) => {
                 font-size: 1rem;
                 font-weight: 700;
                 cursor: pointer;
-                transition: all 0.3s ease;
+                transition: all 0.3s;
                 text-transform: uppercase;
                 letter-spacing: 1px;
             }
-            
-            .submit-btn:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+            .success-message {
+                display: none;
+                background: rgba(76,175,80,0.2);
+                border: 1px solid rgba(76,175,80,0.4);
+                padding: 1rem;
+                border-radius: 12px;
+                margin-top: 1rem;
+                max-width: 500px;
+                margin-left: auto;
+                margin-right: auto;
             }
-            
-            .submit-btn:active {
-                transform: translateY(0);
+            .success-message.show { display: block; animation: slideIn 0.3s ease; }
+            @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+            .cta-buttons {
+                display: flex;
+                gap: 1rem;
+                justify-content: center;
+                margin: 2rem 0;
+                flex-wrap: wrap;
             }
-            
+            .cta-btn {
+                padding: 1rem 2rem;
+                border-radius: 50px;
+                font-size: 1rem;
+                font-weight: 600;
+                text-decoration: none;
+                transition: all 0.3s;
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+            }
+            .cta-btn.primary { background: white; color: #667eea; }
+            .cta-btn.secondary { background: rgba(255,255,255,0.15); color: white; border: 2px solid rgba(255,255,255,0.3); }
+            .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
             .social-links {
                 display: flex;
                 justify-content: center;
-                gap: 1.5rem;
-                margin-top: 3rem;
+                gap: 1rem;
+                margin-top: 2rem;
             }
-            
             .social-link {
-                width: 50px;
-                height: 50px;
+                width: 44px;
+                height: 44px;
                 border-radius: 50%;
-                background: rgba(255, 255, 255, 0.1);
-                backdrop-filter: blur(10px);
-                border: 1px solid rgba(255, 255, 255, 0.2);
+                background: rgba(255,255,255,0.1);
+                border: 1px solid rgba(255,255,255,0.2);
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 text-decoration: none;
                 color: white;
-                font-size: 1.25rem;
-                transition: all 0.3s ease;
+                transition: all 0.3s;
             }
-            
-            .social-link:hover {
-                background: rgba(255, 255, 255, 0.2);
-                transform: translateY(-3px);
-            }
-            
+            .social-link:hover { background: rgba(255,255,255,0.2); transform: translateY(-3px); }
+            .social-link svg { width: 20px; height: 20px; }
             .footer {
-                margin-top: 4rem;
-                opacity: 0.6;
-                font-size: 0.875rem;
+                margin-top: 3rem;
+                padding: 1.5rem;
+                text-align: center;
+                font-size: 0.8rem;
+                opacity: 0.7;
             }
-            
-            .success-message {
-                display: none;
-                background: rgba(76, 175, 80, 0.2);
-                border: 1px solid rgba(76, 175, 80, 0.4);
-                padding: 1rem;
-                border-radius: 12px;
-                margin-top: 1rem;
+            .footer-links {
+                display: flex;
+                justify-content: center;
+                gap: 1.5rem;
+                margin-bottom: 1rem;
+                flex-wrap: wrap;
             }
-            
-            .success-message.show {
-                display: block;
-                animation: slideIn 0.3s ease;
-            }
-            
-            @keyframes slideIn {
-                from {
-                    opacity: 0;
-                    transform: translateY(-10px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-            }
-            
+            .footer-links a { color: white; text-decoration: none; opacity: 0.8; transition: opacity 0.2s; }
+            .footer-links a:hover { opacity: 1; text-decoration: underline; }
             @media (max-width: 768px) {
-                .logo img {
-                    max-width: 200px;
-                }
-                
-                .countdown {
-                    gap: 1rem;
-                }
-                
-                .countdown-item {
-                    min-width: 90px;
-                    padding: 1rem 1.5rem;
-                }
-                
-                .countdown-number {
-                    font-size: 2rem;
-                }
-                
-                .email-form {
-                    flex-direction: column;
-                }
-                
-                .email-input {
-                    min-width: 100%;
-                }
+                .logo img { max-width: 180px; }
+                .countdown { gap: 0.75rem; }
+                .countdown-item { min-width: 80px; padding: 1rem; }
+                .countdown-number { font-size: 2rem; }
+                .email-form { flex-direction: column; }
+                .email-input { min-width: 100%; }
+                .cta-buttons { flex-direction: column; align-items: center; }
             }
         </style>
     </head>
@@ -2417,8 +3183,12 @@ app.get("/", (c) => {
             <div class="subtitle">No. 1 CRM 100% Powered by AI</div>
             
             <p class="description">
-                The AI-powered business operating system combining CRM, marketing, projects, digital creation, and communications. Automate campaigns, build funnels, and scale your business—launching soon.
+                The AI-powered business operating system combining CRM, marketing, projects, digital creation, and communications. Automate campaigns, build websites/funnels, manage appointments, track reputation, and communicate across 15+ languages—all with AI voice control and intelligent workflows. Features 149+ integrations and white-label capabilities. AI executes 90% of your operations automatically.
             </p>
+            
+            <div class="video-container">
+                <wistia-player media-id="fqt1aw1yl3" aspect="1.7777777777777777"></wistia-player>
+            </div>
             
             <div class="countdown" id="countdown">
                 <div class="countdown-item">
@@ -2440,101 +3210,64 @@ app.get("/", (c) => {
             </div>
             
             <form class="email-form" id="emailForm">
-                <input 
-                    type="email" 
-                    class="email-input" 
-                    placeholder="Enter your email address" 
-                    required 
-                    id="emailInput"
-                >
-                <button type="submit" class="submit-btn">Notify Me</button>
+                <input type="email" class="email-input" placeholder="Enter your email address" required id="emailInput">
+                <button type="submit" class="submit-btn">Join Waitlist</button>
             </form>
             
-            <div class="success-message" id="successMessage">
-                ✓ Thanks! We'll notify you when we launch.
+            <div class="success-message" id="successMessage">✓ Thanks! We'll notify you when we launch.</div>
+            
+            <div class="cta-buttons">
+                <a href="/updates/investor/login" class="cta-btn secondary">🔐 Investor Portal</a>
             </div>
             
             <div class="social-links">
-                <a href="#" class="social-link" aria-label="Twitter">
-                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z"/>
-                    </svg>
+                <a href="https://www.facebook.com/people/Risivo-AI-CRM/61585523581162/" target="_blank" class="social-link" aria-label="Facebook">
+                    <svg fill="currentColor" viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
                 </a>
-                <a href="#" class="social-link" aria-label="LinkedIn">
-                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/>
-                        <circle cx="4" cy="4" r="2"/>
-                    </svg>
+                <a href="https://www.linkedin.com/company/risivo-ai-crm/" target="_blank" class="social-link" aria-label="LinkedIn">
+                    <svg fill="currentColor" viewBox="0 0 24 24"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg>
                 </a>
-                <a href="#" class="social-link" aria-label="Facebook">
-                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/>
-                    </svg>
+                <a href="https://x.com/risivocrm" target="_blank" class="social-link" aria-label="Twitter/X">
+                    <svg fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                </a>
+                <a href="https://www.youtube.com/@RisivoCRM" target="_blank" class="social-link" aria-label="YouTube">
+                    <svg fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
                 </a>
             </div>
             
             <div class="footer">
-                © <span id="currentYear"></span> Risivo. All rights reserved.
+                <div class="footer-links">
+                    <a href="/privacy-policy">Privacy Policy</a>
+                    <a href="/terms-of-service">Terms of Service</a>
+                </div>
+                <p>© ${currentYear} Risivo ™ Owned by Velocity Automation Corp. All rights reserved.</p>
             </div>
         </div>
         
         <script>
-            // Countdown Timer - March 1st, 2026 at 00:00 UTC
-            // Using Date.UTC for better browser compatibility
-            const launchDate = Date.UTC(2026, 2, 1, 0, 0, 0); // Note: Month is 0-indexed (2 = March)
-            
+            const launchDate = Date.UTC(2026, 2, 1, 0, 0, 0);
             function updateCountdown() {
                 const now = new Date().getTime();
                 const distance = launchDate - now;
-                
                 if (distance < 0) {
                     document.getElementById('countdown').innerHTML = '<div class="countdown-item"><span class="countdown-number">🚀</span><span class="countdown-label">Launched!</span></div>';
                     return;
                 }
-                
-                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-                
-                document.getElementById('days').textContent = String(days).padStart(2, '0');
-                document.getElementById('hours').textContent = String(hours).padStart(2, '0');
-                document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
-                document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+                document.getElementById('days').textContent = String(Math.floor(distance / (1000 * 60 * 60 * 24))).padStart(2, '0');
+                document.getElementById('hours').textContent = String(Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
+                document.getElementById('minutes').textContent = String(Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
+                document.getElementById('seconds').textContent = String(Math.floor((distance % (1000 * 60)) / 1000)).padStart(2, '0');
             }
-            
             updateCountdown();
             setInterval(updateCountdown, 1000);
             
-            // Set current year dynamically
-            document.getElementById('currentYear').textContent = new Date().getFullYear();
-            
-            // Check API health on page load
-            fetch('/api/health')
-                .then(r => r.json())
-                .then(data => {
-                    console.log('[HEALTH CHECK] API Status:', data);
-                    if (!data.webhookConfigured) {
-                        console.warn('[HEALTH CHECK] Webhook is not configured!');
-                    }
-                })
-                .catch(err => console.error('[HEALTH CHECK] Failed:', err));
-            
-            // Email Form with Webhook Integration
             document.getElementById('emailForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
-                
                 const email = document.getElementById('emailInput').value.trim();
                 const submitBtn = document.querySelector('.submit-btn');
                 const successMessage = document.getElementById('successMessage');
                 
-                console.log('[FORM] Submitting email:', email);
-                console.log('[FORM] Email length:', email.length);
-                console.log('[FORM] Email includes @:', email.includes('@'));
-                
-                // Very simple email validation - just check for @ and .
-                if (!email || email.length < 5 || !email.includes('@') || !email.includes('.')) {
-                    console.warn('[FORM] Invalid email format');
+                if (!email || !email.includes('@') || !email.includes('.')) {
                     successMessage.textContent = '⚠ Please enter a valid email address.';
                     successMessage.style.background = 'rgba(255, 152, 0, 0.2)';
                     successMessage.style.borderColor = 'rgba(255, 152, 0, 0.4)';
@@ -2543,79 +3276,267 @@ app.get("/", (c) => {
                     return;
                 }
                 
-                // Disable button during submission
                 submitBtn.disabled = true;
-                submitBtn.textContent = 'Submitting...';
+                submitBtn.textContent = 'Joining...';
                 
                 try {
-                    console.log('[FORM] Sending to /api/subscribe...');
-                    
-                    // Send to webhook endpoint
                     const response = await fetch('/api/subscribe', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ 
-                            email: email,
-                            timestamp: new Date().toISOString(),
-                            source: 'coming-soon-page'
-                        })
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email, timestamp: new Date().toISOString(), source: 'coming-soon-page' })
                     });
-                    
-                    console.log('[FORM] Response status:', response.status);
-                    console.log('[FORM] Response ok:', response.ok);
-                    
                     const data = await response.json();
-                    console.log('[FORM] Response data:', data);
                     
                     if (response.ok) {
-                        // Show success message
-                        successMessage.textContent = "✓ Thanks! We'll notify you when we launch.";
+                        successMessage.textContent = "✓ Thanks! You're on the waitlist. We'll notify you when we launch.";
                         successMessage.style.background = 'rgba(76, 175, 80, 0.2)';
                         successMessage.style.borderColor = 'rgba(76, 175, 80, 0.4)';
                         successMessage.classList.add('show');
-                        
-                        // Clear form
                         document.getElementById('emailInput').value = '';
-                        console.log('[FORM] Subscription successful!');
                     } else {
-                        // Show specific error from server
-                        const errorMsg = data.error || 'Subscription failed';
-                        const errorCode = data.code || 'UNKNOWN';
-                        console.error('[FORM] Subscription error:', errorMsg, 'Code:', errorCode);
-                        console.error('[FORM] Details:', data.details);
-                        throw new Error(errorMsg);
+                        throw new Error(data.error || 'Failed');
                     }
                 } catch (error) {
-                    console.error('[FORM] Catch block error:', error);
-                    // Show error message with more details
-                    let errorText = '⚠ Oops! Something went wrong. Please try again.';
-                    if (error.message === 'Failed to fetch') {
-                        errorText = '⚠ Connection error. Please check your internet and try again.';
-                        console.error('[FORM] Network error - Failed to fetch');
-                    } else if (error.message.includes('configuration')) {
-                        errorText = '⚠ Service is being configured. Please try again in a few minutes.';
-                        console.error('[FORM] Configuration error');
-                    }
-                    successMessage.textContent = errorText;
+                    successMessage.textContent = '⚠ Something went wrong. Please try again.';
                     successMessage.style.background = 'rgba(244, 67, 54, 0.2)';
                     successMessage.style.borderColor = 'rgba(244, 67, 54, 0.4)';
                     successMessage.classList.add('show');
                 } finally {
-                    // Re-enable button
                     submitBtn.disabled = false;
-                    submitBtn.textContent = 'NOTIFY ME';
-                    
-                    // Hide message after 5 seconds
-                    setTimeout(() => {
-                        successMessage.classList.remove('show');
-                    }, 5000);
+                    submitBtn.textContent = 'Join Waitlist';
+                    setTimeout(() => successMessage.classList.remove('show'), 5000);
                 }
             });
         </script>
     </body>
     </html>
+  `);
+});
+
+// Privacy Policy Page
+app.get("/privacy-policy", (c) => {
+  const currentYear = new Date().getFullYear();
+  return c.html(`
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy - Risivo</title>
+  <link rel="icon" href="/upload_files/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" sizes="180x180" href="/upload_files/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #f8f9fc; color: #333; line-height: 1.7; }
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 24px 40px;
+      text-align: center;
+    }
+    .header img { height: 40px; filter: brightness(0) invert(1); }
+    .container { max-width: 800px; margin: 0 auto; padding: 60px 40px; }
+    h1 { color: #1a1a2e; font-size: 36px; margin-bottom: 16px; }
+    .updated { color: #888; font-size: 14px; margin-bottom: 40px; }
+    h2 { color: #1a1a2e; font-size: 22px; margin: 32px 0 16px; }
+    p { margin-bottom: 16px; color: #555; }
+    ul { margin: 16px 0 16px 24px; }
+    li { margin-bottom: 8px; color: #555; }
+    a { color: #667eea; }
+    .footer {
+      background: #1a1a2e;
+      color: white;
+      padding: 32px 40px;
+      text-align: center;
+    }
+    .footer-links { display: flex; justify-content: center; gap: 24px; margin-bottom: 16px; flex-wrap: wrap; }
+    .footer-links a { color: white; text-decoration: none; opacity: 0.8; }
+    .footer-links a:hover { opacity: 1; }
+    .footer p { font-size: 13px; opacity: 0.7; }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <a href="/"><img src="/images/risivo-logo-white.png" alt="Risivo"></a>
+  </header>
+  <div class="container">
+    <h1>Privacy Policy</h1>
+    <p class="updated">Last updated: January 1, ${currentYear}</p>
+    
+    <h2>1. Introduction</h2>
+    <p>Risivo ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our services.</p>
+    
+    <h2>2. Information We Collect</h2>
+    <p>We may collect information about you in various ways, including:</p>
+    <ul>
+      <li><strong>Personal Data:</strong> Name, email address, phone number, and business information you provide when signing up.</li>
+      <li><strong>Usage Data:</strong> Information about how you interact with our platform.</li>
+      <li><strong>Technical Data:</strong> IP address, browser type, device information, and cookies.</li>
+    </ul>
+    
+    <h2>3. How We Use Your Information</h2>
+    <p>We use the collected information to:</p>
+    <ul>
+      <li>Provide, maintain, and improve our services</li>
+      <li>Process transactions and send related information</li>
+      <li>Send promotional communications (with your consent)</li>
+      <li>Respond to customer service requests</li>
+      <li>Monitor and analyze usage patterns</li>
+    </ul>
+    
+    <h2>4. Information Sharing</h2>
+    <p>We do not sell your personal information. We may share your information with:</p>
+    <ul>
+      <li>Service providers who assist in our operations</li>
+      <li>Business partners with your consent</li>
+      <li>Legal authorities when required by law</li>
+    </ul>
+    
+    <h2>5. Data Security</h2>
+    <p>We implement appropriate technical and organizational measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction.</p>
+    
+    <h2>6. Your Rights</h2>
+    <p>You have the right to:</p>
+    <ul>
+      <li>Access your personal data</li>
+      <li>Correct inaccurate data</li>
+      <li>Request deletion of your data</li>
+      <li>Object to data processing</li>
+      <li>Data portability</li>
+    </ul>
+    
+    <h2>7. Cookies</h2>
+    <p>We use cookies and similar technologies to enhance your experience. You can control cookie preferences through your browser settings.</p>
+    
+    <h2>8. Contact Us</h2>
+    <p>If you have questions about this Privacy Policy, please contact us at:</p>
+    <p>Email: <a href="mailto:privacy@risivo.com">privacy@risivo.com</a></p>
+    
+    <h2>9. Changes to This Policy</h2>
+    <p>We may update this Privacy Policy from time to time. We will notify you of any changes by posting the new policy on this page.</p>
+  </div>
+  <footer class="footer">
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/privacy-policy">Privacy Policy</a>
+      <a href="/terms-of-service">Terms of Service</a>
+    </div>
+    <p>© ${currentYear} Risivo ™ Owned by Velocity Automation Corp. All rights reserved.</p>
+  </footer>
+</body>
+</html>
+  `);
+});
+
+// Terms of Service Page
+app.get("/terms-of-service", (c) => {
+  const currentYear = new Date().getFullYear();
+  return c.html(`
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terms of Service - Risivo</title>
+  <link rel="icon" href="/upload_files/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" sizes="180x180" href="/upload_files/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #f8f9fc; color: #333; line-height: 1.7; }
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 24px 40px;
+      text-align: center;
+    }
+    .header img { height: 40px; filter: brightness(0) invert(1); }
+    .container { max-width: 800px; margin: 0 auto; padding: 60px 40px; }
+    h1 { color: #1a1a2e; font-size: 36px; margin-bottom: 16px; }
+    .updated { color: #888; font-size: 14px; margin-bottom: 40px; }
+    h2 { color: #1a1a2e; font-size: 22px; margin: 32px 0 16px; }
+    p { margin-bottom: 16px; color: #555; }
+    ul { margin: 16px 0 16px 24px; }
+    li { margin-bottom: 8px; color: #555; }
+    a { color: #667eea; }
+    .footer {
+      background: #1a1a2e;
+      color: white;
+      padding: 32px 40px;
+      text-align: center;
+    }
+    .footer-links { display: flex; justify-content: center; gap: 24px; margin-bottom: 16px; flex-wrap: wrap; }
+    .footer-links a { color: white; text-decoration: none; opacity: 0.8; }
+    .footer-links a:hover { opacity: 1; }
+    .footer p { font-size: 13px; opacity: 0.7; }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <a href="/"><img src="/images/risivo-logo-white.png" alt="Risivo"></a>
+  </header>
+  <div class="container">
+    <h1>Terms of Service</h1>
+    <p class="updated">Last updated: January 1, ${currentYear}</p>
+    
+    <h2>1. Acceptance of Terms</h2>
+    <p>By accessing or using Risivo's services, you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using our services.</p>
+    
+    <h2>2. Description of Service</h2>
+    <p>Risivo provides an AI-powered business operating system combining CRM, marketing, projects, digital creation, and communications tools. We reserve the right to modify, suspend, or discontinue any aspect of the service at any time.</p>
+    
+    <h2>3. User Accounts</h2>
+    <p>To access certain features, you must create an account. You are responsible for:</p>
+    <ul>
+      <li>Maintaining the confidentiality of your account credentials</li>
+      <li>All activities that occur under your account</li>
+      <li>Notifying us immediately of any unauthorized use</li>
+    </ul>
+    
+    <h2>4. Acceptable Use</h2>
+    <p>You agree not to:</p>
+    <ul>
+      <li>Use the service for any unlawful purpose</li>
+      <li>Attempt to gain unauthorized access to any systems</li>
+      <li>Interfere with or disrupt the service</li>
+      <li>Upload malicious code or content</li>
+      <li>Violate any applicable laws or regulations</li>
+    </ul>
+    
+    <h2>5. Intellectual Property</h2>
+    <p>All content, features, and functionality of Risivo are owned by Velocity Automation Corp. and are protected by international copyright, trademark, and other intellectual property laws.</p>
+    
+    <h2>6. Payment Terms</h2>
+    <p>For paid services, you agree to pay all fees according to the pricing and payment terms presented at the time of purchase. All payments are non-refundable unless otherwise stated.</p>
+    
+    <h2>7. Limitation of Liability</h2>
+    <p>Risivo and Velocity Automation Corp. shall not be liable for any indirect, incidental, special, consequential, or punitive damages resulting from your use of or inability to use the service.</p>
+    
+    <h2>8. Indemnification</h2>
+    <p>You agree to indemnify and hold harmless Risivo, Velocity Automation Corp., and their officers, directors, employees, and agents from any claims arising from your use of the service.</p>
+    
+    <h2>9. Termination</h2>
+    <p>We may terminate or suspend your account immediately, without prior notice, for any reason, including breach of these Terms. Upon termination, your right to use the service will cease immediately.</p>
+    
+    <h2>10. Governing Law</h2>
+    <p>These Terms shall be governed by and construed in accordance with the laws of the jurisdiction in which Velocity Automation Corp. operates.</p>
+    
+    <h2>11. Changes to Terms</h2>
+    <p>We reserve the right to modify these Terms at any time. We will notify users of any material changes by posting the updated terms on our website.</p>
+    
+    <h2>12. Contact Information</h2>
+    <p>For questions about these Terms, please contact us at:</p>
+    <p>Email: <a href="mailto:legal@risivo.com">legal@risivo.com</a></p>
+  </div>
+  <footer class="footer">
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/privacy-policy">Privacy Policy</a>
+      <a href="/terms-of-service">Terms of Service</a>
+    </div>
+    <p>© ${currentYear} Risivo ™ Owned by Velocity Automation Corp. All rights reserved.</p>
+  </footer>
+</body>
+</html>
   `);
 });
 
