@@ -60,8 +60,8 @@ app.get("/updates/admin/login", (c) => {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Login - Risivo Updates</title>
-  <link rel="icon" type="image/png" href="/favicon.png">
-  <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="icon" href="/upload_files/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" sizes="180x180" href="/upload_files/apple-touch-icon.png">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -237,6 +237,9 @@ app.get("/updates/admin/dashboard", (c) => {
   <link rel="icon" href="/upload_files/favicon.ico" type="image/x-icon">
   <link rel="apple-touch-icon" sizes="180x180" href="/upload_files/apple-touch-icon.png">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Quill Rich Text Editor -->
+  <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+  <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Inter', -apple-system, sans-serif; background: #f5f7fa; min-height: 100vh; }
@@ -341,6 +344,13 @@ app.get("/updates/admin/dashboard", (c) => {
     .form-textarea { min-height: 100px; resize: vertical; }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     .form-hint { font-size: 12px; color: #888; margin-top: 4px; }
+    
+    /* Quill Editor */
+    .ql-container { font-family: 'Inter', sans-serif; font-size: 14px; }
+    .ql-editor { min-height: 200px; max-height: 400px; }
+    .ql-toolbar { border-radius: 8px 8px 0 0; border-color: #e0e0e0; }
+    .ql-container { border-radius: 0 0 8px 8px; border-color: #e0e0e0; }
+    .ql-editor.ql-blank::before { font-style: normal; color: #aaa; }
     
     /* Empty State */
     .empty-state { text-align: center; padding: 60px 20px; color: #888; }
@@ -756,7 +766,8 @@ app.get("/updates/admin/dashboard", (c) => {
           </div>
           <div class="form-group">
             <label class="form-label">Content *</label>
-            <textarea class="form-textarea" id="invUpdateContent" required placeholder="Full update content..." style="min-height: 150px;"></textarea>
+            <div id="invUpdateContentEditor" style="background: white;"></div>
+            <input type="hidden" id="invUpdateContent">
           </div>
           <div class="form-row">
             <div class="form-group">
@@ -822,6 +833,25 @@ app.get("/updates/admin/dashboard", (c) => {
     let investorCategories = [];
     let waitlistCategories = [];
     let deleteTarget = null;
+    let invUpdateQuill = null;
+    
+    // Initialize Quill Editor
+    invUpdateQuill = new Quill('#invUpdateContentEditor', {
+      theme: 'snow',
+      placeholder: 'Write your update content here...',
+      modules: {
+        toolbar: [
+          [{ 'header': [1, 2, 3, false] }],
+          ['bold', 'italic', 'underline', 'strike'],
+          [{ 'color': [] }, { 'background': [] }],
+          [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+          [{ 'indent': '-1' }, { 'indent': '+1' }],
+          ['link', 'image', 'video'],
+          ['blockquote', 'code-block'],
+          ['clean']
+        ]
+      }
+    });
     
     // Initialize
     async function init() {
@@ -996,13 +1026,14 @@ app.get("/updates/admin/dashboard", (c) => {
         const res = await fetch('/api/admin/investor-updates');
         const data = await res.json();
         
-        if (data.success && data.updates) {
-          investorUpdates = data.updates;
-          document.getElementById('updateCount').textContent = investorUpdates.length;
-          renderInvestorUpdatesTable();
-        }
+        // API returns { updates: [...] } or { success: true, updates: [...] }
+        const updates = data.updates || [];
+        investorUpdates = updates;
+        document.getElementById('updateCount').textContent = investorUpdates.length;
+        renderInvestorUpdatesTable();
       } catch (error) {
         console.error('Load investor updates error:', error);
+        document.getElementById('investorUpdatesTableBody').innerHTML = '<tr><td colspan="5" class="empty-state"><div class="empty-state-icon">⚠️</div><h3>Error loading updates</h3></td></tr>';
       }
     }
     
@@ -1157,6 +1188,10 @@ app.get("/updates/admin/dashboard", (c) => {
       document.getElementById('investorUpdateForm').reset();
       document.getElementById('invUpdateId').value = '';
       document.getElementById('invUpdateAuthor').value = 'Risivo Team';
+      // Clear Quill editor
+      if (invUpdateQuill) {
+        invUpdateQuill.root.innerHTML = '';
+      }
       openModal('investorUpdateModal');
     }
     
@@ -1170,7 +1205,10 @@ app.get("/updates/admin/dashboard", (c) => {
       document.getElementById('invUpdateCategory').value = update.category_id || '';
       document.getElementById('invUpdateStatus').value = update.status || 'draft';
       document.getElementById('invUpdateExcerpt').value = update.excerpt || '';
-      document.getElementById('invUpdateContent').value = update.content || '';
+      // Load content into Quill editor
+      if (invUpdateQuill) {
+        invUpdateQuill.root.innerHTML = update.content || '';
+      }
       document.getElementById('invUpdateImage').value = update.featured_image_url || '';
       document.getElementById('invUpdateVideo').value = update.video_url || '';
       document.getElementById('invUpdateAuthor').value = update.author_name || 'Risivo Team';
@@ -1179,12 +1217,14 @@ app.get("/updates/admin/dashboard", (c) => {
     
     async function saveInvestorUpdate() {
       const id = document.getElementById('invUpdateId').value;
+      // Get content from Quill editor
+      const content = invUpdateQuill ? invUpdateQuill.root.innerHTML : '';
       const data = {
         title: document.getElementById('invUpdateTitle').value,
         category_id: document.getElementById('invUpdateCategory').value || null,
         status: document.getElementById('invUpdateStatus').value,
         excerpt: document.getElementById('invUpdateExcerpt').value,
-        content: document.getElementById('invUpdateContent').value,
+        content: content,
         featured_image_url: document.getElementById('invUpdateImage').value || null,
         video_url: document.getElementById('invUpdateVideo').value || null,
         author_name: document.getElementById('invUpdateAuthor').value || 'Risivo Team'
@@ -1519,8 +1559,8 @@ app.get("/updates/login", (c) => {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - Risivo Updates</title>
-  <link rel="icon" type="image/png" href="/favicon.png">
-  <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="icon" href="/upload_files/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" sizes="180x180" href="/upload_files/apple-touch-icon.png">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -1698,8 +1738,8 @@ app.get("/updates/investor/login", (c) => {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Investor Portal - Risivo</title>
-  <link rel="icon" type="image/png" href="/favicon.png">
-  <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="icon" href="/upload_files/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" sizes="180x180" href="/upload_files/apple-touch-icon.png">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -1982,6 +2022,193 @@ app.get("/updates/investor/login", (c) => {
   `);
 });
 
+// Investor NDA Signing Page
+app.get("/investor/sign-nda", (c) => {
+  const token = c.req.query('token');
+  return c.html(`
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign NDA - Investor Portal - Risivo</title>
+  <link rel="icon" href="/upload_files/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" sizes="180x180" href="/upload_files/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .nda-container { background: white; border-radius: 24px; max-width: 800px; width: 100%; padding: 48px; box-shadow: 0 25px 80px rgba(0,0,0,0.25); }
+    .logo { text-align: center; margin-bottom: 32px; }
+    .logo img { height: 48px; }
+    h2 { text-align: center; color: #1a1a2e; font-size: 28px; margin-bottom: 8px; }
+    .subtitle { text-align: center; color: #666; font-size: 14px; margin-bottom: 32px; }
+    .nda-content { background: #f8f9fa; border-radius: 12px; padding: 24px; margin-bottom: 24px; max-height: 400px; overflow-y: auto; font-size: 14px; line-height: 1.7; color: #333; border: 1px solid #e0e0e0; }
+    .nda-content h3 { color: #1a1a2e; font-size: 18px; margin-bottom: 16px; }
+    .nda-content h4 { color: #333; font-size: 15px; margin: 20px 0 12px; }
+    .nda-content p { margin-bottom: 12px; }
+    .nda-content ul { margin: 12px 0; padding-left: 24px; }
+    .nda-content li { margin-bottom: 8px; }
+    .signature-section { background: #f0f4ff; border: 1px solid #c7d2fe; padding: 24px; border-radius: 12px; margin-bottom: 24px; }
+    .signature-section h4 { color: #4f46e5; margin-bottom: 16px; font-size: 16px; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 14px; color: #333; }
+    .form-input { width: 100%; padding: 14px 16px; border: 2px solid #e0e0e0; border-radius: 12px; font-size: 15px; transition: all 0.2s; }
+    .form-input:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1); }
+    .checkbox-group { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 20px; }
+    .checkbox-group input[type="checkbox"] { width: 20px; height: 20px; margin-top: 2px; accent-color: #667eea; }
+    .checkbox-group label { font-size: 14px; color: #444; line-height: 1.5; }
+    .submit-btn { width: 100%; padding: 18px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 12px; font-size: 18px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
+    .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4); }
+    .submit-btn:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+    .error-msg { background: #fee2e2; color: #dc2626; padding: 14px; border-radius: 12px; margin-bottom: 20px; display: none; font-size: 14px; }
+    .error-msg.show { display: block; }
+    .success-msg { background: #dcfce7; color: #16a34a; padding: 14px; border-radius: 12px; margin-bottom: 20px; display: none; font-size: 14px; }
+    .success-msg.show { display: block; }
+    .back-link { display: block; text-align: center; margin-top: 24px; color: #667eea; text-decoration: none; font-size: 14px; }
+    .back-link:hover { text-decoration: underline; }
+    @media (max-width: 600px) { .nda-container { padding: 24px; } }
+  </style>
+</head>
+<body>
+  <div class="nda-container">
+    <div class="logo">
+      <img src="/images/risivo-logo.png" alt="Risivo" onerror="this.outerHTML='<h1 style=\\'color:#667eea;font-size:32px\\'>Risivo</h1>'">
+    </div>
+    <h2>Non-Disclosure Agreement</h2>
+    <p class="subtitle">Please review and sign the NDA to access investor materials</p>
+    
+    <div id="error" class="error-msg"></div>
+    <div id="success" class="success-msg"></div>
+    
+    <div class="nda-content">
+      <h3>MUTUAL NON-DISCLOSURE AGREEMENT</h3>
+      <p>This Non-Disclosure Agreement ("Agreement") is entered into between Velocity Automation Corp., a Delaware corporation, doing business as Risivo ("Company"), and the undersigned party ("Recipient").</p>
+      
+      <h4>1. Definition of Confidential Information</h4>
+      <p>"Confidential Information" means any and all non-public information disclosed by Company to Recipient, including but not limited to:</p>
+      <ul>
+        <li>Business plans, strategies, and financial information</li>
+        <li>Technical data, trade secrets, and proprietary technology</li>
+        <li>Customer lists, marketing plans, and sales data</li>
+        <li>Product roadmaps, development plans, and forecasts</li>
+        <li>Any other information designated as confidential</li>
+      </ul>
+      
+      <h4>2. Obligations of Recipient</h4>
+      <p>Recipient agrees to:</p>
+      <ul>
+        <li>Keep all Confidential Information strictly confidential</li>
+        <li>Not disclose Confidential Information to any third party without prior written consent</li>
+        <li>Use Confidential Information solely for the purpose of evaluating a potential business relationship</li>
+        <li>Take reasonable measures to protect the confidentiality of the information</li>
+        <li>Return or destroy all Confidential Information upon request</li>
+      </ul>
+      
+      <h4>3. Term</h4>
+      <p>This Agreement shall remain in effect for a period of two (2) years from the date of signing. The obligations of confidentiality shall survive termination.</p>
+      
+      <h4>4. Exceptions</h4>
+      <p>Confidential Information does not include information that:</p>
+      <ul>
+        <li>Is or becomes publicly available through no fault of Recipient</li>
+        <li>Was rightfully in Recipient's possession prior to disclosure</li>
+        <li>Is independently developed by Recipient without use of Confidential Information</li>
+        <li>Is required to be disclosed by law or court order</li>
+      </ul>
+      
+      <h4>5. Governing Law</h4>
+      <p>This Agreement shall be governed by the laws of the State of Delaware, without regard to its conflict of law principles.</p>
+      
+      <h4>6. Acknowledgment</h4>
+      <p>By signing below, Recipient acknowledges that they have read, understood, and agree to be bound by the terms of this Agreement.</p>
+    </div>
+    
+    <form id="ndaForm">
+      <input type="hidden" id="ndaToken" value="${token || ''}">
+      
+      <div class="signature-section">
+        <h4>Electronic Signature</h4>
+        <div class="form-group">
+          <label>Full Legal Name (as signature)</label>
+          <input type="text" class="form-input" id="fullName" required placeholder="Type your full legal name">
+        </div>
+        
+        <div class="checkbox-group">
+          <input type="checkbox" id="agreeTerms" required>
+          <label for="agreeTerms">I have read and agree to the terms of this Non-Disclosure Agreement. I understand that typing my name above constitutes a legal electronic signature.</label>
+        </div>
+        
+        <div class="checkbox-group">
+          <input type="checkbox" id="confirmIdentity" required>
+          <label for="confirmIdentity">I confirm that I am authorized to sign this agreement and that all information I have provided is accurate.</label>
+        </div>
+      </div>
+      
+      <button type="submit" class="submit-btn" id="submitBtn">Sign NDA & Access Portal</button>
+    </form>
+    
+    <a href="/" class="back-link">← Back to Home</a>
+  </div>
+  
+  <script>
+    document.getElementById('ndaForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('submitBtn');
+      const error = document.getElementById('error');
+      const success = document.getElementById('success');
+      const token = document.getElementById('ndaToken').value;
+      const fullName = document.getElementById('fullName').value.trim();
+      
+      if (!fullName) {
+        error.textContent = 'Please enter your full legal name.';
+        error.classList.add('show');
+        return;
+      }
+      
+      if (!document.getElementById('agreeTerms').checked || !document.getElementById('confirmIdentity').checked) {
+        error.textContent = 'Please agree to all terms to continue.';
+        error.classList.add('show');
+        return;
+      }
+      
+      btn.disabled = true;
+      btn.textContent = 'Processing...';
+      error.classList.remove('show');
+      
+      try {
+        const res = await fetch('/api/investor/sign-nda-token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token, full_name_typed: fullName })
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+          success.textContent = 'NDA signed successfully! Redirecting to login...';
+          success.classList.add('show');
+          setTimeout(() => {
+            window.location.href = '/updates/investor/login?nda_signed=true';
+          }, 2000);
+        } else {
+          error.textContent = data.error || 'Failed to sign NDA. Please try again.';
+          error.classList.add('show');
+          btn.disabled = false;
+          btn.textContent = 'Sign NDA & Access Portal';
+        }
+      } catch (err) {
+        error.textContent = 'Connection error. Please try again.';
+        error.classList.add('show');
+        btn.disabled = false;
+        btn.textContent = 'Sign NDA & Access Portal';
+      }
+    });
+  </script>
+</body>
+</html>
+  `);
+});
+
 // Investor dashboard page - Professional Risivo Design with CMS Content
 app.get("/updates/investor/dashboard", (c) => {
   const currentYear = new Date().getFullYear();
@@ -1992,8 +2219,8 @@ app.get("/updates/investor/dashboard", (c) => {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Investor Dashboard - Risivo</title>
-  <link rel="icon" type="image/png" href="/favicon.png">
-  <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="icon" href="/upload_files/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" sizes="180x180" href="/upload_files/apple-touch-icon.png">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -2482,7 +2709,7 @@ app.get("/updates/investor/dashboard", (c) => {
   <header class="header">
     <div class="header-inner">
       <div class="header-logo">
-        <img src="/images/risivo-logo.png" alt="Risivo" onerror="this.outerHTML='<span style=\\'font-size:24px;font-weight:800\\'>Risivo</span>'">
+        <img src="/images/risivo-logo-white.png" alt="Risivo" onerror="this.outerHTML='<span style=\\'font-size:24px;font-weight:800\\'>Risivo</span>'">
         <div class="divider"></div>
         <span class="portal-badge">Investor Portal</span>
       </div>
@@ -3217,7 +3444,8 @@ app.get("/", (c) => {
             <div class="success-message" id="successMessage">✓ Thanks! We'll notify you when we launch.</div>
             
             <div class="cta-buttons">
-                <a href="/updates/investor/login" class="cta-btn secondary">🔐 Investor Portal</a>
+                <a href="/signup/waitlist" class="cta-btn primary">📋 Join Waitlist</a>
+                <a href="/signup/investor" class="cta-btn secondary">💼 Become an Investor</a>
             </div>
             
             <div class="social-links">
@@ -3310,6 +3538,1019 @@ app.get("/", (c) => {
         </script>
     </body>
     </html>
+  `);
+});
+
+// Waitlist Signup Page
+app.get("/signup/waitlist", (c) => {
+  const currentYear = new Date().getFullYear();
+  return c.html(`
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Join Waitlist - Risivo</title>
+  <link rel="icon" href="/upload_files/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" sizes="180x180" href="/upload_files/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .signup-container { background: white; border-radius: 24px; max-width: 520px; width: 100%; padding: 48px; box-shadow: 0 25px 80px rgba(0,0,0,0.25); }
+    .logo { text-align: center; margin-bottom: 32px; }
+    .logo img { height: 48px; }
+    .logo h1 { color: #667eea; font-size: 28px; font-weight: 800; margin-top: 12px; }
+    .logo p { color: #666; font-size: 14px; margin-top: 4px; }
+    h2 { text-align: center; color: #1a1a2e; font-size: 24px; margin-bottom: 8px; }
+    .subtitle { text-align: center; color: #666; font-size: 14px; margin-bottom: 32px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 14px; color: #333; }
+    .form-group label span { color: #dc2626; }
+    .form-input { width: 100%; padding: 14px 16px; border: 2px solid #e0e0e0; border-radius: 12px; font-size: 15px; transition: all 0.2s; }
+    .form-input:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1); }
+    .phone-input-wrapper { display: flex; gap: 8px; }
+    .country-select { width: 100px; padding: 14px 8px; border: 2px solid #e0e0e0; border-radius: 12px; font-size: 15px; background: white; cursor: pointer; }
+    .country-select:focus { outline: none; border-color: #667eea; }
+    .phone-number { flex: 1; }
+    .submit-btn { width: 100%; padding: 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.3s; text-transform: uppercase; letter-spacing: 0.5px; }
+    .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4); }
+    .submit-btn:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+    .error-msg { background: #fee2e2; color: #dc2626; padding: 14px; border-radius: 12px; margin-bottom: 20px; display: none; font-size: 14px; }
+    .error-msg.show { display: block; }
+    .success-msg { background: #dcfce7; color: #16a34a; padding: 14px; border-radius: 12px; margin-bottom: 20px; display: none; font-size: 14px; }
+    .success-msg.show { display: block; }
+    .login-link { text-align: center; margin-top: 24px; padding-top: 24px; border-top: 1px solid #eee; }
+    .login-link a { color: #667eea; text-decoration: none; font-weight: 600; }
+    .login-link a:hover { text-decoration: underline; }
+    .back-link { display: block; text-align: center; margin-top: 16px; color: #888; text-decoration: none; font-size: 14px; }
+    .back-link:hover { color: #667eea; }
+    @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } .signup-container { padding: 32px 24px; } }
+  </style>
+</head>
+<body>
+  <div class="signup-container">
+    <div class="logo">
+      <img src="/images/risivo-logo.png" alt="Risivo" onerror="this.outerHTML='<h1 style=\\'color:#667eea;font-size:32px\\'>Risivo</h1>'">
+      <p>Join our exclusive waitlist</p>
+    </div>
+    <h2>Join the Waitlist</h2>
+    <p class="subtitle">Be the first to experience the future of AI-powered business management</p>
+    
+    <div id="error" class="error-msg"></div>
+    <div id="success" class="success-msg"></div>
+    
+    <form id="signupForm">
+      <div class="form-row">
+        <div class="form-group">
+          <label>First Name <span>*</span></label>
+          <input type="text" class="form-input" id="firstName" required placeholder="John">
+        </div>
+        <div class="form-group">
+          <label>Last Name <span>*</span></label>
+          <input type="text" class="form-input" id="lastName" required placeholder="Doe">
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label>Email Address <span>*</span></label>
+        <input type="email" class="form-input" id="email" required placeholder="john@company.com">
+      </div>
+      
+      <div class="form-group">
+        <label>Phone Number <span>*</span></label>
+        <div class="phone-input-wrapper">
+          <select class="country-select" id="countryCode">
+            <option value="+1">🇺🇸 +1</option>
+            <option value="+44">🇬🇧 +44</option>
+            <option value="+61">🇦🇺 +61</option>
+            <option value="+33">🇫🇷 +33</option>
+            <option value="+49">🇩🇪 +49</option>
+            <option value="+81">🇯🇵 +81</option>
+            <option value="+86">🇨🇳 +86</option>
+            <option value="+91">🇮🇳 +91</option>
+            <option value="+55">🇧🇷 +55</option>
+            <option value="+52">🇲🇽 +52</option>
+            <option value="+34">🇪🇸 +34</option>
+            <option value="+39">🇮🇹 +39</option>
+            <option value="+82">🇰🇷 +82</option>
+            <option value="+65">🇸🇬 +65</option>
+            <option value="+971">🇦🇪 +971</option>
+            <option value="+966">🇸🇦 +966</option>
+            <option value="+27">🇿🇦 +27</option>
+            <option value="+234">🇳🇬 +234</option>
+            <option value="+63">🇵🇭 +63</option>
+            <option value="+62">🇮🇩 +62</option>
+          </select>
+          <input type="tel" class="form-input phone-number" id="phone" required placeholder="555 123 4567">
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label>Agency/Business Name <span>*</span></label>
+        <input type="text" class="form-input" id="businessName" required placeholder="Your Company LLC">
+      </div>
+      
+      <button type="submit" class="submit-btn" id="submitBtn">Join Waitlist</button>
+    </form>
+    
+    <div class="login-link">
+      Already registered? <a href="/updates/login">Sign In</a>
+    </div>
+    <a href="/" class="back-link">← Back to Home</a>
+  </div>
+  
+  <script>
+    document.getElementById('signupForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('submitBtn');
+      const error = document.getElementById('error');
+      const success = document.getElementById('success');
+      
+      const data = {
+        first_name: document.getElementById('firstName').value.trim(),
+        last_name: document.getElementById('lastName').value.trim(),
+        email: document.getElementById('email').value.trim().toLowerCase(),
+        phone: document.getElementById('countryCode').value + ' ' + document.getElementById('phone').value.trim(),
+        business_name: document.getElementById('businessName').value.trim(),
+        user_type: 'waitlist'
+      };
+      
+      btn.disabled = true;
+      btn.textContent = 'Submitting...';
+      error.classList.remove('show');
+      success.classList.remove('show');
+      
+      try {
+        const res = await fetch('/api/waitlist/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        const result = await res.json();
+        
+        if (result.success) {
+          success.textContent = '✓ Success! Please check your email to verify your account.';
+          success.classList.add('show');
+          document.getElementById('signupForm').reset();
+        } else {
+          error.textContent = result.error || 'Registration failed. Please try again.';
+          error.classList.add('show');
+        }
+      } catch (err) {
+        error.textContent = 'Connection error. Please try again.';
+        error.classList.add('show');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Join Waitlist';
+      }
+    });
+  </script>
+</body>
+</html>
+  `);
+});
+
+// Investor Signup Page
+app.get("/signup/investor", (c) => {
+  const currentYear = new Date().getFullYear();
+  return c.html(`
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Become an Investor - Risivo</title>
+  <link rel="icon" href="/upload_files/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" sizes="180x180" href="/upload_files/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .signup-container { background: white; border-radius: 24px; max-width: 520px; width: 100%; padding: 48px; box-shadow: 0 25px 80px rgba(0,0,0,0.25); }
+    .logo { text-align: center; margin-bottom: 32px; }
+    .logo img { height: 48px; }
+    .logo h1 { color: #667eea; font-size: 28px; font-weight: 800; margin-top: 12px; }
+    .logo p { color: #666; font-size: 14px; margin-top: 4px; }
+    h2 { text-align: center; color: #1a1a2e; font-size: 24px; margin-bottom: 8px; }
+    .subtitle { text-align: center; color: #666; font-size: 14px; margin-bottom: 32px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 14px; color: #333; }
+    .form-group label span { color: #dc2626; }
+    .form-input { width: 100%; padding: 14px 16px; border: 2px solid #e0e0e0; border-radius: 12px; font-size: 15px; transition: all 0.2s; }
+    .form-input:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1); }
+    .phone-input-wrapper { display: flex; gap: 8px; }
+    .country-select { width: 100px; padding: 14px 8px; border: 2px solid #e0e0e0; border-radius: 12px; font-size: 15px; background: white; cursor: pointer; }
+    .country-select:focus { outline: none; border-color: #667eea; }
+    .phone-number { flex: 1; }
+    .submit-btn { width: 100%; padding: 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.3s; text-transform: uppercase; letter-spacing: 0.5px; }
+    .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4); }
+    .submit-btn:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+    .error-msg { background: #fee2e2; color: #dc2626; padding: 14px; border-radius: 12px; margin-bottom: 20px; display: none; font-size: 14px; }
+    .error-msg.show { display: block; }
+    .success-msg { background: #dcfce7; color: #16a34a; padding: 14px; border-radius: 12px; margin-bottom: 20px; display: none; font-size: 14px; }
+    .success-msg.show { display: block; }
+    .info-box { background: #f0f4ff; border: 1px solid #c7d2fe; padding: 16px; border-radius: 12px; margin-bottom: 24px; }
+    .info-box h4 { color: #4f46e5; font-size: 14px; margin-bottom: 8px; }
+    .info-box p { color: #666; font-size: 13px; line-height: 1.5; }
+    .login-link { text-align: center; margin-top: 24px; padding-top: 24px; border-top: 1px solid #eee; }
+    .login-link a { color: #667eea; text-decoration: none; font-weight: 600; }
+    .login-link a:hover { text-decoration: underline; }
+    .back-link { display: block; text-align: center; margin-top: 16px; color: #888; text-decoration: none; font-size: 14px; }
+    .back-link:hover { color: #667eea; }
+    @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } .signup-container { padding: 32px 24px; } }
+  </style>
+</head>
+<body>
+  <div class="signup-container">
+    <div class="logo">
+      <img src="/images/risivo-logo.png" alt="Risivo" onerror="this.outerHTML='<h1 style=\\'color:#667eea;font-size:32px\\'>Risivo</h1>'">
+      <p>Investor Registration</p>
+    </div>
+    <h2>Become an Investor</h2>
+    <p class="subtitle">Get exclusive access to confidential investor materials</p>
+    
+    <div class="info-box">
+      <h4>📋 What happens next?</h4>
+      <p>After registration, you'll receive an email with a link to sign our Non-Disclosure Agreement (NDA). Once the NDA is signed, you'll get access to our investor portal with pitch decks, financial forecasts, and exclusive updates.</p>
+    </div>
+    
+    <div id="error" class="error-msg"></div>
+    <div id="success" class="success-msg"></div>
+    
+    <form id="signupForm">
+      <div class="form-row">
+        <div class="form-group">
+          <label>First Name <span>*</span></label>
+          <input type="text" class="form-input" id="firstName" required placeholder="John">
+        </div>
+        <div class="form-group">
+          <label>Last Name <span>*</span></label>
+          <input type="text" class="form-input" id="lastName" required placeholder="Doe">
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label>Email Address <span>*</span></label>
+        <input type="email" class="form-input" id="email" required placeholder="john@company.com">
+      </div>
+      
+      <div class="form-group">
+        <label>Phone Number <span>*</span></label>
+        <div class="phone-input-wrapper">
+          <select class="country-select" id="countryCode">
+            <option value="+1">🇺🇸 +1</option>
+            <option value="+44">🇬🇧 +44</option>
+            <option value="+61">🇦🇺 +61</option>
+            <option value="+33">🇫🇷 +33</option>
+            <option value="+49">🇩🇪 +49</option>
+            <option value="+81">🇯🇵 +81</option>
+            <option value="+86">🇨🇳 +86</option>
+            <option value="+91">🇮🇳 +91</option>
+            <option value="+55">🇧🇷 +55</option>
+            <option value="+52">🇲🇽 +52</option>
+            <option value="+34">🇪🇸 +34</option>
+            <option value="+39">🇮🇹 +39</option>
+            <option value="+82">🇰🇷 +82</option>
+            <option value="+65">🇸🇬 +65</option>
+            <option value="+971">🇦🇪 +971</option>
+            <option value="+966">🇸🇦 +966</option>
+            <option value="+27">🇿🇦 +27</option>
+            <option value="+234">🇳🇬 +234</option>
+            <option value="+63">🇵🇭 +63</option>
+            <option value="+62">🇮🇩 +62</option>
+          </select>
+          <input type="tel" class="form-input phone-number" id="phone" required placeholder="555 123 4567">
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label>Company Name <span>*</span></label>
+        <input type="text" class="form-input" id="companyName" required placeholder="Investment Firm LLC">
+      </div>
+      
+      <button type="submit" class="submit-btn" id="submitBtn">Register as Investor</button>
+    </form>
+    
+    <div class="login-link">
+      Already registered? <a href="/updates/investor/login">Investor Sign In</a>
+    </div>
+    <a href="/" class="back-link">← Back to Home</a>
+  </div>
+  
+  <script>
+    document.getElementById('signupForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('submitBtn');
+      const error = document.getElementById('error');
+      const success = document.getElementById('success');
+      
+      const data = {
+        first_name: document.getElementById('firstName').value.trim(),
+        last_name: document.getElementById('lastName').value.trim(),
+        email: document.getElementById('email').value.trim().toLowerCase(),
+        phone: document.getElementById('countryCode').value + ' ' + document.getElementById('phone').value.trim(),
+        business_name: document.getElementById('companyName').value.trim(),
+        user_type: 'investor'
+      };
+      
+      btn.disabled = true;
+      btn.textContent = 'Submitting...';
+      error.classList.remove('show');
+      success.classList.remove('show');
+      
+      try {
+        const res = await fetch('/api/investor/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        const result = await res.json();
+        
+        if (result.success) {
+          success.textContent = '✓ Registration successful! Please check your email for the NDA signing link.';
+          success.classList.add('show');
+          document.getElementById('signupForm').reset();
+        } else {
+          error.textContent = result.error || 'Registration failed. Please try again.';
+          error.classList.add('show');
+        }
+      } catch (err) {
+        error.textContent = 'Connection error. Please try again.';
+        error.classList.add('show');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Register as Investor';
+      }
+    });
+  </script>
+</body>
+</html>
+  `);
+});
+
+// Waitlist Login Page
+app.get("/waitlist/login", (c) => {
+  return c.html(`
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Waitlist Login - Risivo</title>
+  <link rel="icon" href="/upload_files/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" sizes="180x180" href="/upload_files/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .login-container { background: white; border-radius: 24px; max-width: 420px; width: 100%; padding: 48px; box-shadow: 0 25px 80px rgba(0,0,0,0.25); }
+    .logo { text-align: center; margin-bottom: 32px; }
+    .logo img { height: 48px; }
+    .logo p { color: #666; font-size: 14px; margin-top: 8px; }
+    h2 { text-align: center; color: #1a1a2e; font-size: 24px; margin-bottom: 32px; }
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 14px; color: #333; }
+    .form-input { width: 100%; padding: 14px 16px; border: 2px solid #e0e0e0; border-radius: 12px; font-size: 15px; transition: all 0.2s; }
+    .form-input:focus { outline: none; border-color: #667eea; }
+    .submit-btn { width: 100%; padding: 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
+    .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4); }
+    .submit-btn:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+    .error-msg { background: #fee2e2; color: #dc2626; padding: 14px; border-radius: 12px; margin-bottom: 20px; display: none; font-size: 14px; }
+    .error-msg.show { display: block; }
+    .links { text-align: center; margin-top: 24px; }
+    .links a { color: #667eea; text-decoration: none; font-size: 14px; margin: 0 8px; }
+    .links a:hover { text-decoration: underline; }
+    .back-link { display: block; text-align: center; margin-top: 16px; color: #888; text-decoration: none; font-size: 14px; }
+    .back-link:hover { color: #667eea; }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="logo">
+      <img src="/images/risivo-logo.png" alt="Risivo" onerror="this.outerHTML='<h1 style=\\'color:#667eea;font-size:28px\\'>Risivo</h1>'">
+      <p>Waitlist Member Portal</p>
+    </div>
+    <h2>Sign In</h2>
+    
+    <div id="error" class="error-msg"></div>
+    
+    <form id="loginForm">
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" class="form-input" id="email" required placeholder="your@email.com">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" class="form-input" id="password" required placeholder="Enter your password">
+      </div>
+      <button type="submit" class="submit-btn" id="submitBtn">Sign In</button>
+    </form>
+    
+    <div class="links">
+      <a href="/waitlist/forgot-password">Forgot Password?</a>
+      <a href="/signup/waitlist">Create Account</a>
+    </div>
+    <a href="/" class="back-link">← Back to Home</a>
+  </div>
+  
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('submitBtn');
+      const error = document.getElementById('error');
+      
+      btn.disabled = true;
+      btn.textContent = 'Signing in...';
+      error.classList.remove('show');
+      
+      try {
+        const res = await fetch('/api/user/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: document.getElementById('email').value.trim(),
+            password: document.getElementById('password').value
+          })
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+          window.location.href = '/waitlist/dashboard';
+        } else {
+          error.textContent = data.details || data.error || 'Login failed';
+          error.classList.add('show');
+        }
+      } catch (err) {
+        error.textContent = 'Connection error. Please try again.';
+        error.classList.add('show');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Sign In';
+      }
+    });
+  </script>
+</body>
+</html>
+  `);
+});
+
+// Waitlist Dashboard
+app.get("/waitlist/dashboard", (c) => {
+  const currentYear = new Date().getFullYear();
+  return c.html(`
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Waitlist Dashboard - Risivo</title>
+  <link rel="icon" href="/upload_files/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" sizes="180x180" href="/upload_files/apple-touch-icon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #f5f7fa; min-height: 100vh; }
+    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; }
+    .header-inner { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+    .header-logo img { height: 32px; filter: brightness(0) invert(1); }
+    .header-nav { display: flex; gap: 16px; align-items: center; }
+    .user-info { font-size: 14px; opacity: 0.9; }
+    .logout-btn { background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 13px; }
+    .logout-btn:hover { background: rgba(255,255,255,0.25); }
+    .main { max-width: 1200px; margin: 0 auto; padding: 32px 20px; }
+    .welcome { background: white; border-radius: 20px; padding: 40px; margin-bottom: 32px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); position: relative; overflow: hidden; }
+    .welcome::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 6px; background: linear-gradient(180deg, #667eea, #764ba2); }
+    .welcome h1 { font-size: 28px; color: #1a1a2e; margin-bottom: 8px; }
+    .welcome p { color: #666; font-size: 15px; }
+    .waitlist-number { display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 8px 20px; border-radius: 30px; font-size: 18px; font-weight: 700; margin-top: 16px; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; margin-bottom: 32px; }
+    .stat-card { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    .stat-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 16px; }
+    .stat-icon.purple { background: #f3e8ff; }
+    .stat-icon.blue { background: #dbeafe; }
+    .stat-icon.green { background: #dcfce7; }
+    .stat-title { font-size: 14px; color: #666; margin-bottom: 4px; }
+    .stat-value { font-size: 24px; font-weight: 700; color: #1a1a2e; }
+    .content-section { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .section-title { font-size: 18px; font-weight: 700; color: #1a1a2e; }
+    .update-card { border: 1px solid #eee; border-radius: 12px; padding: 20px; margin-bottom: 16px; transition: all 0.2s; }
+    .update-card:hover { border-color: #667eea; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1); }
+    .update-date { font-size: 12px; color: #888; margin-bottom: 8px; }
+    .update-title { font-size: 16px; font-weight: 600; color: #1a1a2e; margin-bottom: 8px; }
+    .update-excerpt { font-size: 14px; color: #666; line-height: 1.6; }
+    .footer { text-align: center; padding: 40px 20px; color: #888; font-size: 13px; }
+    .loading { text-align: center; padding: 40px; color: #666; }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <div class="header-logo">
+        <img src="/images/risivo-logo.png" alt="Risivo" onerror="this.outerHTML='<span style=\\\\'font-size:24px;font-weight:800\\\\'>Risivo</span>'">
+      </div>
+      <div class="header-nav">
+        <span class="user-info" id="userEmail">Loading...</span>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+      </div>
+    </div>
+  </header>
+  
+  <main class="main">
+    <div class="welcome">
+      <h1>Welcome back, <span id="userName">...</span>!</h1>
+      <p>You're on the exclusive Risivo waitlist. We'll notify you as soon as we launch!</p>
+      <div class="waitlist-number" id="waitlistNumber">Loading...</div>
+    </div>
+    
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-icon purple">🎯</div>
+        <div class="stat-title">Your Position</div>
+        <div class="stat-value" id="position">-</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon blue">📅</div>
+        <div class="stat-title">Member Since</div>
+        <div class="stat-value" id="memberSince">-</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green">✅</div>
+        <div class="stat-title">Status</div>
+        <div class="stat-value" id="status">Active</div>
+      </div>
+    </div>
+    
+    <div class="content-section">
+      <div class="section-header">
+        <h2 class="section-title">Latest Updates</h2>
+      </div>
+      <div id="updatesList">
+        <div class="loading">Loading updates...</div>
+      </div>
+    </div>
+  </main>
+  
+  <footer class="footer">
+    <p>© ${currentYear} Risivo. Owned by Velocity Automation Corp. All rights reserved.</p>
+  </footer>
+  
+  <script>
+    async function init() {
+      try {
+        const res = await fetch('/api/user/me');
+        const data = await res.json();
+        
+        if (!data.success) {
+          window.location.href = '/waitlist/login';
+          return;
+        }
+        
+        const user = data.user;
+        document.getElementById('userEmail').textContent = user.email;
+        document.getElementById('userName').textContent = user.first_name || 'Member';
+        document.getElementById('waitlistNumber').textContent = user.waitlist_number ? '#' + user.waitlist_number : 'Waitlist Member';
+        document.getElementById('position').textContent = user.waitlist_number || '-';
+        document.getElementById('memberSince').textContent = new Date(user.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+        document.getElementById('status').textContent = user.status === 'active' ? 'Active' : user.status || 'Pending';
+        
+        // Load updates
+        loadUpdates();
+      } catch (error) {
+        console.error('Init error:', error);
+        window.location.href = '/waitlist/login';
+      }
+    }
+    
+    async function loadUpdates() {
+      try {
+        const res = await fetch('/api/updates?limit=5');
+        const data = await res.json();
+        
+        const container = document.getElementById('updatesList');
+        
+        if (!data.updates || data.updates.length === 0) {
+          container.innerHTML = '<div class="update-card"><p style="color: #888;">No updates yet. Check back soon!</p></div>';
+          return;
+        }
+        
+        container.innerHTML = data.updates.map(u => '<div class="update-card"><div class="update-date">' + new Date(u.published_at || u.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) + '</div><h3 class="update-title">' + u.title + '</h3><p class="update-excerpt">' + (u.excerpt || '') + '</p></div>').join('');
+      } catch (error) {
+        console.error('Load updates error:', error);
+        document.getElementById('updatesList').innerHTML = '<div class="update-card"><p style="color: #888;">Unable to load updates.</p></div>';
+      }
+    }
+    
+    async function logout() {
+      try {
+        await fetch('/api/user/logout', { method: 'POST' });
+      } catch (e) {}
+      window.location.href = '/waitlist/login';
+    }
+    
+    init();
+  </script>
+</body>
+</html>
+  `);
+});
+
+// Forgot Password - Waitlist
+app.get("/waitlist/forgot-password", (c) => {
+  return c.html(`
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Forgot Password - Risivo</title>
+  <link rel="icon" href="/upload_files/favicon.ico" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .container { background: white; border-radius: 24px; max-width: 420px; width: 100%; padding: 48px; box-shadow: 0 25px 80px rgba(0,0,0,0.25); }
+    .logo { text-align: center; margin-bottom: 32px; }
+    .logo img { height: 48px; }
+    h2 { text-align: center; color: #1a1a2e; font-size: 24px; margin-bottom: 12px; }
+    .subtitle { text-align: center; color: #666; font-size: 14px; margin-bottom: 32px; }
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 14px; }
+    .form-input { width: 100%; padding: 14px 16px; border: 2px solid #e0e0e0; border-radius: 12px; font-size: 15px; }
+    .form-input:focus { outline: none; border-color: #667eea; }
+    .submit-btn { width: 100%; padding: 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; }
+    .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4); }
+    .submit-btn:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+    .message { padding: 14px; border-radius: 12px; margin-bottom: 20px; display: none; font-size: 14px; }
+    .message.error { background: #fee2e2; color: #dc2626; }
+    .message.success { background: #dcfce7; color: #16a34a; }
+    .message.show { display: block; }
+    .back-link { display: block; text-align: center; margin-top: 24px; color: #667eea; text-decoration: none; font-size: 14px; }
+    .back-link:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">
+      <img src="/images/risivo-logo.png" alt="Risivo" onerror="this.outerHTML='<h1 style=\\'color:#667eea;font-size:28px\\'>Risivo</h1>'">
+    </div>
+    <h2>Forgot Password?</h2>
+    <p class="subtitle">Enter your email and we'll send you a reset link</p>
+    
+    <div id="message" class="message"></div>
+    
+    <form id="forgotForm">
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" class="form-input" id="email" required placeholder="your@email.com">
+      </div>
+      <button type="submit" class="submit-btn" id="submitBtn">Send Reset Link</button>
+    </form>
+    
+    <a href="/waitlist/login" class="back-link">← Back to Login</a>
+  </div>
+  
+  <script>
+    document.getElementById('forgotForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('submitBtn');
+      const message = document.getElementById('message');
+      
+      btn.disabled = true;
+      btn.textContent = 'Sending...';
+      message.classList.remove('show', 'error', 'success');
+      
+      try {
+        const res = await fetch('/api/user/forgot-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: document.getElementById('email').value.trim() })
+        });
+        const data = await res.json();
+        
+        message.textContent = data.message || 'If this email is registered, you will receive a reset link.';
+        message.classList.add('show', data.success ? 'success' : 'error');
+      } catch (err) {
+        message.textContent = 'Connection error. Please try again.';
+        message.classList.add('show', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Send Reset Link';
+      }
+    });
+  </script>
+</body>
+</html>
+  `);
+});
+
+// Forgot Password - Investor
+app.get("/investor/forgot-password", (c) => {
+  return c.html(`
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Forgot Password - Investor Portal - Risivo</title>
+  <link rel="icon" href="/upload_files/favicon.ico" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .container { background: white; border-radius: 24px; max-width: 420px; width: 100%; padding: 48px; box-shadow: 0 25px 80px rgba(0,0,0,0.25); }
+    .logo { text-align: center; margin-bottom: 32px; }
+    .logo img { height: 48px; }
+    h2 { text-align: center; color: #1a1a2e; font-size: 24px; margin-bottom: 12px; }
+    .subtitle { text-align: center; color: #666; font-size: 14px; margin-bottom: 32px; }
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 14px; }
+    .form-input { width: 100%; padding: 14px 16px; border: 2px solid #e0e0e0; border-radius: 12px; font-size: 15px; }
+    .form-input:focus { outline: none; border-color: #667eea; }
+    .submit-btn { width: 100%; padding: 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; }
+    .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4); }
+    .submit-btn:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+    .message { padding: 14px; border-radius: 12px; margin-bottom: 20px; display: none; font-size: 14px; }
+    .message.error { background: #fee2e2; color: #dc2626; }
+    .message.success { background: #dcfce7; color: #16a34a; }
+    .message.show { display: block; }
+    .back-link { display: block; text-align: center; margin-top: 24px; color: #667eea; text-decoration: none; font-size: 14px; }
+    .back-link:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">
+      <img src="/images/risivo-logo.png" alt="Risivo" onerror="this.outerHTML='<h1 style=\\'color:#667eea;font-size:28px\\'>Risivo</h1>'">
+    </div>
+    <h2>Forgot Password?</h2>
+    <p class="subtitle">Enter your email and we'll send you a reset link</p>
+    
+    <div id="message" class="message"></div>
+    
+    <form id="forgotForm">
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" class="form-input" id="email" required placeholder="investor@email.com">
+      </div>
+      <button type="submit" class="submit-btn" id="submitBtn">Send Reset Link</button>
+    </form>
+    
+    <a href="/updates/investor/login" class="back-link">← Back to Investor Login</a>
+  </div>
+  
+  <script>
+    document.getElementById('forgotForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('submitBtn');
+      const message = document.getElementById('message');
+      
+      btn.disabled = true;
+      btn.textContent = 'Sending...';
+      message.classList.remove('show', 'error', 'success');
+      
+      try {
+        const res = await fetch('/api/investor/forgot-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: document.getElementById('email').value.trim() })
+        });
+        const data = await res.json();
+        
+        message.textContent = data.message || 'If this email is registered, you will receive a reset link.';
+        message.classList.add('show', data.success ? 'success' : 'error');
+      } catch (err) {
+        message.textContent = 'Connection error. Please try again.';
+        message.classList.add('show', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Send Reset Link';
+      }
+    });
+  </script>
+</body>
+</html>
+  `);
+});
+
+// Email Verification Page
+app.get("/verify-email", (c) => {
+  const token = c.req.query('token');
+  return c.html(`
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verify Email - Risivo</title>
+  <link rel="icon" href="/upload_files/favicon.ico" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .container { background: white; border-radius: 24px; max-width: 420px; width: 100%; padding: 48px; box-shadow: 0 25px 80px rgba(0,0,0,0.25); text-align: center; }
+    .logo img { height: 48px; margin-bottom: 24px; }
+    .icon { font-size: 64px; margin-bottom: 24px; }
+    h2 { color: #1a1a2e; font-size: 24px; margin-bottom: 16px; }
+    p { color: #666; font-size: 14px; line-height: 1.6; margin-bottom: 24px; }
+    .btn { display: inline-block; padding: 14px 32px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; border-radius: 12px; font-weight: 600; transition: all 0.3s; }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4); }
+    .error { color: #dc2626; }
+    .success { color: #16a34a; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">
+      <img src="/images/risivo-logo.png" alt="Risivo" onerror="this.outerHTML='<h1 style=\\'color:#667eea;font-size:28px\\'>Risivo</h1>'">
+    </div>
+    <div id="content">
+      <div class="icon">⏳</div>
+      <h2>Verifying Your Email</h2>
+      <p>Please wait while we verify your email address...</p>
+    </div>
+  </div>
+  
+  <script>
+    async function verifyEmail() {
+      const token = '${token || ''}';
+      const content = document.getElementById('content');
+      
+      if (!token) {
+        content.innerHTML = \`
+          <div class="icon">❌</div>
+          <h2 class="error">Invalid Link</h2>
+          <p>This verification link is invalid or has expired.</p>
+          <a href="/signup/waitlist" class="btn">Register Again</a>
+        \`;
+        return;
+      }
+      
+      try {
+        const res = await fetch('/api/waitlist/verify-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token })
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+          content.innerHTML = \`
+            <div class="icon">✅</div>
+            <h2 class="success">Email Verified!</h2>
+            <p>\${data.message || 'Your email has been verified successfully. Check your inbox for login credentials.'}</p>
+            <a href="/waitlist/login" class="btn">Sign In</a>
+          \`;
+        } else {
+          content.innerHTML = \`
+            <div class="icon">❌</div>
+            <h2 class="error">Verification Failed</h2>
+            <p>\${data.error || 'This link may have expired or already been used.'}</p>
+            <a href="/signup/waitlist" class="btn">Register Again</a>
+          \`;
+        }
+      } catch (error) {
+        content.innerHTML = \`
+          <div class="icon">⚠️</div>
+          <h2 class="error">Something Went Wrong</h2>
+          <p>Unable to verify your email. Please try again later.</p>
+          <a href="/" class="btn">Go Home</a>
+        \`;
+      }
+    }
+    
+    verifyEmail();
+  </script>
+</body>
+</html>
+  `);
+});
+
+// Password Reset Page
+app.get("/reset-password", (c) => {
+  const token = c.req.query('token');
+  return c.html(`
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reset Password - Risivo</title>
+  <link rel="icon" href="/upload_files/favicon.ico" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .container { background: white; border-radius: 24px; max-width: 420px; width: 100%; padding: 48px; box-shadow: 0 25px 80px rgba(0,0,0,0.25); }
+    .logo { text-align: center; margin-bottom: 32px; }
+    .logo img { height: 48px; }
+    h2 { text-align: center; color: #1a1a2e; font-size: 24px; margin-bottom: 8px; }
+    .subtitle { text-align: center; color: #666; font-size: 14px; margin-bottom: 32px; }
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 14px; color: #333; }
+    .form-input { width: 100%; padding: 14px 16px; border: 2px solid #e0e0e0; border-radius: 12px; font-size: 15px; }
+    .form-input:focus { outline: none; border-color: #667eea; }
+    .submit-btn { width: 100%; padding: 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; }
+    .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4); }
+    .submit-btn:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+    .message { padding: 14px; border-radius: 12px; margin-bottom: 20px; display: none; font-size: 14px; }
+    .message.error { background: #fee2e2; color: #dc2626; }
+    .message.success { background: #dcfce7; color: #16a34a; }
+    .message.show { display: block; }
+    .back-link { display: block; text-align: center; margin-top: 24px; color: #667eea; text-decoration: none; font-size: 14px; }
+    .back-link:hover { text-decoration: underline; }
+    .password-requirements { font-size: 12px; color: #888; margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">
+      <img src="/images/risivo-logo.png" alt="Risivo" onerror="this.outerHTML='<h1 style=\\'color:#667eea;font-size:28px\\'>Risivo</h1>'">
+    </div>
+    <h2>Reset Password</h2>
+    <p class="subtitle">Enter your new password below</p>
+    
+    <div id="message" class="message"></div>
+    
+    <form id="resetForm">
+      <input type="hidden" id="token" value="${token || ''}">
+      <div class="form-group">
+        <label>New Password</label>
+        <input type="password" class="form-input" id="password" required placeholder="Enter new password" minlength="8">
+        <p class="password-requirements">Minimum 8 characters</p>
+      </div>
+      <div class="form-group">
+        <label>Confirm Password</label>
+        <input type="password" class="form-input" id="confirmPassword" required placeholder="Confirm new password">
+      </div>
+      <button type="submit" class="submit-btn" id="submitBtn">Reset Password</button>
+    </form>
+    
+    <a href="/waitlist/login" class="back-link">← Back to Login</a>
+  </div>
+  
+  <script>
+    document.getElementById('resetForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('submitBtn');
+      const message = document.getElementById('message');
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+      const token = document.getElementById('token').value;
+      
+      if (!token) {
+        message.textContent = 'Invalid reset link.';
+        message.className = 'message error show';
+        return;
+      }
+      
+      if (password !== confirmPassword) {
+        message.textContent = 'Passwords do not match.';
+        message.className = 'message error show';
+        return;
+      }
+      
+      if (password.length < 8) {
+        message.textContent = 'Password must be at least 8 characters.';
+        message.className = 'message error show';
+        return;
+      }
+      
+      btn.disabled = true;
+      btn.textContent = 'Resetting...';
+      message.classList.remove('show');
+      
+      try {
+        const res = await fetch('/api/user/reset-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token, password })
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+          message.textContent = 'Password reset successfully! Redirecting to login...';
+          message.className = 'message success show';
+          setTimeout(() => window.location.href = '/waitlist/login', 2000);
+        } else {
+          message.textContent = data.error || 'Failed to reset password.';
+          message.className = 'message error show';
+          btn.disabled = false;
+          btn.textContent = 'Reset Password';
+        }
+      } catch (error) {
+        message.textContent = 'Connection error. Please try again.';
+        message.className = 'message error show';
+        btn.disabled = false;
+        btn.textContent = 'Reset Password';
+      }
+    });
+  </script>
+</body>
+</html>
   `);
 });
 

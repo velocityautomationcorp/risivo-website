@@ -2,12 +2,25 @@ import { Hono } from 'hono';
 import { createClient } from '@supabase/supabase-js';
 import { setCookie, getCookie, deleteCookie } from 'hono/cookie';
 import * as bcrypt from 'bcryptjs';
+import { EmailService, generateTempPassword, generateResetToken } from '../utils/email';
 
 type Bindings = {
   SUPABASE_URL?: string;
   SUPABASE_SERVICE_ROLE_KEY?: string;
   SENDGRID_API_KEY?: string;
+  ADMIN_EMAIL?: string;
 };
+
+// Helper to get email service
+function getEmailService(env: Bindings): EmailService | null {
+  if (!env.SENDGRID_API_KEY) return null;
+  return new EmailService({
+    SENDGRID_API_KEY: env.SENDGRID_API_KEY,
+    FROM_EMAIL: 'hello@risivo.com',
+    FROM_NAME: 'Risivo Team',
+    ADMIN_EMAIL: env.ADMIN_EMAIL || 'admin@risivo.com'
+  });
+}
 
 const investorAuth = new Hono<{ Bindings: Bindings }>();
 
@@ -498,6 +511,52 @@ investorAuth.post('/sign-nda', async (c) => {
 
     console.log('[INVESTOR_AUTH] ✅ NDA signed successfully');
 
+    // Send email to investor with credentials
+    const emailService = getEmailService(c.env as Bindings);
+    if (emailService) {
+      try {
+        // Get user details for email
+        const { data: userData } = await supabase
+          .from('users')
+          .select('first_name, last_name, email, business_name')
+          .eq('id', session.user_id)
+          .single();
+
+        if (userData) {
+          // Generate new password for the investor
+          const tempPassword = generateTempPassword(12);
+          const hashedPassword = await bcrypt.hash(tempPassword, 10);
+
+          // Update password
+          await supabase
+            .from('users')
+            .update({ password_hash: hashedPassword })
+            .eq('id', session.user_id);
+
+          // Send approval email
+          await emailService.sendInvestorApprovedEmail({
+            email: userData.email,
+            firstName: userData.first_name,
+            lastName: userData.last_name,
+            tempPassword
+          });
+
+          // Send admin notification
+          await emailService.sendAdminNotification({
+            type: 'nda_signed',
+            userData: {
+              firstName: userData.first_name,
+              lastName: userData.last_name,
+              email: userData.email,
+              companyName: userData.business_name
+            }
+          });
+        }
+      } catch (emailError) {
+        console.error('[INVESTOR_AUTH] Email error:', emailError);
+      }
+    }
+
     return c.json({
       success: true,
       message: 'NDA signed successfully. You now have access to investor materials.',
@@ -506,6 +565,342 @@ investorAuth.post('/sign-nda', async (c) => {
   } catch (error) {
     console.error('[INVESTOR_AUTH] /sign-nda error:', error);
     return c.json({ error: 'Internal server error' }, 500);
+  }
+});
+
+// POST /api/investor/sign-nda-token - Sign NDA using token (for new investors)
+investorAuth.post('/sign-nda-token', async (c) => {
+  try {
+    const body = await c.req.json();
+    const { token, full_name_typed } = body;
+
+    if (!token || !full_name_typed) {
+      return c.json({ success: false, error: 'Token and signature are required' }, 400);
+    }
+
+    const supabaseUrl = c.env?.SUPABASE_URL;
+    const supabaseKey = c.env?.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!supabaseUrl || !supabaseKey) {
+      return c.json({ success: false, error: 'Service unavailable' }, 503);
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Find user by NDA token
+    const { data: user, error: findError } = await supabase
+      .from('users')
+      .select('id, email, first_name, last_name, business_name, investor_status')
+      .eq('nda_token', token)
+      .single();
+
+    if (findError || !user) {
+      return c.json({
+        success: false,
+        error: 'Invalid or expired NDA link',
+        details: 'Please register again or contact support.'
+      }, 400);
+    }
+
+    if (user.investor_status !== 'pending_nda') {
+      return c.json({
+        success: false,
+        error: 'NDA already signed',
+        details: 'You can now sign in to access the investor portal.'
+      }, 400);
+    }
+
+    // Create NDA signature
+    const { error: ndaError } = await supabase
+      .from('nda_signatures')
+      .insert({
+        user_id: user.id,
+        full_name_typed,
+        ip_address: c.req.header('cf-connecting-ip') || c.req.header('x-forwarded-for') || 'unknown',
+        user_agent: c.req.header('user-agent') || 'unknown',
+        nda_version: '1.0'
+      });
+
+    if (ndaError) {
+      console.error('[INVESTOR_AUTH] NDA signature error:', ndaError);
+      return c.json({ success: false, error: 'Failed to sign NDA' }, 500);
+    }
+
+    // Generate new password and update user status
+    const tempPassword = generateTempPassword(12);
+    const hashedPassword = await bcrypt.hash(tempPassword, 10);
+
+    await supabase
+      .from('users')
+      .update({
+        investor_status: 'nda_signed',
+        password_hash: hashedPassword,
+        nda_token: null,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', user.id);
+
+    // Send approval email with credentials
+    const emailService = getEmailService(c.env as Bindings);
+    if (emailService) {
+      try {
+        await emailService.sendInvestorApprovedEmail({
+          email: user.email,
+          firstName: user.first_name,
+          lastName: user.last_name,
+          tempPassword
+        });
+
+        // Send admin notification
+        await emailService.sendAdminNotification({
+          type: 'nda_signed',
+          userData: {
+            firstName: user.first_name,
+            lastName: user.last_name,
+            email: user.email,
+            companyName: user.business_name
+          }
+        });
+      } catch (emailError) {
+        console.error('[INVESTOR_AUTH] Email error:', emailError);
+      }
+    }
+
+    console.log('[INVESTOR_AUTH] ✅ NDA signed via token for user:', user.id);
+
+    return c.json({
+      success: true,
+      message: 'NDA signed successfully! Check your email for login credentials.'
+    });
+  } catch (error) {
+    console.error('[INVESTOR_AUTH] /sign-nda-token error:', error);
+    return c.json({ success: false, error: 'Internal server error' }, 500);
+  }
+});
+
+// POST /api/investor/signup - Investor registration
+investorAuth.post('/signup', async (c) => {
+  try {
+    const body = await c.req.json();
+    const { first_name, last_name, email, phone, business_name } = body;
+
+    console.log('[INVESTOR_SIGNUP] ========================================');
+    console.log('[INVESTOR_SIGNUP] 📝 New investor registration');
+    console.log('[INVESTOR_SIGNUP] Email:', email);
+    console.log('[INVESTOR_SIGNUP] Name:', first_name, last_name);
+    console.log('[INVESTOR_SIGNUP] Company:', business_name);
+    console.log('[INVESTOR_SIGNUP] ========================================');
+
+    // Validate required fields
+    if (!first_name || !last_name || !email || !phone || !business_name) {
+      return c.json({
+        success: false,
+        error: 'All fields are required',
+        details: 'Please provide first name, last name, email, phone, and company name'
+      }, 400);
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return c.json({
+        success: false,
+        error: 'Invalid email format'
+      }, 400);
+    }
+
+    const supabaseUrl = c.env?.SUPABASE_URL;
+    const supabaseKey = c.env?.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!supabaseUrl || !supabaseKey) {
+      return c.json({ success: false, error: 'Service unavailable' }, 503);
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Check if email already exists
+    const { data: existingUser } = await supabase
+      .from('users')
+      .select('id, investor_status')
+      .eq('email', email.toLowerCase())
+      .single();
+
+    if (existingUser) {
+      if (existingUser.investor_status === 'pending_nda') {
+        // Resend NDA email
+        const ndaToken = generateResetToken();
+        await supabase
+          .from('users')
+          .update({ nda_token: ndaToken, updated_at: new Date().toISOString() })
+          .eq('id', existingUser.id);
+
+        const emailService = getEmailService(c.env as Bindings);
+        if (emailService) {
+          await emailService.sendInvestorNDAEmail({
+            email: email.toLowerCase(),
+            firstName: first_name,
+            lastName: last_name,
+            ndaToken
+          });
+        }
+
+        return c.json({
+          success: true,
+          message: 'NDA signing email has been resent. Please check your inbox.'
+        });
+      }
+      return c.json({
+        success: false,
+        error: 'Email already registered',
+        details: 'This email is already registered. Please sign in instead.'
+      }, 400);
+    }
+
+    // Generate NDA token
+    const ndaToken = generateResetToken();
+    const tempPassword = generateTempPassword(12);
+    const hashedPassword = await bcrypt.hash(tempPassword, 10);
+
+    // Create investor user
+    const { data: newUser, error: insertError } = await supabase
+      .from('users')
+      .insert({
+        email: email.toLowerCase(),
+        first_name,
+        last_name,
+        phone,
+        business_name,
+        password_hash: hashedPassword,
+        user_type: 'investor',
+        investor_status: 'pending_nda',
+        investor_tier: 'standard',
+        nda_token: ndaToken
+      })
+      .select('id')
+      .single();
+
+    if (insertError) {
+      console.error('[INVESTOR_SIGNUP] ❌ Insert error:', insertError);
+      return c.json({
+        success: false,
+        error: 'Registration failed',
+        details: 'Unable to create account. Please try again.'
+      }, 500);
+    }
+
+    console.log('[INVESTOR_SIGNUP] ✅ User created:', newUser.id);
+
+    // Send NDA email
+    const emailService = getEmailService(c.env as Bindings);
+    if (emailService) {
+      try {
+        await emailService.sendInvestorNDAEmail({
+          email: email.toLowerCase(),
+          firstName: first_name,
+          lastName: last_name,
+          ndaToken
+        });
+        console.log('[INVESTOR_SIGNUP] ✅ NDA email sent');
+
+        // Send admin notification
+        await emailService.sendAdminNotification({
+          type: 'investor_signup',
+          userData: {
+            firstName: first_name,
+            lastName: last_name,
+            email: email.toLowerCase(),
+            phone,
+            companyName: business_name
+          }
+        });
+        console.log('[INVESTOR_SIGNUP] ✅ Admin notification sent');
+      } catch (emailError) {
+        console.error('[INVESTOR_SIGNUP] ⚠️ Email error:', emailError);
+      }
+    }
+
+    return c.json({
+      success: true,
+      message: 'Registration successful! Please check your email for the NDA signing link.'
+    });
+  } catch (error) {
+    console.error('[INVESTOR_SIGNUP] 🔥 Error:', error);
+    return c.json({
+      success: false,
+      error: 'Registration failed',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, 500);
+  }
+});
+
+// POST /api/investor/forgot-password - Investor forgot password
+investorAuth.post('/forgot-password', async (c) => {
+  try {
+    const body = await c.req.json();
+    const { email } = body;
+
+    if (!email) {
+      return c.json({ success: false, error: 'Email is required' }, 400);
+    }
+
+    const supabaseUrl = c.env?.SUPABASE_URL;
+    const supabaseKey = c.env?.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!supabaseUrl || !supabaseKey) {
+      return c.json({ success: false, error: 'Service unavailable' }, 503);
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Find user
+    const { data: user } = await supabase
+      .from('users')
+      .select('id, email, first_name, user_type')
+      .eq('email', email.toLowerCase())
+      .single();
+
+    // Always return success to prevent email enumeration
+    if (!user || user.user_type !== 'investor') {
+      return c.json({
+        success: true,
+        message: 'If this email is registered, you will receive a reset link.'
+      });
+    }
+
+    // Generate reset token
+    const resetToken = generateResetToken();
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString(); // 1 hour
+
+    // Store token
+    await supabase
+      .from('password_reset_tokens')
+      .insert({
+        user_id: user.id,
+        token: resetToken,
+        expires_at: expiresAt
+      });
+
+    // Send email
+    const emailService = getEmailService(c.env as Bindings);
+    if (emailService) {
+      try {
+        await emailService.sendPasswordResetEmail({
+          email: user.email,
+          firstName: user.first_name,
+          resetToken
+        });
+      } catch (emailError) {
+        console.error('[INVESTOR_AUTH] Password reset email error:', emailError);
+      }
+    }
+
+    return c.json({
+      success: true,
+      message: 'If this email is registered, you will receive a reset link.'
+    });
+  } catch (error) {
+    console.error('[INVESTOR_AUTH] forgot-password error:', error);
+    return c.json({ success: false, error: 'Request failed' }, 500);
   }
 });
 
