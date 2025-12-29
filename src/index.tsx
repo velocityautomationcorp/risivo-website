@@ -2043,7 +2043,7 @@ app.get("/investor/sign-nda", (c) => {
     .logo img { height: 48px; }
     h2 { text-align: center; color: #1a1a2e; font-size: 28px; margin-bottom: 8px; }
     .subtitle { text-align: center; color: #666; font-size: 14px; margin-bottom: 32px; }
-    .nda-content { background: #f8f9fa; border-radius: 12px; padding: 24px; margin-bottom: 24px; max-height: 400px; overflow-y: auto; font-size: 14px; line-height: 1.7; color: #333; border: 1px solid #e0e0e0; }
+    .nda-content { background: #f8f9fa; border-radius: 12px; padding: 24px; margin-bottom: 24px; max-height: 500px; overflow-y: auto; font-size: 14px; line-height: 1.7; color: #333; border: 1px solid #e0e0e0; }
     .nda-content h3 { color: #1a1a2e; font-size: 18px; margin-bottom: 16px; }
     .nda-content h4 { color: #333; font-size: 15px; margin: 20px 0 12px; }
     .nda-content p { margin-bottom: 12px; }
@@ -2083,45 +2083,99 @@ app.get("/investor/sign-nda", (c) => {
     
     <div class="nda-content">
       <h3>MUTUAL NON-DISCLOSURE AGREEMENT</h3>
-      <p>This Non-Disclosure Agreement ("Agreement") is entered into between Velocity Automation Corp., a Delaware corporation, doing business as Risivo ("Company"), and the undersigned party ("Recipient").</p>
+      <p style="text-align: center; font-weight: 600; margin-bottom: 20px;"><strong>Effective Date: December 21, 2025</strong></p>
       
-      <h4>1. Definition of Confidential Information</h4>
-      <p>"Confidential Information" means any and all non-public information disclosed by Company to Recipient, including but not limited to:</p>
+      <p>This Non-Disclosure Agreement (the "Agreement") is entered into as of the Effective Date by and between:</p>
+      
+      <p><strong>Risivo™</strong>, a registered trademark and software-as-a-service (SaaS) platform owned and operated by <strong>Velocity Automation Corp</strong>, a corporation duly incorporated and validly existing under the laws of the State of Delaware, United States of America, with its principal place of business located in the United States (hereinafter referred to as the "Company" or "Disclosing Party"),</p>
+      
+      <p style="text-align: center; font-weight: 600;">AND</p>
+      
+      <p>The undersigned individual or entity executing this Agreement (hereinafter referred to as the "Recipient" or "Receiving Party"),</p>
+      
+      <p>(The Company and Recipient are hereinafter collectively referred to as the "Parties" and individually as a "Party.")</p>
+      
+      <h4>RECITALS</h4>
+      <p>WHEREAS, the Company is engaged in the business of developing, marketing, and providing software-as-a-service solutions and related technology services;</p>
+      <p>WHEREAS, the Recipient has expressed interest in evaluating a potential business relationship, investment opportunity, or strategic partnership with the Company;</p>
+      <p>WHEREAS, in connection with such evaluation, the Company may disclose to the Recipient certain confidential, proprietary, and trade secret information;</p>
+      <p>NOW, THEREFORE, in consideration of the mutual covenants and agreements contained herein, and for other good and valuable consideration, the receipt and sufficiency of which are hereby acknowledged, the Parties agree as follows:</p>
+      
+      <h4>1. Purpose</h4>
+      <p>The Parties wish to explore a potential business relationship, investment opportunity, or strategic partnership involving the disclosure of certain confidential and proprietary information related to the Company's business operations, financial forecasts, business strategy, technology roadmap, intellectual property, pitch deck, investment terms, and other proprietary materials (collectively, the "Confidential Information"). The purpose of this Agreement is to protect the confidentiality of such information and to set forth the terms and conditions under which the Confidential Information may be disclosed and used.</p>
+      
+      <h4>2. Definition of Confidential Information</h4>
+      <p>Confidential Information includes, but is not limited to:</p>
       <ul>
-        <li>Business plans, strategies, and financial information</li>
-        <li>Technical data, trade secrets, and proprietary technology</li>
-        <li>Customer lists, marketing plans, and sales data</li>
-        <li>Product roadmaps, development plans, and forecasts</li>
-        <li>Any other information designated as confidential</li>
+        <li>Financial forecasts, projections, and business plans</li>
+        <li>Pitch decks, investor presentations, and marketing materials</li>
+        <li>Product roadmaps, technical specifications, and software architecture</li>
+        <li>Customer lists, pricing strategies, and business strategies</li>
+        <li>Trade secrets, proprietary processes, and intellectual property</li>
+        <li>Any information marked as "Confidential" or that a reasonable person would consider confidential</li>
       </ul>
       
-      <h4>2. Obligations of Recipient</h4>
-      <p>Recipient agrees to:</p>
+      <h4>3. Obligations of Recipient</h4>
+      <p>The Recipient agrees to:</p>
       <ul>
-        <li>Keep all Confidential Information strictly confidential</li>
-        <li>Not disclose Confidential Information to any third party without prior written consent</li>
-        <li>Use Confidential Information solely for the purpose of evaluating a potential business relationship</li>
-        <li>Take reasonable measures to protect the confidentiality of the information</li>
-        <li>Return or destroy all Confidential Information upon request</li>
+        <li><strong>Maintain Confidentiality:</strong> Keep all Confidential Information strictly confidential and not disclose it to any third party without prior written consent from the Company.</li>
+        <li><strong>Limit Use:</strong> Use the Confidential Information solely for the purpose of evaluating a potential investment or business relationship with Risivo.</li>
+        <li><strong>Protect Information:</strong> Take reasonable measures to protect the Confidential Information from unauthorized disclosure or use, using at least the same degree of care as used for their own confidential information.</li>
+        <li><strong>Restrict Access:</strong> Limit access to Confidential Information to employees, advisors, or representatives who have a legitimate need to know and who are bound by confidentiality obligations.</li>
       </ul>
-      
-      <h4>3. Term</h4>
-      <p>This Agreement shall remain in effect for a period of two (2) years from the date of signing. The obligations of confidentiality shall survive termination.</p>
       
       <h4>4. Exceptions</h4>
       <p>Confidential Information does not include information that:</p>
       <ul>
-        <li>Is or becomes publicly available through no fault of Recipient</li>
-        <li>Was rightfully in Recipient's possession prior to disclosure</li>
-        <li>Is independently developed by Recipient without use of Confidential Information</li>
-        <li>Is required to be disclosed by law or court order</li>
+        <li>Was publicly available at the time of disclosure or becomes publicly available through no fault of the Recipient</li>
+        <li>Was already known to the Recipient prior to disclosure by the Company</li>
+        <li>Is independently developed by the Recipient without reference to the Confidential Information</li>
+        <li>Is rightfully received by the Recipient from a third party without breach of confidentiality obligations</li>
+        <li>Is required to be disclosed by law, regulation, or court order (with prompt notice to the Company)</li>
       </ul>
       
-      <h4>5. Governing Law</h4>
-      <p>This Agreement shall be governed by the laws of the State of Delaware, without regard to its conflict of law principles.</p>
+      <h4>5. Term and Termination</h4>
+      <p>This Agreement shall remain in effect for a period of <strong>three (3) years</strong> from the Effective Date. Upon termination or request by the Company, the Recipient shall:</p>
+      <ul>
+        <li>Immediately cease using the Confidential Information</li>
+        <li>Return or destroy all copies of Confidential Information in their possession</li>
+        <li>Provide written certification of compliance with these obligations</li>
+      </ul>
       
-      <h4>6. Acknowledgment</h4>
-      <p>By signing below, Recipient acknowledges that they have read, understood, and agree to be bound by the terms of this Agreement.</p>
+      <h4>6. No License or Rights Granted</h4>
+      <p>This Agreement does not grant the Recipient any license, intellectual property rights, ownership interest, or other rights whatsoever in or to the Confidential Information or any intellectual property owned or controlled by the Company. All Confidential Information and all intellectual property rights therein remain the sole and exclusive property of Velocity Automation Corp and/or Risivo™. Nothing in this Agreement shall be construed as granting any rights to the Recipient under any patent, copyright, trademark, trade secret, or other intellectual property right of the Company, by implication, estoppel, or otherwise.</p>
+      
+      <h4>7. No Obligation to Transact; No Agency Relationship</h4>
+      <p>This Agreement does not create any obligation on either Party to pursue, consummate, or enter into any business relationship, investment transaction, strategic partnership, or other agreement whatsoever. The Company reserves the absolute right, in its sole and exclusive discretion, to accept or reject any investment proposal, business proposition, or other opportunity, and to determine the terms and conditions of any such transaction. Nothing in this Agreement shall be construed to create any agency, partnership, joint venture, employment, or fiduciary relationship between the Parties.</p>
+      
+      <h4>8. Remedies and Injunctive Relief</h4>
+      <p>The Recipient acknowledges and agrees that any breach or threatened breach of this Agreement may cause the Company irreparable harm for which monetary damages would be an inadequate remedy. Accordingly, in addition to any other remedies available at law or in equity, the Company shall be entitled to seek and obtain injunctive relief, specific performance, or other equitable relief to prevent or restrain any breach or threatened breach of this Agreement, without the necessity of posting any bond or proving actual damages.</p>
+      
+      <h4>9. Electronic Signature and Acknowledgment</h4>
+      <p>By typing your full legal name below and clicking "I Agree and Sign," you hereby acknowledge, represent, warrant, and agree that:</p>
+      <ul>
+        <li>Your electronic signature is legally binding, valid, and enforceable, and shall have the same legal effect as an original handwritten signature under applicable law, including but not limited to the U.S. Electronic Signatures in Global and National Commerce Act (E-SIGN Act) and the Uniform Electronic Transactions Act (UETA);</li>
+        <li>You have carefully read, fully understood, and voluntarily agree to be legally bound by all terms, conditions, covenants, and obligations set forth in this Agreement;</li>
+        <li>Your IP address, geographic location, timestamp, device information, and other technical metadata will be recorded, logged, and retained for authentication, verification, and legal evidentiary purposes;</li>
+        <li>You are of legal age and have the full legal capacity, authority, and right to enter into this Agreement and to perform your obligations hereunder;</li>
+        <li>If you are executing this Agreement on behalf of a business entity, you represent and warrant that you have the requisite authority to bind such entity to the terms of this Agreement;</li>
+        <li>You acknowledge that this electronic signature process satisfies any requirements under applicable law for a written signature, and you waive any objections to the admissibility of this electronically signed Agreement as evidence in any legal or administrative proceeding.</li>
+      </ul>
+      
+      <h4>10. Governing Law and Jurisdiction</h4>
+      <p>This Agreement shall be governed by, and construed and interpreted in accordance with, the internal laws of the State of Delaware, United States of America, without giving effect to any choice or conflict of law provision or rule (whether of the State of Delaware or any other jurisdiction) that would cause the application of the laws of any jurisdiction other than the State of Delaware. Any legal action, suit, or proceeding arising out of or relating to this Agreement or the transactions contemplated hereby shall be instituted exclusively in the federal courts of the United States or the courts of the State of Delaware, and each Party irrevocably submits to the exclusive jurisdiction of such courts in any such action, suit, or proceeding. The Parties hereby waive any right to a jury trial in connection with any action or litigation in any way arising out of or related to this Agreement.</p>
+      
+      <h4>11. Dispute Resolution</h4>
+      <p>In the event of any dispute, controversy, or claim arising out of or relating to this Agreement, or the breach, termination, or validity thereof, the Parties agree to first attempt to resolve such dispute through good faith negotiations between senior executives of both Parties for a period of thirty (30) days. If the dispute cannot be resolved through negotiation, the Parties may pursue other legal remedies available under applicable law.</p>
+      
+      <h4>12. Entire Agreement and Amendments</h4>
+      <p>This Agreement constitutes the entire agreement between the Parties regarding the subject matter herein and supersedes all prior and contemporaneous discussions, negotiations, agreements, understandings, or representations of any kind, whether written or oral, relating to the subject matter of this Agreement. This Agreement may not be amended, modified, or supplemented except by a written instrument signed by duly authorized representatives of both Parties.</p>
+      
+      <h4>13. Severability</h4>
+      <p>If any provision of this Agreement is held to be invalid, illegal, or unenforceable by a court of competent jurisdiction, such provision shall be deemed modified to the minimum extent necessary to make it valid, legal, and enforceable, or if such modification is not possible, such provision shall be severed from this Agreement. In either case, the remaining provisions of this Agreement shall continue in full force and effect.</p>
+      
+      <h4>14. Counterparts and Electronic Signatures</h4>
+      <p>This Agreement may be executed in counterparts, each of which shall be deemed an original and all of which together shall constitute one and the same instrument. The Parties agree that electronic signatures, digital signatures, or facsimile signatures shall be deemed to have the same legal effect as original handwritten signatures and that this Agreement may be validly executed and delivered by electronic means.</p>
     </div>
     
     <form id="ndaForm">
@@ -2129,23 +2183,30 @@ app.get("/investor/sign-nda", (c) => {
       
       <div class="signature-section">
         <h4>Electronic Signature</h4>
+        <p style="font-size: 13px; color: #666; margin-bottom: 16px;">By typing your full legal name below and clicking "I Agree and Sign," you acknowledge that your electronic signature is legally binding under the U.S. E-SIGN Act and UETA.</p>
+        
         <div class="form-group">
-          <label>Full Legal Name (as signature)</label>
-          <input type="text" class="form-input" id="fullName" required placeholder="Type your full legal name">
+          <label>Full Legal Name (as signature) *</label>
+          <input type="text" class="form-input" id="fullName" required placeholder="Type your full legal name exactly as it appears on legal documents">
         </div>
         
         <div class="checkbox-group">
           <input type="checkbox" id="agreeTerms" required>
-          <label for="agreeTerms">I have read and agree to the terms of this Non-Disclosure Agreement. I understand that typing my name above constitutes a legal electronic signature.</label>
+          <label for="agreeTerms">I have carefully read, fully understood, and voluntarily agree to be legally bound by all terms, conditions, covenants, and obligations set forth in this Mutual Non-Disclosure Agreement.</label>
         </div>
         
         <div class="checkbox-group">
-          <input type="checkbox" id="confirmIdentity" required>
-          <label for="confirmIdentity">I confirm that I am authorized to sign this agreement and that all information I have provided is accurate.</label>
+          <input type="checkbox" id="confirmCapacity" required>
+          <label for="confirmCapacity">I confirm that I am of legal age and have the full legal capacity, authority, and right to enter into this Agreement. If signing on behalf of a business entity, I have the requisite authority to bind such entity.</label>
+        </div>
+        
+        <div class="checkbox-group">
+          <input type="checkbox" id="confirmMetadata" required>
+          <label for="confirmMetadata">I acknowledge that my IP address, timestamp, device information, and other technical metadata will be recorded and retained for authentication, verification, and legal evidentiary purposes.</label>
         </div>
       </div>
       
-      <button type="submit" class="submit-btn" id="submitBtn">Sign NDA & Access Portal</button>
+      <button type="submit" class="submit-btn" id="submitBtn">I Agree and Sign NDA</button>
     </form>
     
     <a href="/" class="back-link">← Back to Home</a>
@@ -2166,7 +2227,7 @@ app.get("/investor/sign-nda", (c) => {
         return;
       }
       
-      if (!document.getElementById('agreeTerms').checked || !document.getElementById('confirmIdentity').checked) {
+      if (!document.getElementById('agreeTerms').checked || !document.getElementById('confirmCapacity').checked || !document.getElementById('confirmMetadata').checked) {
         error.textContent = 'Please agree to all terms to continue.';
         error.classList.add('show');
         return;
