@@ -339,6 +339,102 @@ investorAuth.get('/content', async (c) => {
   }
 });
 
+// GET /api/investor/updates - Get investor updates (articles, project updates from CMS)
+investorAuth.get('/updates', async (c) => {
+  try {
+    const sessionToken = getCookie(c, 'user_session');
+
+    if (!sessionToken) {
+      return c.json({ error: 'Not authenticated' }, 401);
+    }
+
+    const supabaseUrl = c.env?.SUPABASE_URL;
+    const supabaseKey = c.env?.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!supabaseUrl || !supabaseKey) {
+      return c.json({ error: 'Service configuration error' }, 503);
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Verify session and get user
+    const { data: session } = await supabase
+      .from('user_sessions')
+      .select('user_id, expires_at')
+      .eq('session_token', sessionToken)
+      .single();
+
+    if (!session || new Date(session.expires_at) < new Date()) {
+      return c.json({ error: 'Invalid or expired session' }, 401);
+    }
+
+    // Get user's investor tier and status
+    const { data: user } = await supabase
+      .from('users')
+      .select('investor_tier, investor_status')
+      .eq('id', session.user_id)
+      .single();
+
+    if (!user) {
+      return c.json({ error: 'User not found' }, 401);
+    }
+
+    // Check if investor has access
+    if (user.investor_status !== 'active' && user.investor_status !== 'nda_signed') {
+      return c.json({ error: 'Access denied. Please complete the NDA process.' }, 403);
+    }
+
+    // Get published investor updates with category info
+    const { data: updates, error } = await supabase
+      .from('investor_updates')
+      .select(`
+        id,
+        title,
+        slug,
+        excerpt,
+        content,
+        featured_image_url,
+        video_url,
+        gallery_images,
+        author_name,
+        visibility,
+        status,
+        views_count,
+        published_at,
+        created_at,
+        category_id,
+        investor_categories (
+          id,
+          name,
+          slug,
+          icon,
+          color
+        )
+      `)
+      .eq('status', 'published')
+      .order('published_at', { ascending: false });
+
+    if (error) {
+      console.error('[INVESTOR_AUTH] Updates fetch error:', error);
+      // Return empty array if table doesn't exist yet
+      return c.json({
+        success: true,
+        updates: [],
+        investor_tier: user.investor_tier
+      });
+    }
+
+    return c.json({
+      success: true,
+      updates: updates || [],
+      investor_tier: user.investor_tier
+    });
+  } catch (error) {
+    console.error('[INVESTOR_AUTH] /updates error:', error);
+    return c.json({ error: 'Internal server error' }, 500);
+  }
+});
+
 // POST /api/investor/sign-nda - Sign NDA
 investorAuth.post('/sign-nda', async (c) => {
   try {

@@ -399,7 +399,7 @@ app.get("/updates/login", (c) => {
   `);
 });
 
-// Investor login page
+// Investor login page - Professional Risivo Design
 app.get("/updates/investor/login", (c) => {
   return c.html(`
 <!DOCTYPE html>
@@ -407,134 +407,249 @@ app.get("/updates/investor/login", (c) => {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Investor Login - Risivo</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <title>Investor Portal - Risivo</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="shortcut icon" href="/favicon.ico">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: 'Inter', sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       min-height: 100vh;
       display: flex;
+      flex-direction: column;
+    }
+    .main-content {
+      flex: 1;
+      display: flex;
       align-items: center;
       justify-content: center;
-      padding: 20px;
+      padding: 40px 20px;
     }
-    .login-card {
-      background: white;
-      border-radius: 16px;
-      padding: 40px;
-      max-width: 420px;
+    .login-container {
+      display: flex;
+      max-width: 900px;
       width: 100%;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      background: white;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 25px 80px rgba(0,0,0,0.25);
     }
-    .logo {
-      text-align: center;
+    .login-left {
+      flex: 1;
+      background: linear-gradient(180deg, rgba(102,126,234,0.1) 0%, rgba(118,75,162,0.1) 100%);
+      padding: 50px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .login-left img {
+      max-width: 200px;
+      margin-bottom: 32px;
+    }
+    .login-left h2 {
+      color: #1a1a2e;
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 16px;
+      line-height: 1.2;
+    }
+    .login-left p {
+      color: #666;
+      font-size: 15px;
+      line-height: 1.6;
       margin-bottom: 24px;
     }
-    .logo img {
-      max-width: 180px;
-      height: auto;
+    .features {
+      list-style: none;
+    }
+    .features li {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #444;
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+    .features li::before {
+      content: '✓';
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-radius: 50%;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .login-right {
+      flex: 1;
+      padding: 50px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .login-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .login-header h3 {
+      color: #1a1a2e;
+      font-size: 24px;
+      font-weight: 700;
       margin-bottom: 8px;
     }
-    .logo p {
-      color: #666;
+    .login-header p {
+      color: #888;
       font-size: 14px;
-      margin-top: 4px;
-    }
-    h2 {
-      text-align: center;
-      color: #333;
-      margin-bottom: 24px;
-      font-size: 20px;
     }
     .form-group {
       margin-bottom: 20px;
     }
-    label {
+    .form-group label {
       display: block;
       margin-bottom: 8px;
-      font-weight: 500;
+      font-weight: 600;
       color: #333;
+      font-size: 14px;
     }
-    input {
+    .form-group input {
       width: 100%;
-      padding: 12px 16px;
-      border: 2px solid #e0e0e0;
-      border-radius: 8px;
-      font-size: 16px;
-      transition: border-color 0.2s;
+      padding: 14px 18px;
+      border: 2px solid #e8e8e8;
+      border-radius: 12px;
+      font-size: 15px;
+      transition: all 0.2s;
+      background: #fafafa;
     }
-    input:focus {
+    .form-group input:focus {
       outline: none;
       border-color: #667eea;
+      background: white;
+      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
     }
-    button {
+    .form-group input::placeholder {
+      color: #aaa;
+    }
+    .submit-btn {
       width: 100%;
-      padding: 14px;
+      padding: 16px;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
       border: none;
-      border-radius: 8px;
+      border-radius: 12px;
       font-size: 16px;
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
+      transition: all 0.3s;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
-    button:hover {
+    .submit-btn:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
     }
-    button:disabled {
+    .submit-btn:disabled {
       opacity: 0.7;
       cursor: not-allowed;
       transform: none;
     }
-    .error {
-      background: #fee2e2;
+    .error-msg {
+      background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
       color: #dc2626;
-      padding: 12px;
-      border-radius: 8px;
+      padding: 14px 18px;
+      border-radius: 12px;
       margin-bottom: 20px;
       display: none;
+      font-size: 14px;
+      border: 1px solid #fca5a5;
     }
-    .error.show { display: block; }
-    .links {
+    .error-msg.show { display: block; }
+    .login-footer {
       text-align: center;
-      margin-top: 20px;
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid #eee;
     }
-    .links a {
+    .login-footer a {
       color: #667eea;
       text-decoration: none;
-      margin: 0 10px;
       font-size: 14px;
+      font-weight: 500;
+      margin: 0 12px;
     }
-    .links a:hover { text-decoration: underline; }
+    .login-footer a:hover { text-decoration: underline; }
+    .page-footer {
+      background: #1a1a2e;
+      color: white;
+      padding: 20px 40px;
+      text-align: center;
+    }
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer-logo img { height: 28px; filter: brightness(0) invert(1); }
+    .footer-copyright { font-size: 13px; opacity: 0.7; }
+    @media (max-width: 768px) {
+      .login-container { flex-direction: column; }
+      .login-left { display: none; }
+      .login-right { padding: 40px 30px; }
+      .footer-content { flex-direction: column; gap: 12px; }
+    }
   </style>
 </head>
 <body>
-  <div class="login-card">
-    <div class="logo">
-      <img src="https://risivo.com/images/risivo-logo.png" alt="Risivo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-      <h1 style="display:none; color:#667eea; font-size:28px; font-weight:700;">Risivo</h1>
-      <p>Investor Portal</p>
+  <div class="main-content">
+    <div class="login-container">
+      <div class="login-left">
+        <img src="/images/risivo-logo.png" alt="Risivo" onerror="this.outerHTML='<h1 style=\\'color:#667eea;font-size:32px;font-weight:800;margin-bottom:32px\\'>Risivo</h1>'">
+        <h2>Exclusive Investor Access</h2>
+        <p>Welcome to the Risivo Investor Portal. Access confidential company information, financial reports, and strategic updates.</p>
+        <ul class="features">
+          <li>Pitch Deck & Business Plan</li>
+          <li>Financial Forecasts & Reports</li>
+          <li>Project Updates & Milestones</li>
+          <li>Video Presentations</li>
+          <li>Direct Communication Channel</li>
+        </ul>
+      </div>
+      <div class="login-right">
+        <div class="login-header">
+          <h3>Investor Sign In</h3>
+          <p>Enter your credentials to access the portal</p>
+        </div>
+        <div id="error" class="error-msg"></div>
+        <form id="loginForm">
+          <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" name="email" required placeholder="investor@example.com">
+          </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required placeholder="Enter your password">
+          </div>
+          <button type="submit" class="submit-btn" id="submitBtn">Access Portal</button>
+        </form>
+        <div class="login-footer">
+          <a href="https://risivo.com">Request Access</a>
+          <a href="https://risivo.com">Back to Risivo.com</a>
+        </div>
+      </div>
     </div>
-    <h2>Investor Login</h2>
-    <div id="error" class="error"></div>
-    <form id="loginForm">
-      <div class="form-group">
-        <label for="email">Email</label>
-        <input type="email" id="email" name="email" required placeholder="your@email.com">
+  </div>
+  <div class="page-footer">
+    <div class="footer-content">
+      <div class="footer-logo">
+        <img src="/images/risivo-logo.png" alt="Risivo" onerror="this.outerHTML='<span style=\\'font-size:18px;font-weight:700\\'>Risivo</span>'">
       </div>
-      <div class="form-group">
-        <label for="password">Password</label>
-        <input type="password" id="password" name="password" required placeholder="Enter your password">
-      </div>
-      <button type="submit" id="submitBtn">Access Investor Portal</button>
-    </form>
-    <div class="links">
-      <a href="https://risivo.com">Request Access</a>
-      <a href="https://risivo.com">Back to Home</a>
+      <div class="footer-copyright">© ${new Date().getFullYear()} Risivo. All rights reserved. Confidential.</div>
     </div>
   </div>
   <script>
@@ -546,7 +661,7 @@ app.get("/updates/investor/login", (c) => {
       const password = document.getElementById('password').value;
       
       btn.disabled = true;
-      btn.textContent = 'Signing in...';
+      btn.textContent = 'Authenticating...';
       error.classList.remove('show');
       
       try {
@@ -560,15 +675,15 @@ app.get("/updates/investor/login", (c) => {
         if (data.success) {
           window.location.href = data.redirect || '/updates/investor/dashboard';
         } else {
-          error.textContent = data.details || data.error || 'Login failed';
+          error.textContent = data.details || data.error || 'Login failed. Please check your credentials.';
           error.classList.add('show');
         }
       } catch (err) {
-        error.textContent = 'Network error. Please try again.';
+        error.textContent = 'Connection error. Please check your internet and try again.';
         error.classList.add('show');
       } finally {
         btn.disabled = false;
-        btn.textContent = 'Access Investor Portal';
+        btn.textContent = 'Access Portal';
       }
     });
   </script>
@@ -577,8 +692,9 @@ app.get("/updates/investor/login", (c) => {
   `);
 });
 
-// Investor dashboard page
+// Investor dashboard page - Professional Risivo Design with CMS Content
 app.get("/updates/investor/dashboard", (c) => {
+  const currentYear = new Date().getFullYear();
   return c.html(`
 <!DOCTYPE html>
 <html lang="en">
@@ -586,152 +702,591 @@ app.get("/updates/investor/dashboard", (c) => {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Investor Dashboard - Risivo</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="shortcut icon" href="/favicon.ico">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: 'Inter', sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       background: #f5f7fa;
       min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
+    /* Header */
     .header {
-      background: linear-gradient(135deg, #1e3a5f 0%, #0d1b2a 100%);
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
-      padding: 20px 40px;
+      padding: 0 40px;
+      box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-inner {
+      max-width: 1400px;
+      margin: 0 auto;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      height: 70px;
     }
-    .header h1 { font-size: 24px; }
-    .header-actions { display: flex; gap: 16px; align-items: center; }
-    .user-info { font-size: 14px; opacity: 0.8; }
-    .logout-btn {
-      background: rgba(255,255,255,0.1);
-      color: white;
-      border: 1px solid rgba(255,255,255,0.3);
-      padding: 8px 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: background 0.2s;
-    }
-    .logout-btn:hover { background: rgba(255,255,255,0.2); }
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 40px;
-    }
-    .welcome-banner {
-      background: white;
-      border-radius: 16px;
-      padding: 32px;
-      margin-bottom: 32px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    }
-    .welcome-banner h2 {
-      color: #1e3a5f;
-      margin-bottom: 8px;
-    }
-    .welcome-banner p { color: #666; }
-    .section-title {
-      font-size: 20px;
-      color: #1e3a5f;
-      margin-bottom: 20px;
+    .header-logo {
       display: flex;
       align-items: center;
+      gap: 16px;
+    }
+    .header-logo img {
+      height: 38px;
+      filter: brightness(0) invert(1);
+    }
+    .header-logo .divider {
+      width: 1px;
+      height: 28px;
+      background: rgba(255,255,255,0.3);
+    }
+    .header-logo .portal-badge {
+      font-size: 13px;
+      font-weight: 600;
+      opacity: 0.95;
+      letter-spacing: 0.5px;
+    }
+    .header-nav {
+      display: flex;
       gap: 8px;
+      align-items: center;
     }
-    .content-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 20px;
+    .nav-link {
+      color: white;
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      opacity: 0.9;
+      transition: all 0.2s;
     }
-    .content-card {
+    .nav-link:hover { opacity: 1; background: rgba(255,255,255,0.1); }
+    .nav-link.active { background: rgba(255,255,255,0.2); opacity: 1; }
+    .header-actions {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .user-avatar {
+      width: 36px;
+      height: 36px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+    }
+    .user-name {
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .logout-btn {
+      background: rgba(255,255,255,0.15);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.3);
+      padding: 10px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .logout-btn:hover { background: rgba(255,255,255,0.25); }
+    
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 32px 40px 60px;
+      width: 100%;
+    }
+    
+    /* Welcome Section */
+    .welcome-section {
       background: white;
+      border-radius: 20px;
+      padding: 40px;
+      margin-bottom: 32px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .welcome-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 6px;
+      height: 100%;
+      background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+    }
+    .welcome-text h1 {
+      color: #1a1a2e;
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+    .welcome-text p {
+      color: #666;
+      font-size: 15px;
+      max-width: 500px;
+    }
+    .welcome-stats {
+      display: flex;
+      gap: 32px;
+    }
+    .stat-item {
+      text-align: center;
+      padding: 16px 24px;
+      background: linear-gradient(135deg, rgba(102,126,234,0.1) 0%, rgba(118,75,162,0.1) 100%);
       border-radius: 12px;
-      padding: 24px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-      transition: transform 0.2s, box-shadow 0.2s;
     }
-    .content-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    .stat-number {
+      font-size: 28px;
+      font-weight: 800;
+      color: #667eea;
     }
-    .content-icon {
-      width: 48px;
-      height: 48px;
-      background: linear-gradient(135deg, #1e3a5f 0%, #0d1b2a 100%);
+    .stat-label {
+      font-size: 12px;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 4px;
+    }
+    
+    /* Section Styles */
+    .section {
+      margin-bottom: 40px;
+    }
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .section-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 24px;
-      margin-bottom: 16px;
+      font-size: 20px;
+      color: white;
+    }
+    .section-title h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1a1a2e;
+    }
+    .section-title p {
+      font-size: 13px;
+      color: #888;
+    }
+    .view-all-btn {
+      color: #667eea;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .view-all-btn:hover { text-decoration: underline; }
+    
+    /* Content Cards */
+    .content-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 24px;
+    }
+    .content-card {
+      background: white;
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+      position: relative;
+    }
+    .content-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 32px rgba(102, 126, 234, 0.18);
+      border-color: #667eea;
+    }
+    .content-card-icon {
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      margin-bottom: 20px;
+      color: white;
     }
     .content-card h3 {
-      color: #1e3a5f;
-      margin-bottom: 8px;
+      color: #1a1a2e;
       font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 10px;
     }
     .content-card p {
       color: #666;
       font-size: 14px;
-      margin-bottom: 16px;
-      line-height: 1.5;
+      line-height: 1.6;
+      margin-bottom: 20px;
     }
-    .view-btn {
+    .content-btn {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      background: linear-gradient(135deg, #1e3a5f 0%, #0d1b2a 100%);
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
-      padding: 10px 20px;
-      border-radius: 8px;
+      padding: 12px 24px;
+      border-radius: 10px;
       text-decoration: none;
       font-size: 14px;
-      font-weight: 500;
-      transition: transform 0.2s;
+      font-weight: 600;
+      transition: all 0.2s;
     }
-    .view-btn:hover { transform: translateY(-2px); }
+    .content-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    /* Update Cards */
+    .updates-grid {
+      display: grid;
+      gap: 20px;
+    }
+    .update-card {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+      display: flex;
+      gap: 24px;
+      align-items: stretch;
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+    }
+    .update-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 28px rgba(102, 126, 234, 0.15);
+      border-color: #667eea;
+    }
+    .update-image {
+      width: 180px;
+      min-height: 120px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: linear-gradient(135deg, rgba(102,126,234,0.1) 0%, rgba(118,75,162,0.1) 100%);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .update-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .update-image .placeholder {
+      font-size: 36px;
+    }
+    .update-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .update-category {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, rgba(102,126,234,0.1) 0%, rgba(118,75,162,0.1) 100%);
+      color: #667eea;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      width: fit-content;
+      margin-bottom: 12px;
+    }
+    .update-title {
+      color: #1a1a2e;
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+    .update-excerpt {
+      color: #666;
+      font-size: 14px;
+      line-height: 1.6;
+      flex: 1;
+    }
+    .update-meta {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #f0f0f0;
+      font-size: 13px;
+      color: #888;
+    }
+    .update-meta span {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    /* Videos Section */
+    .video-card {
+      position: relative;
+    }
+    .video-badge {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 60px 40px;
+      background: white;
+      border-radius: 16px;
+      border: 2px dashed #ddd;
+    }
+    .empty-state-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+    .empty-state h3 {
+      color: #333;
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+    .empty-state p {
+      color: #888;
+      font-size: 14px;
+    }
+    
+    /* Loading */
     .loading {
       text-align: center;
-      padding: 40px;
+      padding: 60px;
       color: #666;
     }
-    .error-message {
-      background: #fee2e2;
-      color: #dc2626;
-      padding: 16px;
-      border-radius: 8px;
-      margin-bottom: 20px;
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f0f0f0;
+      border-top-color: #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 16px;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Footer */
+    .footer {
+      background: #1a1a2e;
+      color: white;
+      padding: 32px 40px;
+    }
+    .footer-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .footer-logo img {
+      height: 32px;
+      filter: brightness(0) invert(1);
+    }
+    .footer-text {
+      font-size: 12px;
+      opacity: 0.7;
+      margin-left: 12px;
+    }
+    .footer-links {
+      display: flex;
+      gap: 24px;
+    }
+    .footer-links a {
+      color: white;
+      text-decoration: none;
+      font-size: 13px;
+      opacity: 0.7;
+      transition: opacity 0.2s;
+    }
+    .footer-links a:hover { opacity: 1; }
+    .footer-copyright {
+      font-size: 13px;
+      opacity: 0.6;
+    }
+    
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .welcome-section { flex-direction: column; gap: 24px; text-align: center; }
+      .welcome-text p { max-width: 100%; }
+    }
+    @media (max-width: 768px) {
+      .header { padding: 0 20px; }
+      .header-nav { display: none; }
+      .main-content { padding: 20px; }
+      .welcome-section { padding: 28px; }
+      .welcome-stats { flex-wrap: wrap; justify-content: center; }
+      .update-card { flex-direction: column; }
+      .update-image { width: 100%; height: 180px; }
+      .footer-inner { flex-direction: column; gap: 20px; text-align: center; }
     }
   </style>
 </head>
 <body>
-  <div class="header">
-    <h1>🏦 Risivo Investor Portal</h1>
-    <div class="header-actions">
-      <span class="user-info" id="userEmail">Loading...</span>
-      <button class="logout-btn" onclick="logout()">Logout</button>
+  <header class="header">
+    <div class="header-inner">
+      <div class="header-logo">
+        <img src="/images/risivo-logo.png" alt="Risivo" onerror="this.outerHTML='<span style=\\'font-size:24px;font-weight:800\\'>Risivo</span>'">
+        <div class="divider"></div>
+        <span class="portal-badge">Investor Portal</span>
+      </div>
+      <nav class="header-nav">
+        <a href="#documents" class="nav-link active">Documents</a>
+        <a href="#updates" class="nav-link">Updates</a>
+        <a href="https://risivo.com" class="nav-link" target="_blank">Main Site</a>
+      </nav>
+      <div class="header-actions">
+        <div class="user-info">
+          <div class="user-avatar" id="userAvatar">?</div>
+          <span class="user-name" id="userName">Loading...</span>
+        </div>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+      </div>
     </div>
-  </div>
+  </header>
   
-  <div class="container">
-    <div class="welcome-banner">
-      <h2>Welcome, <span id="userName">Investor</span>!</h2>
-      <p>Access confidential investor materials below. All documents are protected under NDA.</p>
-    </div>
+  <main class="main-content">
+    <!-- Welcome Section -->
+    <section class="welcome-section">
+      <div class="welcome-text">
+        <h1>Welcome back, <span id="userFirstName">Investor</span>!</h1>
+        <p>Access confidential investor materials, strategic updates, and company performance data. All content is protected under NDA.</p>
+      </div>
+      <div class="welcome-stats">
+        <div class="stat-item">
+          <div class="stat-number" id="docCount">-</div>
+          <div class="stat-label">Documents</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number" id="updateCount">-</div>
+          <div class="stat-label">Updates</div>
+        </div>
+      </div>
+    </section>
     
-    <div id="errorContainer"></div>
+    <!-- Documents Section -->
+    <section class="section" id="documents">
+      <div class="section-header">
+        <div class="section-title">
+          <div class="section-icon">📁</div>
+          <div>
+            <h2>Investor Documents</h2>
+            <p>Access pitch decks, financial forecasts, and business plans</p>
+          </div>
+        </div>
+      </div>
+      <div class="content-grid" id="contentGrid">
+        <div class="loading">
+          <div class="loading-spinner"></div>
+          <p>Loading documents...</p>
+        </div>
+      </div>
+    </section>
     
-    <h3 class="section-title">📁 Investor Materials</h3>
-    <div class="content-grid" id="contentGrid">
-      <div class="loading">Loading investor content...</div>
+    <!-- Updates Section -->
+    <section class="section" id="updates">
+      <div class="section-header">
+        <div class="section-title">
+          <div class="section-icon">📰</div>
+          <div>
+            <h2>Latest Updates</h2>
+            <p>Company news, project milestones, and strategic announcements</p>
+          </div>
+        </div>
+      </div>
+      <div class="updates-grid" id="updatesGrid">
+        <div class="loading">
+          <div class="loading-spinner"></div>
+          <p>Loading updates...</p>
+        </div>
+      </div>
+    </section>
+  </main>
+  
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-logo">
+        <img src="/images/risivo-logo.png" alt="Risivo" onerror="this.outerHTML='<span style=\\'font-size:18px;font-weight:700\\'>Risivo</span>'">
+        <span class="footer-text">Investor Portal</span>
+      </div>
+      <div class="footer-links">
+        <a href="https://risivo.com">Main Website</a>
+        <a href="mailto:investors@risivo.com">Contact</a>
+        <a href="https://risivo.com/privacy">Privacy</a>
+      </div>
+      <div class="footer-copyright">© ${currentYear} Risivo. All rights reserved. Confidential.</div>
     </div>
-  </div>
+  </footer>
   
   <script>
-    // Check authentication and load content
+    let userData = null;
+    
     async function init() {
       try {
         // Get user info
@@ -743,21 +1298,34 @@ app.get("/updates/investor/dashboard", (c) => {
           return;
         }
         
-        document.getElementById('userEmail').textContent = meData.user.email;
-        document.getElementById('userName').textContent = meData.user.first_name || 'Investor';
+        userData = meData.user;
+        document.getElementById('userName').textContent = userData.email;
+        document.getElementById('userFirstName').textContent = userData.first_name || 'Investor';
+        document.getElementById('userAvatar').textContent = (userData.first_name || userData.email)[0].toUpperCase();
         
-        // Load content
+        // Load documents
         const contentRes = await fetch('/api/investor/content');
         const contentData = await contentRes.json();
         
-        if (!contentData.success) {
-          document.getElementById('contentGrid').innerHTML = \`
-            <div class="error-message">\${contentData.error || 'Failed to load content'}</div>
-          \`;
-          return;
+        if (contentData.success && contentData.content && contentData.content.length > 0) {
+          renderContent(contentData.content);
+          document.getElementById('docCount').textContent = contentData.content.length;
+        } else {
+          document.getElementById('contentGrid').innerHTML = renderEmptyState('📁', 'No documents yet', 'Documents will appear here when available.');
+          document.getElementById('docCount').textContent = '0';
         }
         
-        renderContent(contentData.content);
+        // Load updates (articles, project updates from CMS)
+        const updatesRes = await fetch('/api/investor/updates');
+        const updatesData = await updatesRes.json();
+        
+        if (updatesData.success && updatesData.updates && updatesData.updates.length > 0) {
+          renderUpdates(updatesData.updates);
+          document.getElementById('updateCount').textContent = updatesData.updates.length;
+        } else {
+          document.getElementById('updatesGrid').innerHTML = renderEmptyState('📰', 'No updates yet', 'Project updates and announcements will appear here.');
+          document.getElementById('updateCount').textContent = '0';
+        }
         
       } catch (error) {
         console.error('Init error:', error);
@@ -765,24 +1333,69 @@ app.get("/updates/investor/dashboard", (c) => {
       }
     }
     
+    function renderEmptyState(icon, title, desc) {
+      return \`
+        <div class="empty-state">
+          <div class="empty-state-icon">\${icon}</div>
+          <h3>\${title}</h3>
+          <p>\${desc}</p>
+        </div>
+      \`;
+    }
+    
     function renderContent(content) {
       const grid = document.getElementById('contentGrid');
-      
-      if (!content || content.length === 0) {
-        grid.innerHTML = '<p>No content available yet. Please check back later.</p>';
-        return;
-      }
-      
       grid.innerHTML = content.map(item => \`
         <div class="content-card">
-          <div class="content-icon">\${item.icon || '📄'}</div>
-          <h3>\${item.title}</h3>
-          <p>\${item.description || 'Click to view document'}</p>
-          <a href="\${item.file_url}" target="_blank" class="view-btn">
+          <div class="content-card-icon">\${item.icon || '📄'}</div>
+          <h3>\${escapeHtml(item.title)}</h3>
+          <p>\${escapeHtml(item.description || 'Click to view this document')}</p>
+          <a href="\${item.file_url}" target="_blank" class="content-btn">
             \${item.cta_button_text || 'View Document'} →
           </a>
         </div>
       \`).join('');
+    }
+    
+    function renderUpdates(updates) {
+      const grid = document.getElementById('updatesGrid');
+      grid.innerHTML = updates.map(item => {
+        const category = item.investor_categories || {};
+        const categoryIcon = category.icon || '📌';
+        const categoryName = category.name || 'Update';
+        const date = item.published_at ? new Date(item.published_at).toLocaleDateString('en-US', { 
+          year: 'numeric', month: 'long', day: 'numeric' 
+        }) : '';
+        
+        return \`
+          <div class="update-card \${item.video_url ? 'video-card' : ''}">
+            <div class="update-image">
+              \${item.featured_image_url 
+                ? \`<img src="\${item.featured_image_url}" alt="\${escapeHtml(item.title)}">\`
+                : \`<span class="placeholder">\${item.video_url ? '🎬' : '📄'}</span>\`
+              }
+            </div>
+            <div class="update-body">
+              <div class="update-category">\${categoryIcon} \${escapeHtml(categoryName)}</div>
+              <h3 class="update-title">\${escapeHtml(item.title)}</h3>
+              <p class="update-excerpt">\${escapeHtml(item.excerpt || '')}</p>
+              <div class="update-meta">
+                \${date ? \`<span>📅 \${date}</span>\` : ''}
+                \${item.author_name ? \`<span>✍️ \${escapeHtml(item.author_name)}</span>\` : ''}
+                \${item.video_url ? \`<span>🎬 Video</span>\` : ''}
+              </div>
+            </div>
+            \${item.video_url ? '<div class="video-badge">▶ Video</div>' : ''}
+          </div>
+        \`;
+      }).join('');
+    }
+    
+    function escapeHtml(text) {
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
     }
     
     async function logout() {
