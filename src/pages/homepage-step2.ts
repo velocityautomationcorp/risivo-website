@@ -27,10 +27,7 @@ export const HomepageStep2 = () => {
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Risivo</title>
       <link rel="icon" type="image/png" href="/favicon.png">
-      <link rel="preconnect" href="https://fonts.googleapis.com">
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
       <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700&display=swap" rel="stylesheet">
-      <style>${globalStyles}</style>
     </head>
     <body>
       ${Navigation({
@@ -119,7 +116,7 @@ export const HomepageStep2 = () => {
             </div>
           </div>
           <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; text-align: center;">
-            <p style="color: #9ca3af; font-size: 0.875rem;">© ${currentYear} Risivo. All rights reserved.</p>
+            <p style="color: #9ca3af; font-size: 0.875rem;">© ${currentYear} Risivo™ by Velocity Automation Corp. All rights reserved.</p>
           </div>
         </div>
       </footer>

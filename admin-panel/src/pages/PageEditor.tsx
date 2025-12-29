@@ -1,11 +1,31 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { usePages, usePage } from '../hooks/usePages'
+import { useContentBlocks } from '../hooks/useContentBlocks'
+import { ContentBlockEditor } from '../components/ContentBlockEditor'
 import { Button } from '../components/ui/Button'
 import { Input } from '../components/ui/Input'
 import { Card, CardHeader, CardContent } from '../components/ui/Card'
 import { LANGUAGES } from '../types'
+import type { BlockType } from '../types'
 import toast from 'react-hot-toast'
+import { PlusIcon } from '@heroicons/react/24/outline'
+
+const BLOCK_TYPES: { value: BlockType; label: string }[] = [
+  { value: 'hero', label: 'Hero Section' },
+  { value: 'text', label: 'Text Block' },
+  { value: 'image', label: 'Single Image' },
+  { value: 'image_gallery', label: 'Image Gallery' },
+  { value: 'video', label: 'Video' },
+  { value: 'cta', label: 'Call to Action' },
+  { value: 'features', label: 'Features Grid' },
+  { value: 'pricing', label: 'Pricing Table' },
+  { value: 'testimonials', label: 'Testimonials' },
+  { value: 'faq', label: 'FAQ Section' },
+  { value: 'form', label: 'Form' },
+  { value: 'code', label: 'Code Block' },
+  { value: 'divider', label: 'Divider' },
+]
 
 export function PageEditor() {
   const { id } = useParams()
@@ -13,11 +33,16 @@ export function PageEditor() {
   const isNew = id === 'new'
   const { data: pageData, isLoading } = usePage(id || '')
   const { createPage, updatePage } = usePages()
+  const { createBlock, updateBlock, deleteBlock, reorderBlocks } = useContentBlocks()
 
   const [slug, setSlug] = useState('')
   const [template, setTemplate] = useState('default')
   const [metaTitle, setMetaTitle] = useState<Record<string, string>>({})
   const [metaDescription, setMetaDescription] = useState<Record<string, string>>({})
+  const [showAddBlock, setShowAddBlock] = useState(false)
+  const [newBlockType, setNewBlockType] = useState<BlockType>('text')
+
+  const blocks = pageData?.blocks || []
 
   useEffect(() => {
     if (pageData?.page) {
@@ -41,16 +66,68 @@ export function PageEditor() {
 
     try {
       if (isNew) {
-        await createPage(pagePayload)
-        toast.success('Page created!')
-        navigate('/admin/pages')
+        const result = await createPage.mutateAsync(pagePayload)
+        if (result.success && result.data) {
+          toast.success('Page created!')
+          navigate(`/admin/pages/${result.data.id}`)
+        }
       } else if (id) {
-        await updatePage({ id, updates: pagePayload })
+        await updatePage.mutateAsync({ id, updates: pagePayload })
         toast.success('Page updated!')
       }
     } catch (error) {
       toast.error('Failed to save page')
     }
+  }
+
+  const handleAddBlock = async () => {
+    if (!id || isNew) {
+      toast.error('Please save the page first before adding blocks')
+      return
+    }
+
+    const newBlock = {
+      page_id: id,
+      block_type: newBlockType,
+      position: blocks.length,
+      content: { title: 'New Block', description: 'Add your content here' },
+      settings: {},
+    }
+
+    await createBlock.mutateAsync(newBlock)
+    setShowAddBlock(false)
+  }
+
+  const handleUpdateBlock = async (blockId: string, updates: any) => {
+    await updateBlock.mutateAsync({ id: blockId, updates })
+  }
+
+  const handleDeleteBlock = async (blockId: string) => {
+    await deleteBlock.mutateAsync(blockId)
+  }
+
+  const handleMoveBlock = async (blockId: string, direction: 'up' | 'down') => {
+    const blockIndex = blocks.findIndex((b) => b.id === blockId)
+    if (blockIndex === -1) return
+
+    const newBlocks = [...blocks]
+    const targetIndex = direction === 'up' ? blockIndex - 1 : blockIndex + 1
+
+    if (targetIndex < 0 || targetIndex >= newBlocks.length) return
+
+    // Swap positions
+    ;[newBlocks[blockIndex], newBlocks[targetIndex]] = [
+      newBlocks[targetIndex],
+      newBlocks[blockIndex],
+    ]
+
+    // Update positions
+    const reorderedBlocks = newBlocks.map((block, index) => ({
+      id: block.id,
+      position: index,
+    }))
+
+    await reorderBlocks.mutateAsync(reorderedBlocks)
   }
 
   if (isLoading && !isNew) {
@@ -64,7 +141,7 @@ export function PageEditor() {
           {isNew ? 'New Page' : 'Edit Page'}
         </h1>
         <Button variant="secondary" onClick={() => navigate('/admin/pages')}>
-          Cancel
+          Back to Pages
         </Button>
       </div>
 
@@ -144,6 +221,71 @@ export function PageEditor() {
           </Button>
         </div>
       </form>
+
+      {/* Content Blocks Section */}
+      {!isNew && id && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold text-gray-900">Content Blocks</h2>
+            <Button onClick={() => setShowAddBlock(!showAddBlock)}>
+              <PlusIcon className="h-5 w-5 mr-2" />
+              Add Block
+            </Button>
+          </div>
+
+          {showAddBlock && (
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-end space-x-3">
+                  <div className="flex-1">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Block Type
+                    </label>
+                    <select
+                      value={newBlockType}
+                      onChange={(e) => setNewBlockType(e.target.value as BlockType)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    >
+                      {BLOCK_TYPES.map((type) => (
+                        <option key={type.value} value={type.value}>
+                          {type.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <Button onClick={handleAddBlock}>Add Block</Button>
+                  <Button variant="secondary" onClick={() => setShowAddBlock(false)}>
+                    Cancel
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {blocks.length === 0 ? (
+            <Card>
+              <CardContent className="p-8 text-center text-gray-500">
+                No content blocks yet. Click "Add Block" to get started.
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-4">
+              {blocks.map((block, index) => (
+                <ContentBlockEditor
+                  key={block.id}
+                  block={block}
+                  onUpdate={handleUpdateBlock}
+                  onDelete={handleDeleteBlock}
+                  onMoveUp={() => handleMoveBlock(block.id, 'up')}
+                  onMoveDown={() => handleMoveBlock(block.id, 'down')}
+                  canMoveUp={index > 0}
+                  canMoveDown={index < blocks.length - 1}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }

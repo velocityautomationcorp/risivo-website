@@ -1,0 +1,299 @@
+import { html } from 'hono/html';
+
+export const ResetPasswordNewPage = (token: string = '', email: string = '') => html`
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset Password - Risivo</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .reset-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 480px;
+            width: 100%;
+            padding: 48px 40px;
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        
+        .logo img {
+            height: 40px;
+        }
+        
+        h2 {
+            color: #1a202c;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+        
+        .subtitle {
+            color: #718096;
+            font-size: 15px;
+            text-align: center;
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+        
+        .success-message,
+        .error-message {
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            font-size: 14px;
+            display: none;
+        }
+        
+        .success-message {
+            background: #c6f6d5;
+            border-left: 4px solid #38a169;
+            color: #22543d;
+        }
+        
+        .error-message {
+            background: #fed7d7;
+            border-left: 4px solid #e53e3e;
+            color: #c53030;
+        }
+        
+        .success-message.show,
+        .error-message.show {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        .form-group label {
+            display: block;
+            color: #2d3748;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 15px;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .password-requirements {
+            margin-top: 8px;
+            padding: 12px;
+            background: #f7fafc;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #4a5568;
+            line-height: 1.6;
+        }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+        
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .login-link {
+            text-align: center;
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        .login-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="reset-container">
+        <div class="logo">
+            <img src="/risivo-logo.png" alt="Risivo Logo" />
+        </div>
+        
+        <h2>Reset Your Password 🔐</h2>
+        <p class="subtitle">Enter your new password below.</p>
+        
+        <div id="successMessage" class="success-message"></div>
+        <div id="errorMessage" class="error-message"></div>
+        
+        <form id="resetForm">
+            <input type="hidden" id="token" value="${token}" />
+            <input type="hidden" id="email" value="${email}" />
+            
+            <div class="form-group">
+                <label for="password">New Password</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    placeholder="Create a strong password"
+                    required
+                    minlength="8"
+                >
+                <div class="password-requirements">
+                    • At least 8 characters long<br>
+                    • Include uppercase and lowercase letters<br>
+                    • Include at least one number
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <input 
+                    type="password" 
+                    id="confirmPassword" 
+                    name="confirmPassword" 
+                    placeholder="Re-enter your password"
+                    required
+                >
+            </div>
+            
+            <button type="submit" class="submit-btn" id="submitBtn">
+                Reset Password
+            </button>
+        </form>
+        
+        <div class="login-link">
+            <a href="/updates/login">← Back to Login</a>
+        </div>
+    </div>
+    
+    <script>
+        const form = document.getElementById('resetForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const errorMessage = document.getElementById('errorMessage');
+        const successMessage = document.getElementById('successMessage');
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+        
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const token = document.getElementById('token').value;
+            const password = passwordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+            
+            if (password !== confirmPassword) {
+                errorMessage.textContent = 'Passwords do not match.';
+                errorMessage.classList.add('show');
+                successMessage.classList.remove('show');
+                return;
+            }
+            
+            if (password.length < 8) {
+                errorMessage.textContent = 'Password must be at least 8 characters.';
+                errorMessage.classList.add('show');
+                successMessage.classList.remove('show');
+                return;
+            }
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Resetting...';
+            errorMessage.classList.remove('show');
+            successMessage.classList.remove('show');
+            
+            try {
+                const response = await fetch('/api/auth/reset-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: token, password: password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    successMessage.textContent = 'Password reset successfully! Redirecting to login...';
+                    successMessage.classList.add('show');
+                    
+                    setTimeout(() => {
+                        window.location.href = '/updates/login';
+                    }, 2000);
+                } else {
+                    errorMessage.textContent = data.error || 'Failed to reset password. Please try again.';
+                    errorMessage.classList.add('show');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Reset Password';
+                }
+            } catch (error) {
+                errorMessage.textContent = 'Network error. Please try again later.';
+                errorMessage.classList.add('show');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Reset Password';
+            }
+        });
+        
+        // Real-time password matching feedback
+        confirmPasswordInput.addEventListener('input', () => {
+            if (confirmPasswordInput.value && passwordInput.value !== confirmPasswordInput.value) {
+                confirmPasswordInput.style.borderColor = '#fc8181';
+            } else {
+                confirmPasswordInput.style.borderColor = '#e2e8f0';
+            }
+        });
+    </script>
+</body>
+</html>
+`;

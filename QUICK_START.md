@@ -1,154 +1,111 @@
-# ⚡ Quick Start - Deploy in 10 Minutes
+# 🚀 ADMIN PANEL - QUICK START GUIDE
 
-## Option 1: Auto-Deployment (Recommended) 🔄
-
-**Setup once, deploy automatically forever!**
-
-### 1. Connect GitHub to Cloudflare (5 min)
-1. Go to: https://dash.cloudflare.com/
-2. Click **Workers & Pages** → **Create application** → **Pages**
-3. Click **Connect to Git** → Select **GitHub**
-4. Choose: `velocityautomationcorp/risivo-website`
-5. Configure:
-   - **Production branch:** `main`
-   - **Build command:** `npm run build`
-   - **Build output directory:** `dist`
-
-### 2. Add Environment Variable (1 min)
-Click **Add variable**:
-- **Name:** `WEBHOOK_URL`
-- **Value:** Your Make.com webhook URL
-
-Click **Save and Deploy**
-
-### 3. Add Custom Domain (2 min)
-1. Go to project → **Custom domains** tab
-2. Add: `www.risivo.com`
-3. Done! SSL auto-configured.
-
-### 4. Setup Make.com Webhook (2 min)
-1. Create scenario in Make.com
-2. Add **Webhooks** → **Custom webhook**
-3. Copy webhook URL
-4. Add to Cloudflare environment variables (done in step 2)
-5. Add modules:
-   - **Google Sheets** - Add row
-   - **Email** - Send auto-response
-
-**✅ Done!** Now every `git push` auto-deploys in ~1-2 minutes.
+**Package Ready:** ✅ `risivo-admin-panel-complete.zip` (31 KB, 59 files)
 
 ---
 
-## Option 2: Manual Deployment 🔨
+## ⚡ **3-STEP INSTALLATION (10 MINUTES)**
 
-### 1. Build Project
+### **STEP 1: Get the ZIP File**
+
+The ZIP file is committed to your Git repository. Pull it to your local machine:
+
 ```bash
-cd risivo-website
+cd C:\Users\Buzgrowth\Documents\risivo-website
+git pull origin staging
+```
+
+**Result:** You'll have `risivo-admin-panel-complete.zip` in your project root.
+
+---
+
+### **STEP 2: Extract & Setup**
+
+```bash
+# Extract the ZIP (creates admin-panel/ folder)
+# On Windows: Right-click → Extract All
+# Or use command: tar -xf risivo-admin-panel-complete.zip
+
+cd admin-panel
+
+# Install dependencies
 npm install
-npm run build
+
+# Create .env file
+copy .env.example .env
+# Then edit .env with your Supabase credentials
 ```
 
-### 2. Deploy to Cloudflare
-```bash
-npx wrangler pages deploy dist --project-name risivo-coming-soon
-```
-
-### 3. Add Webhook URL
-```bash
-npx wrangler pages secret put WEBHOOK_URL --project-name risivo-coming-soon
-# Paste your Make.com webhook URL
-```
-
-### 4. Setup Custom Domain
-```bash
-# In Cloudflare Dashboard:
-# Workers & Pages → Your project → Custom domains → Add: www.risivo.com
-```
-
-**⚠️ Manual:** You need to run `npm run deploy` after every change.
-
----
-
-## 🪝 Make.com Webhook Setup (5 min)
-
-### Quick Setup:
-1. Create new scenario: "Risivo Email Capture"
-2. Add **Webhooks** → **Custom webhook**
-3. Copy webhook URL
-4. Add module: **Google Sheets** → **Add a row**
-   - Map: `{{1.email}}`, `{{1.timestamp}}`, `{{1.source}}`
-5. Add module: **Gmail** → **Send an Email**
-   - To: `{{1.email}}`
-   - Subject: "Thanks for subscribing to Risivo!"
-6. Click **ON** to activate
-
----
-
-## 📝 Making Changes
-
-### Change Launch Date:
-```typescript
-// src/index.tsx - Line 48
-const launchDate = new Date('2026-03-01T00:00:00').getTime()
-```
-
-### Change Text:
-```html
-<!-- Line 335 -->
-<div class="subtitle">Your New Headline</div>
-
-<!-- Line 337 -->
-<p class="description">Your new description...</p>
-```
-
-### Deploy Changes:
-
-**Auto-deployment:**
-```bash
-git add .
-git commit -m "Update text"
-git push origin main
-# Wait 1-2 minutes - auto-deploys!
-```
-
-**Manual deployment:**
-```bash
-npm run build
-npm run deploy
+**Your `.env` file:**
+```env
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key-here
+VITE_API_BASE_URL=https://risivo-staging.pages.dev/api/cms
 ```
 
 ---
 
-## ✅ Deployment Checklist
+### **STEP 3: Run It!**
 
-- [ ] Deploy to Cloudflare ✓
-- [ ] Add WEBHOOK_URL secret ✓
-- [ ] Setup Make.com webhook ✓
-- [ ] Connect Google Sheets ✓
-- [ ] Setup email auto-response ✓
-- [ ] Add custom domain (www.risivo.com) ✓
-- [ ] Test form submission ✓
-- [ ] Verify emails in sheet ✓
-
----
-
-## 🆘 Quick Troubleshooting
-
-**Form not submitting?**
 ```bash
-npx wrangler pages secret list --project-name risivo-coming-soon
-# Check if WEBHOOK_URL is set
+npm run dev
 ```
 
-**Auto-deployment not working?**
-- Check Cloudflare Dashboard → Deployments tab
-- Verify build command: `npm run build`
-- Verify output: `dist`
-
-**Domain not working?**
-- Wait 5-10 minutes (DNS propagation)
-- Check SSL status in Cloudflare
+**Open:** http://localhost:3001  
+**Login:** Use your Supabase admin credentials
 
 ---
 
-**📚 Full Guide:** See `DEPLOYMENT_COMPLETE_GUIDE.md` for detailed instructions.
+## ✅ **WHAT YOU'LL GET**
+
+- ✅ Professional admin dashboard
+- ✅ Pages manager (create, edit, delete, publish)
+- ✅ Multi-language support (6 languages)
+- ✅ Secure authentication
+- ✅ Responsive design
+- ✅ Production-ready code
+
+---
+
+## 📊 **PACKAGE CONTENTS**
+
+**59 files total:**
+- 8 configuration files
+- 4 core files
+- 11 UI components
+- 6 page components
+- 6 utility/hook files
+- 1 documentation file
+- 23 directories
+
+**Size:** 31 KB compressed, ~200 KB uncompressed (before node_modules)
+
+---
+
+## 🎯 **NEXT ACTIONS**
+
+1. **Pull from Git** - `git pull origin staging`
+2. **Extract ZIP** - Right-click → Extract All
+3. **Install** - `npm install`
+4. **Configure** - Create `.env` with Supabase credentials
+5. **Run** - `npm run dev`
+6. **Login** - http://localhost:3001
+
+---
+
+## 📖 **DETAILED GUIDES**
+
+For more details, see:
+- `ADMIN_PANEL_ZIP_GUIDE.md` - Complete installation guide
+- `ADMIN_PANEL_COMPLETE.md` - Full feature documentation
+- `admin-panel/README.md` - Technical documentation
+
+---
+
+**Estimated Time:** 10-15 minutes  
+**Difficulty:** Easy  
+**Status:** ✅ Ready to use
+
+---
+
+🎉 **You're almost there! Just 3 steps away from a fully working admin panel!**

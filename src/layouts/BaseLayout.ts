@@ -100,7 +100,7 @@ export function BaseLayout({
           ? Footer({
               columns: footerColumns,
               socialLinks: socialLinks,
-              copyrightText: `© ${new Date().getFullYear()} Velocity Automation Corp. All rights reserved.`,
+              copyrightText: `© ${new Date().getFullYear()} Risivo™ by Velocity Automation Corp. All rights reserved.`,
             })
           : ""
       }

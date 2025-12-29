@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CMS API Test</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h1 { color: #333; margin-top: 0; }
+    button {
+      background: #0066cc;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-right: 10px;
+    }
+    button:hover { background: #0052a3; }
+    #result {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 6px;
+      white-space: pre-wrap;
+      font-family: monospace;
+      font-size: 13px;
+      border: 1px solid #dee2e6;
+    }
+    .error { color: #dc3545; }
+    .success { color: #28a745; }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      margin-top: 15px;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧪 CMS API Test Tool</h1>
+    <p>Test your CMS API endpoints directly from the browser</p>
+    
+    <label for="apiUrl">API Base URL:</label>
+    <input 
+      type="text" 
+      id="apiUrl" 
+      value="https://f8752661.risivo-staging.pages.dev/api/cms" 
+      placeholder="https://your-deployment.pages.dev/api/cms"
+    />
+    
+    <label for="authToken">Authorization Token (optional):</label>
+    <input 
+      type="text" 
+      id="authToken" 
+      placeholder="Bearer eyJhbGc..."
+    />
+
+    <div style="margin-top: 20px;">
+      <button onclick="testHealth()">🏥 Test Health</button>
+      <button onclick="testGetPages()">📄 Get Pages</button>
+      <button onclick="testCreatePage()">➕ Create Test Page</button>
+    </div>
+
+    <div id="result"></div>
+  </div>
+
+  <script>
+    const resultDiv = document.getElementById('result');
+    
+    function getApiUrl() {
+      return document.getElementById('apiUrl').value.trim();
+    }
+    
+    function getHeaders() {
+      const headers = {
+        'Content-Type': 'application/json',
+      };
+      const token = document.getElementById('authToken').value.trim();
+      if (token) {
+        headers['Authorization'] = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
+      }
+      return headers;
+    }
+    
+    async function testHealth() {
+      resultDiv.innerHTML = '⏳ Testing health endpoint...';
+      try {
+        const response = await fetch(`${getApiUrl().replace('/cms', '')}/health`);
+        const data = await response.json();
+        resultDiv.className = 'success';
+        resultDiv.innerHTML = `✅ Health Check Successful!\n\nStatus: ${response.status}\n\n${JSON.stringify(data, null, 2)}`;
+      } catch (error) {
+        resultDiv.className = 'error';
+        resultDiv.innerHTML = `❌ Error:\n\n${error.message}`;
+      }
+    }
+    
+    async function testGetPages() {
+      resultDiv.innerHTML = '⏳ Fetching pages...';
+      try {
+        const response = await fetch(`${getApiUrl()}/admin/pages`, {
+          headers: getHeaders()
+        });
+        const data = await response.json();
+        
+        if (response.ok) {
+          resultDiv.className = 'success';
+          resultDiv.innerHTML = `✅ GET /admin/pages Successful!\n\nStatus: ${response.status}\nPages Count: ${data.data?.length || 0}\n\n${JSON.stringify(data, null, 2)}`;
+        } else {
+          resultDiv.className = 'error';
+          resultDiv.innerHTML = `❌ Error (${response.status}):\n\n${JSON.stringify(data, null, 2)}`;
+        }
+      } catch (error) {
+        resultDiv.className = 'error';
+        resultDiv.innerHTML = `❌ Network Error:\n\n${error.message}`;
+      }
+    }
+    
+    async function testCreatePage() {
+      resultDiv.innerHTML = '⏳ Creating test page...';
+      
+      const pageData = {
+        slug: `test-page-${Date.now()}`,
+        template: 'default',
+        status: 'draft',
+        meta_title: {
+          en: 'Test Page',
+          de: 'Testseite'
+        },
+        meta_description: {
+          en: 'This is a test page',
+          de: 'Dies ist eine Testseite'
+        },
+        meta_keywords: {},
+        layout: 'default',
+        include_header: true,
+        include_footer: true
+      };
+      
+      try {
+        const response = await fetch(`${getApiUrl()}/admin/pages`, {
+          method: 'POST',
+          headers: getHeaders(),
+          body: JSON.stringify(pageData)
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+          resultDiv.className = 'success';
+          resultDiv.innerHTML = `✅ POST /admin/pages Successful!\n\nStatus: ${response.status}\n\n${JSON.stringify(data, null, 2)}`;
+        } else {
+          resultDiv.className = 'error';
+          resultDiv.innerHTML = `❌ Error (${response.status}):\n\n${JSON.stringify(data, null, 2)}`;
+        }
+      } catch (error) {
+        resultDiv.className = 'error';
+        resultDiv.innerHTML = `❌ Network Error:\n\n${error.message}`;
+      }
+    }
+  </script>
+</body>
+</html>

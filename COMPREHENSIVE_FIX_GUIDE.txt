@@ -1,0 +1,378 @@
+=================================================================
+COMPREHENSIVE FIX - ALL ISSUES RESOLVED IN ONE PATCH
+=================================================================
+
+This patch includes ALL fixes we've worked on:
+1. ✅ Global CSS container width (1600px)
+2. ✅ Header spacing (60px)
+3. ✅ Responsive table behavior
+4. ✅ Investor dashboard container width
+5. ✅ NDA review page 500 error fix
+
+=================================================================
+OPTION 1: AUTOMATIC PATCH (Recommended)
+=================================================================
+
+Step 1: Save this patch file
+   - I'll provide the patch content below
+   - Save it as: COMPREHENSIVE_FIX.patch
+   - Location: C:\Users\Buzgrowth\Documents\risivo-website\
+
+Step 2: Apply the patch
+   cd C:\Users\Buzgrowth\Documents\risivo-website
+   git apply COMPREHENSIVE_FIX.patch
+
+Step 3: Build and deploy
+   npm run build
+   npm run deploy:production
+
+=================================================================
+OPTION 2: MANUAL CHANGES (If patch fails)
+=================================================================
+
+FILE 1: public\static\risivo-global.css
+-----------------------------------------------------------------
+
+CHANGE 1: Container Width (Line ~170)
+FIND:
+    .container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: var(--spacing-2xl) var(--spacing-lg);
+    }
+
+    .container-lg {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: var(--spacing-2xl) var(--spacing-lg);
+    }
+
+    .container-full {
+        max-width: 100%;
+        padding: var(--spacing-2xl) var(--spacing-lg);
+    }
+
+REPLACE WITH:
+    .container {
+        max-width: 1600px;
+        margin: 0 auto;
+        padding: var(--spacing-2xl) 40px;
+    }
+
+    .container-lg {
+        max-width: 1600px;
+        margin: 0 auto;
+        padding: var(--spacing-2xl) 40px;
+    }
+
+    .container-full {
+        max-width: 100%;
+        padding: var(--spacing-2xl) 40px;
+    }
+
+    /* Responsive Container Widths */
+    @media (min-width: 1400px) {
+        .container,
+        .container-lg {
+            max-width: 1600px;
+        }
+    }
+
+    @media (min-width: 900px) and (max-width: 1399px) {
+        .container,
+        .container-lg {
+            max-width: 1400px;
+        }
+    }
+
+    @media (max-width: 899px) {
+        .container,
+        .container-lg {
+            max-width: 100%;
+            padding: var(--spacing-2xl) var(--spacing-lg);
+        }
+    }
+
+-----------------------------------------------------------------
+
+CHANGE 2: Header Spacing (Line ~509)
+FIND:
+    .header {
+        background: var(--color-background);
+        padding: var(--spacing-lg) 0;
+        box-shadow: var(--shadow-lg);
+        position: sticky;
+        top: 0;
+        z-index: var(--z-sticky);
+    }
+
+REPLACE WITH:
+    .header {
+        background: var(--color-background);
+        padding: var(--spacing-lg) 0;
+        box-shadow: var(--shadow-lg);
+        position: sticky;
+        top: 0;
+        z-index: var(--z-sticky);
+        margin-bottom: 60px;  /* Ensures proper spacing between header and content */
+    }
+
+-----------------------------------------------------------------
+
+CHANGE 3: Admin Tables (Line ~1169)
+FIND:
+    .admin-table-container {
+        background: var(--color-white);
+        border-radius: var(--radius-2xl);
+        overflow: hidden;
+        box-shadow: var(--shadow-md);
+    }
+
+    .admin-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+REPLACE WITH:
+    .admin-table-container {
+        background: var(--color-white);
+        border-radius: var(--radius-2xl);
+        overflow: hidden;
+        box-shadow: var(--shadow-md);
+        margin-bottom: var(--spacing-2xl);
+    }
+
+    /* Desktop/Tablet: Allow horizontal scroll for wide tables */
+    @media (min-width: 769px) {
+        .admin-table-container {
+            overflow-x: auto;
+        }
+    }
+
+    /* Mobile: No horizontal scroll, stack content */
+    @media (max-width: 768px) {
+        .admin-table-container {
+            overflow-x: visible;
+        }
+    }
+
+    .admin-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 900px;  /* Minimum width for proper layout */
+    }
+
+    @media (min-width: 1400px) {
+        .admin-table {
+            min-width: auto;  /* Let table expand naturally on large screens */
+        }
+    }
+
+-----------------------------------------------------------------
+
+CHANGE 4: Utility Classes (Line ~1283 - ADD BEFORE "Text Alignment")
+ADD THIS NEW SECTION:
+    /* Page Header Utilities */
+    .page-header {
+        margin-bottom: 60px !important;  /* Consistent spacing across all pages */
+    }
+
+    .page-title {
+        font-size: var(--font-size-4xl);
+        font-weight: 700;
+        color: var(--color-text-primary);
+        margin-bottom: var(--spacing-md);
+    }
+
+    .page-subtitle {
+        font-size: var(--font-size-base);
+        color: var(--color-text-secondary);
+        margin-bottom: 0;
+    }
+
+-----------------------------------------------------------------
+
+CHANGE 5: Mobile Responsive (Line ~1348 - INSIDE @media (max-width: 768px))
+FIND (inside the @media block):
+    .container,
+    .container-lg {
+        padding: var(--spacing-lg) var(--spacing-md);
+    }
+
+REPLACE WITH:
+    .container,
+    .container-lg {
+        padding: var(--spacing-lg) var(--spacing-md);
+        max-width: 100%;
+    }
+    
+    .header {
+        margin-bottom: 30px;  /* Reduced spacing on mobile */
+    }
+    
+    .page-header {
+        margin-bottom: 30px !important;  /* Reduced spacing on mobile */
+    }
+
+-----------------------------------------------------------------
+
+CHANGE 6: Mobile Tables (Line ~1435 - INSIDE @media (max-width: 768px))
+FIND:
+    /* Admin Table Scroll on Mobile */
+    .admin-table-container {
+        overflow-x: auto;
+    }
+    
+    .admin-table {
+        min-width: 600px;
+    }
+
+REPLACE WITH:
+    /* Mobile: NO horizontal scroll for tables */
+    .admin-table-container {
+        overflow-x: visible;
+        border-radius: var(--radius-lg);
+    }
+    
+    .admin-table {
+        min-width: auto;
+        font-size: var(--font-size-sm);
+    }
+    
+    .admin-table th,
+    .admin-table td {
+        padding: var(--spacing-sm);
+    }
+
+=================================================================
+
+FILE 2: src\pages\investor-dashboard-v2.tsx
+-----------------------------------------------------------------
+
+CHANGE 1: Dashboard Container (Line ~26)
+FIND:
+    .dashboard-container {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+REPLACE WITH:
+    .dashboard-container {
+        max-width: 1600px;
+        margin: 0 auto;
+        padding: 0 40px;
+    }
+    
+    @media (max-width: 899px) {
+        .dashboard-container {
+            padding: 0 20px;
+        }
+    }
+
+-----------------------------------------------------------------
+
+CHANGE 2: Dashboard Header (Line ~31)
+FIND:
+    .dashboard-header {
+        background: white;
+        border-radius: 16px;
+        padding: 40px 30px 30px 30px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        position: relative;
+    }
+
+REPLACE WITH:
+    .dashboard-header {
+        background: white;
+        border-radius: 16px;
+        padding: 40px 30px 30px 30px;
+        margin-bottom: 60px;  /* Increased spacing */
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        position: relative;
+    }
+
+=================================================================
+
+FILE 3: src\pages\investor-nda-review.tsx
+-----------------------------------------------------------------
+
+CHANGE: Make User Parameter Optional (Line 3)
+FIND:
+    export const InvestorNDAReviewPage = (user: any) => {
+
+REPLACE WITH:
+    export const InvestorNDAReviewPage = (user: any = { first_name: 'Investor', last_name: '', business_name: '' }) => {
+
+=================================================================
+VERIFICATION AFTER DEPLOYMENT
+=================================================================
+
+1. Admin Investor Management Page
+   URL: https://risivo.com/updates/admin/investors
+   ✓ Container should be 1600px wide (desktop)
+   ✓ Header has 60px spacing below it
+   ✓ Table fits without horizontal scroll
+   ✓ All buttons visible and working
+   ✓ No JavaScript errors in console
+
+2. Admin Dashboard
+   URL: https://risivo.com/updates/admin/dashboard
+   ✓ Wide container layout
+   ✓ Proper header spacing
+   ✓ Table displays correctly
+
+3. Investor Dashboard
+   URL: https://risivo.com/updates/dashboard
+   ✓ 1600px container width
+   ✓ 60px header margin
+   ✓ Responsive on mobile
+
+4. NDA Review Page
+   URL: https://risivo.com/updates/investor/nda-review
+   ✓ Page loads (no 500 error)
+   ✓ NDA content displays
+   ✓ Sign button functional
+   ✓ Shows "Welcome, Investor!" if no user logged in
+
+5. Mobile Testing (< 768px)
+   ✓ NO horizontal scroll
+   ✓ Content stacks vertically
+   ✓ 30px header spacing
+   ✓ Tables are readable
+
+=================================================================
+SUMMARY OF ALL FIXES
+=================================================================
+
+✅ Container Width: 900px → 1600px (desktop)
+✅ Header Spacing: Added 60px margin-bottom
+✅ Responsive Breakpoints: 1600px (desktop), 1400px (tablet), 100% (mobile)
+✅ Table Behavior: Smart scrolling (desktop: auto, mobile: visible)
+✅ Page Header Utility: 60px consistent spacing
+✅ Investor Dashboard: 1600px container, 60px header margin
+✅ NDA Review: Optional user parameter (fixes 500 error)
+✅ Mobile Optimization: No horizontal scroll, compact spacing
+
+=================================================================
+BUILD AND DEPLOY
+=================================================================
+
+cd C:\Users\Buzgrowth\Documents\risivo-website
+
+npm run build
+
+npm run deploy:production
+
+# Then wait 2-3 minutes and test all pages above
+
+=================================================================
+IF YOU ENCOUNTER ANY ISSUES
+=================================================================
+
+1. Build fails → Check for syntax errors in changes
+2. Patch fails → Use OPTION 2 (manual changes) instead
+3. Old CSS still showing → Purge Cloudflare cache
+4. Page errors → Check browser console for specific error
+
+=================================================================

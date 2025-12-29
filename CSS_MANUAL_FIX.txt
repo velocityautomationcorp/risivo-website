@@ -1,0 +1,275 @@
+=======================================================
+MANUAL CSS FIX - Copy and Paste These Changes
+=======================================================
+
+FILE: public\static\risivo-global.css
+
+FIND THIS SECTION (around line 167-185):
+-------------------------------------------------------
+/* ============================================
+   LAYOUT CONTAINERS
+   ============================================ */
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: var(--spacing-2xl) var(--spacing-lg);
+}
+
+.container-lg {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--spacing-2xl) var(--spacing-lg);
+}
+
+.container-full {
+    max-width: 100%;
+    padding: var(--spacing-2xl) var(--spacing-lg);
+}
+-------------------------------------------------------
+
+REPLACE IT WITH THIS:
+-------------------------------------------------------
+/* ============================================
+   LAYOUT CONTAINERS
+   ============================================ */
+.container {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: var(--spacing-2xl) 40px;
+}
+
+.container-lg {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: var(--spacing-2xl) 40px;
+}
+
+.container-full {
+    max-width: 100%;
+    padding: var(--spacing-2xl) 40px;
+}
+
+/* Responsive Container Widths */
+@media (min-width: 1400px) {
+    .container,
+    .container-lg {
+        max-width: 1600px;
+    }
+}
+
+@media (min-width: 900px) and (max-width: 1399px) {
+    .container,
+    .container-lg {
+        max-width: 1400px;
+    }
+}
+
+@media (max-width: 899px) {
+    .container,
+    .container-lg {
+        max-width: 100%;
+        padding: var(--spacing-2xl) var(--spacing-lg);
+    }
+}
+-------------------------------------------------------
+
+=======================================================
+SECOND FIX - HEADER SPACING
+=======================================================
+
+FIND THIS SECTION (around line 509-516):
+-------------------------------------------------------
+.header {
+    background: var(--color-background);
+    padding: var(--spacing-lg) 0;
+    box-shadow: var(--shadow-lg);
+    position: sticky;
+    top: 0;
+    z-index: var(--z-sticky);
+}
+-------------------------------------------------------
+
+REPLACE IT WITH THIS:
+-------------------------------------------------------
+.header {
+    background: var(--color-background);
+    padding: var(--spacing-lg) 0;
+    box-shadow: var(--shadow-lg);
+    position: sticky;
+    top: 0;
+    z-index: var(--z-sticky);
+    margin-bottom: 60px;  /* Ensures proper spacing between header and content */
+}
+-------------------------------------------------------
+
+=======================================================
+THIRD FIX - TABLE RESPONSIVE BEHAVIOR
+=======================================================
+
+FIND THIS SECTION (around line 1169-1179):
+-------------------------------------------------------
+.admin-table-container {
+    background: var(--color-white);
+    border-radius: var(--radius-2xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+-------------------------------------------------------
+
+REPLACE IT WITH THIS:
+-------------------------------------------------------
+.admin-table-container {
+    background: var(--color-white);
+    border-radius: var(--radius-2xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    margin-bottom: var(--spacing-2xl);
+}
+
+/* Desktop/Tablet: Allow horizontal scroll for wide tables */
+@media (min-width: 769px) {
+    .admin-table-container {
+        overflow-x: auto;
+    }
+}
+
+/* Mobile: No horizontal scroll, stack content */
+@media (max-width: 768px) {
+    .admin-table-container {
+        overflow-x: visible;
+    }
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 900px;  /* Minimum width for proper layout */
+}
+
+@media (min-width: 1400px) {
+    .admin-table {
+        min-width: auto;  /* Let table expand naturally on large screens */
+    }
+}
+-------------------------------------------------------
+
+=======================================================
+FOURTH FIX - UTILITY CLASSES (ADD BEFORE "Text Alignment")
+=======================================================
+
+FIND THIS SECTION (around line 1282-1288):
+-------------------------------------------------------
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+/* Text Alignment */
+.text-left { text-align: left; }
+-------------------------------------------------------
+
+ADD THIS RIGHT AFTER "UTILITY CLASSES" AND BEFORE "Text Alignment":
+-------------------------------------------------------
+
+/* Page Header Utilities */
+.page-header {
+    margin-bottom: 60px !important;  /* Consistent spacing across all pages */
+}
+
+.page-title {
+    font-size: var(--font-size-4xl);
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin-bottom: var(--spacing-md);
+}
+
+.page-subtitle {
+    font-size: var(--font-size-base);
+    color: var(--color-text-secondary);
+    margin-bottom: 0;
+}
+
+/* Text Alignment */
+-------------------------------------------------------
+
+=======================================================
+FIFTH FIX - MOBILE RESPONSIVE UPDATES
+=======================================================
+
+FIND THIS SECTION (around line 1435-1441):
+-------------------------------------------------------
+    /* Admin Table Scroll on Mobile */
+    .admin-table-container {
+        overflow-x: auto;
+    }
+    
+    .admin-table {
+        min-width: 600px;
+    }
+}
+-------------------------------------------------------
+
+REPLACE IT WITH THIS:
+-------------------------------------------------------
+    /* Mobile: NO horizontal scroll for tables */
+    .admin-table-container {
+        overflow-x: visible;
+        border-radius: var(--radius-lg);
+    }
+    
+    .admin-table {
+        min-width: auto;
+        font-size: var(--font-size-sm);
+    }
+    
+    .admin-table th,
+    .admin-table td {
+        padding: var(--spacing-sm);
+    }
+}
+-------------------------------------------------------
+
+ALSO ADD THIS RIGHT AFTER "@media (max-width: 768px) {" (around line 1348):
+-------------------------------------------------------
+    .container,
+    .container-lg {
+        padding: var(--spacing-lg) var(--spacing-md);
+        max-width: 100%;
+    }
+    
+    .header {
+        margin-bottom: 30px;  /* Reduced spacing on mobile */
+    }
+    
+    .page-header {
+        margin-bottom: 30px !important;  /* Reduced spacing on mobile */
+    }
+-------------------------------------------------------
+
+=======================================================
+SUMMARY OF CHANGES
+=======================================================
+
+1. Container width: 900px → 1600px (desktop)
+2. Container padding: var(--spacing-lg) → 40px
+3. Header margin-bottom: added 60px
+4. Table responsive behavior: Smart scrolling (desktop: auto, mobile: visible)
+5. Page header utility: 60px spacing
+6. Mobile optimizations: No horizontal scroll
+
+=======================================================
+AFTER MAKING THESE CHANGES:
+=======================================================
+
+1. Save the file
+2. Run: rmdir /s /q dist
+3. Run: npm run build
+4. Run: npm run deploy:production
+5. Purge Cloudflare cache
+6. Hard refresh browser (Ctrl + F5)
+
+=======================================================
