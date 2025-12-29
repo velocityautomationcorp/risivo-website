@@ -2130,8 +2130,9 @@ app.get("/", (c) => {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Risivo - Coming Soon</title>
-        <meta name="description" content="Risivo - The Future of CRM is Coming. Transform how you manage customers, close deals, and grow your business.">
-        <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64,${FAVICON_BASE64}">
+        <meta name="description" content="Risivo - The AI-powered business operating system combining CRM, marketing, projects, digital creation, and communications.">
+        <link rel="icon" type="image/png" href="/favicon.png">
+        <link rel="shortcut icon" href="/favicon.ico">
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -2410,13 +2411,13 @@ app.get("/", (c) => {
         
         <div class="container">
             <div class="logo">
-                <img src="data:image/png;base64,${LOGO_BASE64}" alt="Risivo" />
+                <img src="/images/risivo-logo-white.png" alt="Risivo" />
             </div>
             
             <div class="subtitle">No. 1 CRM 100% Powered by AI</div>
             
             <p class="description">
-                The world's first AI-powered CRM with built-in translation, voice automation, and intelligent workflows. Reach customers in 15+ languages, automate follow-ups, and scale globally—launching soon.
+                The AI-powered business operating system combining CRM, marketing, projects, digital creation, and communications. Automate campaigns, build funnels, and scale your business—launching soon.
             </p>
             
             <div class="countdown" id="countdown">
