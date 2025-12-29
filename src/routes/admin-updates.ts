@@ -53,7 +53,12 @@ async function verifyAdminSession(c: any) {
     return null;
   }
   
-  if (!admin.is_active) {
+  // Check if admin is active (handle both is_active boolean and status string)
+  const isActive = typeof admin.is_active === 'boolean' 
+    ? admin.is_active 
+    : (admin.status === 'active');
+  
+  if (!isActive) {
     console.log('[VERIFY SESSION] Admin not active');
     return null;
   }

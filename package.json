@@ -7,18 +7,18 @@
     "preview": "wrangler pages dev",
     "deploy": "npm run build && wrangler pages deploy",
     "deploy:staging": "npm run build && wrangler pages deploy dist --project-name risivo-staging --branch staging",
-    "deploy:production": "npm run build && wrangler pages deploy dist --project-name risivo-production --branch main",
+    "deploy:production": "npm run build && wrangler pages deploy dist --project-name risivo-coming-soon --branch main",
     "cf-typegen": "wrangler types --env-interface CloudflareBindings"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",
+    "@types/bcryptjs": "^2.4.6",
     "bcryptjs": "^3.0.3",
     "hono": "^4.10.7"
   },
   "devDependencies": {
     "@hono/vite-build": "^1.2.0",
     "@hono/vite-dev-server": "^0.18.2",
-    "@types/bcryptjs": "^2.4.6",
     "vite": "^6.3.5",
     "wrangler": "^4.4.0"
   }

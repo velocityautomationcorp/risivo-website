@@ -5,6 +5,22 @@ import { createClient } from '@supabase/supabase-js';
 
 const adminAuth = new Hono();
 
+// Helper to get display name from admin object (handles both name and full_name columns)
+function getAdminDisplayName(admin: any): string {
+  return admin.full_name || admin.name || admin.email.split('@')[0];
+}
+
+// Helper to check if admin is active (handles both is_active and status columns)
+function isAdminActive(admin: any): boolean {
+  if (typeof admin.is_active === 'boolean') {
+    return admin.is_active;
+  }
+  if (admin.status) {
+    return admin.status === 'active';
+  }
+  return true; // Default to active if no status field
+}
+
 // ============================================
 // POST /api/admin/login
 // Admin login endpoint
@@ -12,6 +28,9 @@ const adminAuth = new Hono();
 adminAuth.post('/login', async (c) => {
   try {
     const { email, password } = await c.req.json();
+
+    console.log('[ADMIN_AUTH] ========================================');
+    console.log('[ADMIN_AUTH] Login attempt for:', email);
 
     // Validate input
     if (!email || !password) {
@@ -26,9 +45,11 @@ adminAuth.post('/login', async (c) => {
     const supabaseKey = c.env?.SUPABASE_SERVICE_ROLE_KEY;
 
     if (!supabaseUrl || !supabaseKey) {
+      console.error('[ADMIN_AUTH] Missing Supabase configuration');
       return c.json({ 
         success: false, 
-        error: 'Server configuration error' 
+        error: 'Server configuration error',
+        details: 'Database connection not configured'
       }, 500);
     }
 
@@ -39,28 +60,62 @@ adminAuth.post('/login', async (c) => {
       .from('admin_users')
       .select('*')
       .eq('email', email.toLowerCase())
-      .eq('is_active', true)
       .single();
 
-    if (dbError || !admin) {
-      console.error('Admin login error:', dbError);
+    if (dbError) {
+      console.error('[ADMIN_AUTH] Database error:', dbError);
       return c.json({ 
         success: false, 
         error: 'Invalid credentials',
-        details: 'Admin user not found or inactive'
+        details: 'Admin user not found'
       }, 401);
+    }
+
+    if (!admin) {
+      console.log('[ADMIN_AUTH] Admin not found:', email);
+      return c.json({ 
+        success: false, 
+        error: 'Invalid credentials',
+        details: 'Admin user not found'
+      }, 401);
+    }
+
+    console.log('[ADMIN_AUTH] Admin found:', admin.email);
+    console.log('[ADMIN_AUTH] Admin status/is_active:', admin.status || admin.is_active);
+
+    // Check if admin is active
+    if (!isAdminActive(admin)) {
+      console.log('[ADMIN_AUTH] Admin account is inactive');
+      return c.json({ 
+        success: false, 
+        error: 'Account disabled',
+        details: 'Your admin account has been deactivated'
+      }, 403);
+    }
+
+    // Check if password hash exists
+    if (!admin.password_hash) {
+      console.log('[ADMIN_AUTH] No password hash set for admin');
+      return c.json({ 
+        success: false, 
+        error: 'Account not activated',
+        details: 'Please contact the system administrator to set up your password'
+      }, 403);
     }
 
     // Verify password
     const passwordMatch = await bcrypt.compare(password, admin.password_hash);
     
     if (!passwordMatch) {
+      console.log('[ADMIN_AUTH] Password mismatch');
       return c.json({ 
         success: false, 
         error: 'Invalid credentials',
         details: 'Password does not match'
       }, 401);
     }
+
+    console.log('[ADMIN_AUTH] Password verified successfully');
 
     // Generate session token (simple UUID for now)
     const sessionToken = crypto.randomUUID();
@@ -74,15 +129,26 @@ adminAuth.post('/login', async (c) => {
         admin_user_id: admin.id,
         session_token: sessionToken,
         expires_at: expiresAt.toISOString(),
-        ip_address: c.req.header('x-forwarded-for') || c.req.header('x-real-ip'),
-        user_agent: c.req.header('user-agent')
+        ip_address: c.req.header('cf-connecting-ip') || c.req.header('x-forwarded-for') || c.req.header('x-real-ip') || 'unknown',
+        user_agent: c.req.header('user-agent') || 'unknown'
       });
 
     if (sessionError) {
-      console.error('Session creation error:', sessionError);
+      console.error('[ADMIN_AUTH] Session creation error:', sessionError);
+      
+      // Check if admin_sessions table exists
+      if (sessionError.code === '42P01') {
+        return c.json({ 
+          success: false, 
+          error: 'Database setup incomplete',
+          details: 'Admin sessions table not found. Please run database migrations.'
+        }, 500);
+      }
+      
       return c.json({ 
         success: false, 
-        error: 'Failed to create session' 
+        error: 'Failed to create session',
+        details: sessionError.message
       }, 500);
     }
 
@@ -101,22 +167,27 @@ adminAuth.post('/login', async (c) => {
       path: '/'
     });
 
+    console.log('[ADMIN_AUTH] Login successful for:', admin.email);
+    console.log('[ADMIN_AUTH] ========================================');
+
     // Return success with admin info (without password)
     return c.json({ 
       success: true, 
       admin: {
         id: admin.id,
         email: admin.email,
-        full_name: admin.full_name,
+        full_name: getAdminDisplayName(admin),
+        name: getAdminDisplayName(admin),
         role: admin.role
       }
     });
 
   } catch (error) {
-    console.error('Admin login error:', error);
+    console.error('[ADMIN_AUTH] Login error:', error);
     return c.json({ 
       success: false, 
-      error: 'Internal server error' 
+      error: 'Internal server error',
+      details: error instanceof Error ? error.message : 'Unknown error'
     }, 500);
   }
 });
@@ -134,20 +205,15 @@ adminAuth.post('/logout', async (c) => {
       const supabaseUrl = c.env?.SUPABASE_URL;
       const supabaseKey = c.env?.SUPABASE_SERVICE_ROLE_KEY;
 
-      if (!supabaseUrl || !supabaseKey) {
-        return c.json({ 
-          success: false, 
-          error: 'Server configuration error' 
-        }, 500);
+      if (supabaseUrl && supabaseKey) {
+        const supabase = createClient(supabaseUrl, supabaseKey);
+
+        // Delete session from database
+        await supabase
+          .from('admin_sessions')
+          .delete()
+          .eq('session_token', sessionToken);
       }
-
-      const supabase = createClient(supabaseUrl, supabaseKey);
-
-      // Delete session from database
-      await supabase
-        .from('admin_sessions')
-        .delete()
-        .eq('session_token', sessionToken);
     }
 
     // Clear cookie
@@ -161,11 +227,8 @@ adminAuth.post('/logout', async (c) => {
 
     return c.json({ success: true });
   } catch (error) {
-    console.error('Admin logout error:', error);
-    return c.json({ 
-      success: false, 
-      error: 'Internal server error' 
-    }, 500);
+    console.error('[ADMIN_AUTH] Logout error:', error);
+    return c.json({ success: true }); // Always return success for logout
   }
 });
 
@@ -200,7 +263,7 @@ adminAuth.get('/me', async (c) => {
     // Get session from database
     const { data: session, error: sessionError } = await supabase
       .from('admin_sessions')
-      .select('*, admin_users(*)')
+      .select('admin_user_id, expires_at')
       .eq('session_token', sessionToken)
       .single();
 
@@ -225,7 +288,19 @@ adminAuth.get('/me', async (c) => {
       }, 401);
     }
 
-    const admin = session.admin_users;
+    // Get admin user
+    const { data: admin, error: adminError } = await supabase
+      .from('admin_users')
+      .select('*')
+      .eq('id', session.admin_user_id)
+      .single();
+
+    if (adminError || !admin) {
+      return c.json({ 
+        success: false, 
+        error: 'Admin not found' 
+      }, 401);
+    }
 
     // Return admin info (without password)
     return c.json({ 
@@ -233,13 +308,14 @@ adminAuth.get('/me', async (c) => {
       admin: {
         id: admin.id,
         email: admin.email,
-        full_name: admin.full_name,
+        full_name: getAdminDisplayName(admin),
+        name: getAdminDisplayName(admin),
         role: admin.role
       }
     });
 
   } catch (error) {
-    console.error('Get admin info error:', error);
+    console.error('[ADMIN_AUTH] Get admin info error:', error);
     return c.json({ 
       success: false, 
       error: 'Internal server error' 
