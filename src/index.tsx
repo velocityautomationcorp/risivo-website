@@ -792,6 +792,66 @@ app.get("/updates/admin/dashboard", (c) => {
     </div>
   </div>
   
+  <!-- Add/Edit Waitlist Update Modal -->
+  <div class="modal-overlay" id="waitlistUpdateModal">
+    <div class="modal" style="max-width: 700px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="waitlistUpdateModalTitle">Add Waitlist Update</h3>
+        <button class="modal-close" onclick="closeModal('waitlistUpdateModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="waitlistUpdateForm">
+          <input type="hidden" id="wlUpdateId">
+          <div class="form-group">
+            <label class="form-label">Title *</label>
+            <input type="text" class="form-input" id="wlUpdateTitle" required placeholder="Update title">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Category</label>
+              <select class="form-select" id="wlUpdateCategory">
+                <option value="">Select category...</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Status</label>
+              <select class="form-select" id="wlUpdateStatus">
+                <option value="draft">Draft</option>
+                <option value="published">Published</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Excerpt</label>
+            <textarea class="form-textarea" id="wlUpdateExcerpt" placeholder="Brief summary of this update"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Content *</label>
+            <div id="wlUpdateContentEditor" style="height: 200px; background: white;"></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Featured Image URL</label>
+              <input type="url" class="form-input" id="wlUpdateImage" placeholder="https://...">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Video URL</label>
+              <input type="url" class="form-input" id="wlUpdateVideo" placeholder="https://...">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Author</label>
+            <input type="text" class="form-input" id="wlUpdateAuthor" value="Risivo Team">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('waitlistUpdateModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="saveWaitlistUpdate()">Save Update</button>
+      </div>
+    </div>
+  </div>
+  
   <!-- Confirm Delete Modal -->
   <div class="modal-overlay" id="confirmModal">
     <div class="modal" style="max-width: 400px;">
@@ -834,11 +894,30 @@ app.get("/updates/admin/dashboard", (c) => {
     let waitlistCategories = [];
     let deleteTarget = null;
     let invUpdateQuill = null;
+    let wlUpdateQuill = null;
     
-    // Initialize Quill Editor
+    // Initialize Quill Editors
     invUpdateQuill = new Quill('#invUpdateContentEditor', {
       theme: 'snow',
       placeholder: 'Write your update content here...',
+      modules: {
+        toolbar: [
+          [{ 'header': [1, 2, 3, false] }],
+          ['bold', 'italic', 'underline', 'strike'],
+          [{ 'color': [] }, { 'background': [] }],
+          [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+          [{ 'indent': '-1' }, { 'indent': '+1' }],
+          ['link', 'image', 'video'],
+          ['blockquote', 'code-block'],
+          ['clean']
+        ]
+      }
+    });
+    
+    // Initialize Waitlist Update Quill Editor
+    wlUpdateQuill = new Quill('#wlUpdateContentEditor', {
+      theme: 'snow',
+      placeholder: 'Write your project update here...',
       modules: {
         toolbar: [
           [{ 'header': [1, 2, 3, false] }],
@@ -871,6 +950,7 @@ app.get("/updates/admin/dashboard", (c) => {
           loadInvestors(),
           loadDocuments(),
           loadInvestorUpdates(),
+          loadWaitlistUpdates(),
           loadInvestorCategories(),
           loadWaitlistCategories()
         ]);
@@ -1052,6 +1132,41 @@ app.get("/updates/admin/dashboard", (c) => {
           <td class="action-btns">
             <button class="action-btn edit" onclick="editInvestorUpdate('\${u.id}')" title="Edit">✏️</button>
             <button class="action-btn delete" onclick="confirmDeleteInvestorUpdate('\${u.id}')" title="Delete">🗑️</button>
+          </td>
+        </tr>
+      \`).join('');
+    }
+    
+    // Load Waitlist Updates
+    async function loadWaitlistUpdates() {
+      try {
+        const res = await fetch('/api/admin/waitlist/updates');
+        const data = await res.json();
+        
+        const updates = data.updates || [];
+        waitlistUpdates = updates;
+        renderWaitlistUpdatesTable();
+      } catch (error) {
+        console.error('Load waitlist updates error:', error);
+        document.getElementById('waitlistUpdatesTableBody').innerHTML = '<tr><td colspan="5" class="empty-state"><div class="empty-state-icon">⚠️</div><h3>Error loading updates</h3></td></tr>';
+      }
+    }
+    
+    function renderWaitlistUpdatesTable() {
+      const tbody = document.getElementById('waitlistUpdatesTableBody');
+      if (!waitlistUpdates || waitlistUpdates.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><div class="empty-state-icon">📢</div><h3>No waitlist updates yet</h3><p>Add your first project update</p></td></tr>';
+        return;
+      }
+      tbody.innerHTML = waitlistUpdates.map(u => \`
+        <tr>
+          <td><strong>\${escapeHtml(u.title)}</strong></td>
+          <td>\${u.waitlist_categories?.name || 'General'}</td>
+          <td><span class="badge badge-\${u.status === 'published' ? 'published' : 'draft'}">\${u.status || 'draft'}</span></td>
+          <td>\${u.published_at ? new Date(u.published_at).toLocaleDateString() : '-'}</td>
+          <td class="action-btns">
+            <button class="action-btn edit" onclick="editWaitlistUpdate('\${u.id}')" title="Edit">✏️</button>
+            <button class="action-btn delete" onclick="confirmDeleteWaitlistUpdate('\${u.id}')" title="Delete">🗑️</button>
           </td>
         </tr>
       \`).join('');
@@ -1298,6 +1413,9 @@ app.get("/updates/admin/dashboard", (c) => {
           case 'waitlist':
             url = \`/api/admin/waitlist/\${deleteTarget.id}\`;
             break;
+          case 'waitlist-update':
+            url = \`/api/admin/waitlist/updates/\${deleteTarget.id}\`;
+            break;
         }
         
         const res = await fetch(url, { method: 'DELETE' });
@@ -1310,6 +1428,7 @@ app.get("/updates/admin/dashboard", (c) => {
           // Refresh appropriate data
           if (deleteTarget.type === 'document') await loadDocuments();
           else if (deleteTarget.type === 'investor-update') await loadInvestorUpdates();
+          else if (deleteTarget.type === 'waitlist-update') await loadWaitlistUpdates();
           else if (deleteTarget.type === 'investor' || deleteTarget.type === 'waitlist') await loadInvestors();
         } else {
           showToast(result.error || 'Delete failed', 'error');
@@ -1488,9 +1607,84 @@ app.get("/updates/admin/dashboard", (c) => {
       window.location.href = '/updates/admin/login';
     }
     
-    // Placeholder functions for waitlist updates
+    // Waitlist Updates CRUD
     function openAddWaitlistUpdateModal() {
-      showToast('Waitlist updates feature coming soon', 'info');
+      document.getElementById('waitlistUpdateModalTitle').textContent = 'Add Waitlist Update';
+      document.getElementById('waitlistUpdateForm').reset();
+      document.getElementById('wlUpdateId').value = '';
+      document.getElementById('wlUpdateAuthor').value = 'Risivo Team';
+      if (wlUpdateQuill) wlUpdateQuill.root.innerHTML = '';
+      updateWaitlistCategorySelect();
+      openModal('waitlistUpdateModal');
+    }
+    
+    function editWaitlistUpdate(id) {
+      const update = waitlistUpdates.find(u => u.id === id);
+      if (!update) return;
+      
+      document.getElementById('waitlistUpdateModalTitle').textContent = 'Edit Update';
+      document.getElementById('wlUpdateId').value = id;
+      document.getElementById('wlUpdateTitle').value = update.title || '';
+      document.getElementById('wlUpdateCategory').value = update.category_id || '';
+      document.getElementById('wlUpdateStatus').value = update.status || 'draft';
+      document.getElementById('wlUpdateExcerpt').value = update.excerpt || '';
+      if (wlUpdateQuill) wlUpdateQuill.root.innerHTML = update.content || '';
+      document.getElementById('wlUpdateImage').value = update.featured_image_url || '';
+      document.getElementById('wlUpdateVideo').value = update.video_url || '';
+      document.getElementById('wlUpdateAuthor').value = update.author_name || 'Risivo Team';
+      updateWaitlistCategorySelect();
+      openModal('waitlistUpdateModal');
+    }
+    
+    function updateWaitlistCategorySelect() {
+      const select = document.getElementById('wlUpdateCategory');
+      select.innerHTML = '<option value="">Select category...</option>' + 
+        waitlistCategories.map(c => \`<option value="\${c.id}">\${c.icon || '📋'} \${escapeHtml(c.name)}</option>\`).join('');
+    }
+    
+    async function saveWaitlistUpdate() {
+      const id = document.getElementById('wlUpdateId').value;
+      const title = document.getElementById('wlUpdateTitle').value;
+      const category_id = document.getElementById('wlUpdateCategory').value || null;
+      const status = document.getElementById('wlUpdateStatus').value;
+      const excerpt = document.getElementById('wlUpdateExcerpt').value;
+      const content = wlUpdateQuill ? wlUpdateQuill.root.innerHTML : '';
+      const featured_image_url = document.getElementById('wlUpdateImage').value;
+      const video_url = document.getElementById('wlUpdateVideo').value;
+      const author_name = document.getElementById('wlUpdateAuthor').value || 'Risivo Team';
+      
+      if (!title || !content) {
+        showToast('Title and content are required', 'error');
+        return;
+      }
+      
+      const payload = { title, category_id, status, excerpt, content, featured_image_url, video_url, author_name };
+      
+      try {
+        const url = id ? \`/api/admin/waitlist/updates/\${id}\` : '/api/admin/waitlist/updates';
+        const res = await fetch(url, {
+          method: id ? 'PUT' : 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const result = await res.json();
+        
+        if (result.success) {
+          showToast(id ? 'Update saved!' : 'Update created!', 'success');
+          closeModal('waitlistUpdateModal');
+          await loadWaitlistUpdates();
+        } else {
+          showToast(result.error || 'Failed to save update', 'error');
+        }
+      } catch (error) {
+        showToast('Failed to save update', 'error');
+      }
+    }
+    
+    function confirmDeleteWaitlistUpdate(id) {
+      deleteTarget = { type: 'waitlist-update', id };
+      document.getElementById('confirmMessage').textContent = 'Are you sure you want to delete this update? This action cannot be undone.';
+      openModal('confirmModal');
     }
     
     function openAddCategoryModal(type) {
