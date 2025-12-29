@@ -413,7 +413,7 @@ app.get("/updates/investor/login", (c) => {
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Inter', sans-serif;
-      background: linear-gradient(135deg, #1e3a5f 0%, #0d1b2a 100%);
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       min-height: 100vh;
       display: flex;
       align-items: center;
@@ -426,31 +426,21 @@ app.get("/updates/investor/login", (c) => {
       padding: 40px;
       max-width: 420px;
       width: 100%;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
     }
     .logo {
       text-align: center;
       margin-bottom: 24px;
     }
-    .logo h1 {
-      color: #1e3a5f;
-      font-size: 28px;
-      font-weight: 700;
+    .logo img {
+      max-width: 180px;
+      height: auto;
+      margin-bottom: 8px;
     }
     .logo p {
       color: #666;
       font-size: 14px;
       margin-top: 4px;
-    }
-    .badge {
-      display: inline-block;
-      background: linear-gradient(135deg, #f0c808 0%, #d4a600 100%);
-      color: #1e3a5f;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-      margin-top: 8px;
     }
     h2 {
       text-align: center;
@@ -477,12 +467,12 @@ app.get("/updates/investor/login", (c) => {
     }
     input:focus {
       outline: none;
-      border-color: #1e3a5f;
+      border-color: #667eea;
     }
     button {
       width: 100%;
       padding: 14px;
-      background: linear-gradient(135deg, #1e3a5f 0%, #0d1b2a 100%);
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
       border: none;
       border-radius: 8px;
@@ -493,7 +483,7 @@ app.get("/updates/investor/login", (c) => {
     }
     button:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(30, 58, 95, 0.4);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
     }
     button:disabled {
       opacity: 0.7;
@@ -509,20 +499,12 @@ app.get("/updates/investor/login", (c) => {
       display: none;
     }
     .error.show { display: block; }
-    .info {
-      background: #e0f2fe;
-      color: #0369a1;
-      padding: 12px;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      font-size: 14px;
-    }
     .links {
       text-align: center;
       margin-top: 20px;
     }
     .links a {
-      color: #1e3a5f;
+      color: #667eea;
       text-decoration: none;
       margin: 0 10px;
       font-size: 14px;
@@ -533,14 +515,11 @@ app.get("/updates/investor/login", (c) => {
 <body>
   <div class="login-card">
     <div class="logo">
-      <h1>Risivo</h1>
+      <img src="https://risivo.com/images/risivo-logo.png" alt="Risivo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+      <h1 style="display:none; color:#667eea; font-size:28px; font-weight:700;">Risivo</h1>
       <p>Investor Portal</p>
-      <span class="badge">🔒 Confidential</span>
     </div>
     <h2>Investor Login</h2>
-    <div class="info">
-      Access exclusive investor materials including our pitch deck, financial forecasts, and business plan.
-    </div>
     <div id="error" class="error"></div>
     <form id="loginForm">
       <div class="form-group">
@@ -554,8 +533,8 @@ app.get("/updates/investor/login", (c) => {
       <button type="submit" id="submitBtn">Access Investor Portal</button>
     </form>
     <div class="links">
-      <a href="/updates/investor/request-access">Request Access</a>
-      <a href="/">Back to Home</a>
+      <a href="https://risivo.com">Request Access</a>
+      <a href="https://risivo.com">Back to Home</a>
     </div>
   </div>
   <script>
@@ -567,7 +546,7 @@ app.get("/updates/investor/login", (c) => {
       const password = document.getElementById('password').value;
       
       btn.disabled = true;
-      btn.textContent = 'Verifying...';
+      btn.textContent = 'Signing in...';
       error.classList.remove('show');
       
       try {
@@ -583,11 +562,6 @@ app.get("/updates/investor/login", (c) => {
         } else {
           error.textContent = data.details || data.error || 'Login failed';
           error.classList.add('show');
-          if (data.redirect) {
-            setTimeout(() => {
-              window.location.href = data.redirect;
-            }, 2000);
-          }
         }
       } catch (err) {
         error.textContent = 'Network error. Please try again.';

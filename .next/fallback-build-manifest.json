@@ -1,0 +1,12 @@
+{
+  "pages": {
+    "/_app": []
+  },
+  "devFiles": [],
+  "polyfillFiles": [],
+  "lowPriorityFiles": [
+    "static/vjCVx--alDbcuGrpPhjgm/_ssgManifest.js",
+    "static/vjCVx--alDbcuGrpPhjgm/_buildManifest.js"
+  ],
+  "rootMainFiles": []
+}

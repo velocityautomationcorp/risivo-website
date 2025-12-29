@@ -1,0 +1,8 @@
+var R=require("../../../../../../chunks/[turbopack]_runtime.js")("server/app/api/v1/revenue-engine/coupons/[id]/route.js")
+R.c("server/chunks/[root-of-the-server]__0a3445f6._.js")
+R.c("server/chunks/node_modules_next_24785c19._.js")
+R.c("server/chunks/lib_supabase_server_ts_b192d4e9._.js")
+R.c("server/chunks/[root-of-the-server]__09c3bdaf._.js")
+R.c("server/chunks/ce889_server_app_api_v1_revenue-engine_coupons_[id]_route_actions_4a845d08.js")
+R.m(96006)
+module.exports=R.m(96006).exports

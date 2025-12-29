@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../../app/page.tsx"],"sourcesContent":["import { redirect } from 'next/navigation'\n\nexport default function Home() {\n  // Redirect root to sign-in page\n  redirect('/auth/signin')\n}\n"],"names":[],"mappings":"yXAAA,EAAA,CAAA,CAAA,OAAA,IAAA,EAAA,EAAA,CAAA,CAAA,OAEe,SAAS,IAEtB,CAAA,EAAA,EAAA,QAAA,AAAQ,EAAC,eACX"}
