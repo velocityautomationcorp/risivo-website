@@ -60,6 +60,8 @@ app.get("/updates/admin/login", (c) => {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Login - Risivo Updates</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="shortcut icon" href="/favicon.ico">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -222,6 +224,457 @@ app.get("/updates/admin/login", (c) => {
   `);
 });
 
+// Admin dashboard page
+app.get("/updates/admin/dashboard", (c) => {
+  const currentYear = new Date().getFullYear();
+  return c.html(`
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Risivo</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="shortcut icon" href="/favicon.ico">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f5f7fa;
+      min-height: 100vh;
+    }
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 0 40px;
+      box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+    }
+    .header-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 70px;
+    }
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .header-logo img {
+      height: 38px;
+      filter: brightness(0) invert(1);
+    }
+    .header-logo .badge {
+      background: rgba(255,255,255,0.2);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .header-nav {
+      display: flex;
+      gap: 8px;
+    }
+    .nav-link {
+      color: white;
+      text-decoration: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    .nav-link:hover, .nav-link.active { background: rgba(255,255,255,0.2); }
+    .header-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .admin-email {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+    .logout-btn {
+      background: rgba(255,255,255,0.15);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.3);
+      padding: 10px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    .logout-btn:hover { background: rgba(255,255,255,0.25); }
+    
+    .main-content {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 40px;
+    }
+    
+    .welcome-card {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      margin-bottom: 32px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+      border-left: 6px solid #667eea;
+    }
+    .welcome-card h1 {
+      color: #1a1a2e;
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+    .welcome-card p { color: #666; font-size: 15px; }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+    .stat-card {
+      background: white;
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+      text-align: center;
+    }
+    .stat-icon {
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin: 0 auto 16px;
+    }
+    .stat-number {
+      font-size: 32px;
+      font-weight: 800;
+      color: #1a1a2e;
+    }
+    .stat-label {
+      color: #888;
+      font-size: 14px;
+      margin-top: 4px;
+    }
+    
+    .section {
+      margin-bottom: 40px;
+    }
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .section-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1a1a2e;
+    }
+    .add-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .add-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    .content-table {
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+    }
+    .content-table table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .content-table th, .content-table td {
+      padding: 16px 20px;
+      text-align: left;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .content-table th {
+      background: #f8f9fc;
+      font-weight: 600;
+      font-size: 13px;
+      color: #666;
+      text-transform: uppercase;
+    }
+    .content-table td { font-size: 14px; color: #333; }
+    .content-table tr:last-child td { border-bottom: none; }
+    .content-table tr:hover td { background: #fafafa; }
+    
+    .status-badge {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .status-active { background: #dcfce7; color: #16a34a; }
+    .status-draft { background: #fef3c7; color: #d97706; }
+    .status-inactive { background: #fee2e2; color: #dc2626; }
+    
+    .action-btn {
+      background: none;
+      border: none;
+      padding: 8px;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+    .action-btn:hover { background: #f0f0f0; }
+    
+    .loading {
+      text-align: center;
+      padding: 60px;
+      color: #666;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 60px;
+      color: #888;
+    }
+    
+    .footer {
+      background: #1a1a2e;
+      color: white;
+      padding: 24px 40px;
+      text-align: center;
+      margin-top: 40px;
+    }
+    .footer p { font-size: 13px; opacity: 0.7; }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <div class="header-logo">
+        <img src="/images/risivo-logo.png" alt="Risivo" onerror="this.outerHTML='<span style=\\'font-size:24px;font-weight:800\\'>Risivo</span>'">
+        <span class="badge">Admin</span>
+      </div>
+      <nav class="header-nav">
+        <a href="/updates/admin/dashboard" class="nav-link active">Dashboard</a>
+        <a href="#investors" class="nav-link" onclick="showSection('investors')">Investors</a>
+        <a href="#content" class="nav-link" onclick="showSection('content')">Content</a>
+        <a href="#updates" class="nav-link" onclick="showSection('updates')">Updates</a>
+      </nav>
+      <div class="header-actions">
+        <span class="admin-email" id="adminEmail">Loading...</span>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+      </div>
+    </div>
+  </header>
+  
+  <main class="main-content">
+    <div class="welcome-card">
+      <h1>Welcome, Admin!</h1>
+      <p>Manage investor content, updates, and user access from this dashboard.</p>
+    </div>
+    
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">👥</div>
+        <div class="stat-number" id="investorCount">-</div>
+        <div class="stat-label">Total Investors</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📁</div>
+        <div class="stat-number" id="contentCount">-</div>
+        <div class="stat-label">Documents</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📰</div>
+        <div class="stat-number" id="updateCount">-</div>
+        <div class="stat-label">Updates</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">✅</div>
+        <div class="stat-number" id="activeCount">-</div>
+        <div class="stat-label">Active Users</div>
+      </div>
+    </div>
+    
+    <div class="section" id="content-section">
+      <div class="section-header">
+        <h2 class="section-title">📁 Investor Documents</h2>
+        <button class="add-btn" onclick="addContent()">+ Add Document</button>
+      </div>
+      <div class="content-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Type</th>
+              <th>Status</th>
+              <th>Created</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="contentTableBody">
+            <tr><td colspan="5" class="loading">Loading documents...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <div class="section" id="updates-section">
+      <div class="section-header">
+        <h2 class="section-title">📰 Investor Updates</h2>
+        <button class="add-btn" onclick="addUpdate()">+ Add Update</button>
+      </div>
+      <div class="content-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Category</th>
+              <th>Status</th>
+              <th>Published</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="updatesTableBody">
+            <tr><td colspan="5" class="loading">Loading updates...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+  
+  <footer class="footer">
+    <p>© ${currentYear} Risivo. Admin Dashboard. All rights reserved.</p>
+  </footer>
+  
+  <script>
+    async function init() {
+      try {
+        // Verify admin session
+        const meRes = await fetch('/api/admin/me');
+        const meData = await meRes.json();
+        
+        if (!meData.success) {
+          window.location.href = '/updates/admin/login';
+          return;
+        }
+        
+        document.getElementById('adminEmail').textContent = meData.admin.email;
+        
+        // Load content
+        const contentRes = await fetch('/api/admin/investor-content');
+        const contentData = await contentRes.json();
+        
+        if (contentData.success && contentData.content) {
+          document.getElementById('contentCount').textContent = contentData.content.length;
+          renderContent(contentData.content);
+        } else {
+          document.getElementById('contentCount').textContent = '0';
+          document.getElementById('contentTableBody').innerHTML = '<tr><td colspan="5" class="empty-state">No documents yet</td></tr>';
+        }
+        
+        // Load updates
+        const updatesRes = await fetch('/api/admin/investor-updates');
+        const updatesData = await updatesRes.json();
+        
+        if (updatesData.success && updatesData.updates) {
+          document.getElementById('updateCount').textContent = updatesData.updates.length;
+          renderUpdates(updatesData.updates);
+        } else {
+          document.getElementById('updateCount').textContent = '0';
+          document.getElementById('updatesTableBody').innerHTML = '<tr><td colspan="5" class="empty-state">No updates yet</td></tr>';
+        }
+        
+        // Set placeholder stats
+        document.getElementById('investorCount').textContent = '-';
+        document.getElementById('activeCount').textContent = '-';
+        
+      } catch (error) {
+        console.error('Init error:', error);
+        window.location.href = '/updates/admin/login';
+      }
+    }
+    
+    function renderContent(content) {
+      const tbody = document.getElementById('contentTableBody');
+      if (!content || content.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No documents yet</td></tr>';
+        return;
+      }
+      tbody.innerHTML = content.map(item => \`
+        <tr>
+          <td><strong>\${escapeHtml(item.title)}</strong></td>
+          <td>\${item.content_type || 'document'}</td>
+          <td><span class="status-badge status-\${item.status || 'active'}">\${item.status || 'active'}</span></td>
+          <td>\${item.created_at ? new Date(item.created_at).toLocaleDateString() : '-'}</td>
+          <td>
+            <button class="action-btn" title="Edit">✏️</button>
+            <button class="action-btn" title="Delete">🗑️</button>
+          </td>
+        </tr>
+      \`).join('');
+    }
+    
+    function renderUpdates(updates) {
+      const tbody = document.getElementById('updatesTableBody');
+      if (!updates || updates.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No updates yet</td></tr>';
+        return;
+      }
+      tbody.innerHTML = updates.map(item => \`
+        <tr>
+          <td><strong>\${escapeHtml(item.title)}</strong></td>
+          <td>\${item.investor_categories?.name || 'General'}</td>
+          <td><span class="status-badge status-\${item.status === 'published' ? 'active' : 'draft'}">\${item.status || 'draft'}</span></td>
+          <td>\${item.published_at ? new Date(item.published_at).toLocaleDateString() : '-'}</td>
+          <td>
+            <button class="action-btn" title="Edit">✏️</button>
+            <button class="action-btn" title="Delete">🗑️</button>
+          </td>
+        </tr>
+      \`).join('');
+    }
+    
+    function escapeHtml(text) {
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+    
+    function addContent() { alert('Add Document feature coming soon'); }
+    function addUpdate() { alert('Add Update feature coming soon'); }
+    function showSection(section) { console.log('Show section:', section); }
+    
+    async function logout() {
+      await fetch('/api/admin/logout', { method: 'POST' });
+      window.location.href = '/updates/admin/login';
+    }
+    
+    init();
+  </script>
+</body>
+</html>
+  `);
+});
+
 // User login page
 app.get("/updates/login", (c) => {
   return c.html(`
@@ -231,6 +684,8 @@ app.get("/updates/login", (c) => {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - Risivo Updates</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="shortcut icon" href="/favicon.ico">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -1343,11 +1798,59 @@ app.get("/updates/investor/dashboard", (c) => {
       \`;
     }
     
+    // Map icon names/text to actual emojis
+    function getIconEmoji(icon, title) {
+      if (!icon) return '📄';
+      
+      // If it's already an emoji (single char or emoji-like), return it
+      if (icon.length <= 4 && /[\\u{1F300}-\\u{1F9FF}\\u{2600}-\\u{26FF}]/u.test(icon)) {
+        return icon;
+      }
+      
+      // Map common icon names to emojis
+      const iconMap = {
+        'presentation': '📊',
+        'chart': '📈',
+        'document': '📋',
+        'file': '📄',
+        'folder': '📁',
+        'video': '🎬',
+        'image': '🖼️',
+        'pdf': '📕',
+        'excel': '📗',
+        'word': '📘',
+        'powerpoint': '📙',
+        'pitch': '📊',
+        'forecast': '📈',
+        'plan': '📋',
+        'summary': '📝',
+        'report': '📑',
+        'financial': '💰',
+        'business': '💼',
+        'executive': '👔',
+        'deck': '🎯'
+      };
+      
+      const iconLower = icon.toLowerCase();
+      for (const [key, emoji] of Object.entries(iconMap)) {
+        if (iconLower.includes(key)) return emoji;
+      }
+      
+      // Check title for hints
+      const titleLower = (title || '').toLowerCase();
+      if (titleLower.includes('pitch') || titleLower.includes('deck')) return '📊';
+      if (titleLower.includes('forecast') || titleLower.includes('financial')) return '📈';
+      if (titleLower.includes('plan') || titleLower.includes('business')) return '📋';
+      if (titleLower.includes('summary') || titleLower.includes('executive')) return '📝';
+      
+      return '📄';
+    }
+    
     function renderContent(content) {
       const grid = document.getElementById('contentGrid');
       grid.innerHTML = content.map(item => \`
         <div class="content-card">
-          <div class="content-card-icon">\${item.icon || '📄'}</div>
+          <div class="content-card-icon">\${getIconEmoji(item.icon, item.title)}</div>
           <h3>\${escapeHtml(item.title)}</h3>
           <p>\${escapeHtml(item.description || 'Click to view this document')}</p>
           <a href="\${item.file_url}" target="_blank" class="content-btn">
