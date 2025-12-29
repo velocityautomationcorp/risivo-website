@@ -3,10 +3,14 @@ import { Hono } from "hono";
 // Import route modules for Project Updates Platform
 import adminAuth from "./routes/admin-auth";
 import userAuth from "./routes/user-auth";
+import investorAuth from "./routes/investor-auth";
 import updates from "./routes/updates";
 import adminUpdates from "./routes/admin-updates";
 import adminWaitlist from "./routes/admin-waitlist";
 import adminCategories from "./routes/admin-categories";
+import adminInvestor from "./routes/admin-investor";
+import adminInvestorContent from "./routes/admin-investor-content";
+import adminInvestorUpdates from "./routes/admin-investor-updates";
 import updateInteractions from "./routes/update-interactions";
 import waitlist from "./routes/waitlist";
 import contact from "./routes/contact";
@@ -32,7 +36,11 @@ app.route("/api/admin", adminAuth);           // Admin authentication
 app.route("/api/admin/updates", adminUpdates); // Admin updates management
 app.route("/api/admin/waitlist", adminWaitlist); // Admin waitlist management
 app.route("/api/admin/categories", adminCategories); // Admin categories management
+app.route("/api/admin/investors", adminInvestor); // Admin investor management
+app.route("/api/admin/investor-content", adminInvestorContent); // Admin investor content
+app.route("/api/admin/investor-updates", adminInvestorUpdates); // Admin investor updates
 app.route("/api/user", userAuth);             // User authentication
+app.route("/api/investor", investorAuth);     // Investor authentication
 app.route("/api/updates", updates);           // Public updates API
 app.route("/api/interactions", updateInteractions); // Update interactions (likes, etc.)
 app.route("/api/waitlist", waitlist);         // Waitlist signup
@@ -385,6 +393,430 @@ app.get("/updates/login", (c) => {
         btn.textContent = 'Sign In';
       }
     });
+  </script>
+</body>
+</html>
+  `);
+});
+
+// Investor login page
+app.get("/updates/investor/login", (c) => {
+  return c.html(`
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Investor Login - Risivo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #1e3a5f 0%, #0d1b2a 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .login-card {
+      background: white;
+      border-radius: 16px;
+      padding: 40px;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .logo {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .logo h1 {
+      color: #1e3a5f;
+      font-size: 28px;
+      font-weight: 700;
+    }
+    .logo p {
+      color: #666;
+      font-size: 14px;
+      margin-top: 4px;
+    }
+    .badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #f0c808 0%, #d4a600 100%);
+      color: #1e3a5f;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-top: 8px;
+    }
+    h2 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 24px;
+      font-size: 20px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: #333;
+    }
+    input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: border-color 0.2s;
+    }
+    input:focus {
+      outline: none;
+      border-color: #1e3a5f;
+    }
+    button {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #1e3a5f 0%, #0d1b2a 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(30, 58, 95, 0.4);
+    }
+    button:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .error {
+      background: #fee2e2;
+      color: #dc2626;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: none;
+    }
+    .error.show { display: block; }
+    .info {
+      background: #e0f2fe;
+      color: #0369a1;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+    .links {
+      text-align: center;
+      margin-top: 20px;
+    }
+    .links a {
+      color: #1e3a5f;
+      text-decoration: none;
+      margin: 0 10px;
+      font-size: 14px;
+    }
+    .links a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="login-card">
+    <div class="logo">
+      <h1>Risivo</h1>
+      <p>Investor Portal</p>
+      <span class="badge">🔒 Confidential</span>
+    </div>
+    <h2>Investor Login</h2>
+    <div class="info">
+      Access exclusive investor materials including our pitch deck, financial forecasts, and business plan.
+    </div>
+    <div id="error" class="error"></div>
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required placeholder="your@email.com">
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required placeholder="Enter your password">
+      </div>
+      <button type="submit" id="submitBtn">Access Investor Portal</button>
+    </form>
+    <div class="links">
+      <a href="/updates/investor/request-access">Request Access</a>
+      <a href="/">Back to Home</a>
+    </div>
+  </div>
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('submitBtn');
+      const error = document.getElementById('error');
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      
+      btn.disabled = true;
+      btn.textContent = 'Verifying...';
+      error.classList.remove('show');
+      
+      try {
+        const res = await fetch('/api/investor/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+          window.location.href = data.redirect || '/updates/investor/dashboard';
+        } else {
+          error.textContent = data.details || data.error || 'Login failed';
+          error.classList.add('show');
+          if (data.redirect) {
+            setTimeout(() => {
+              window.location.href = data.redirect;
+            }, 2000);
+          }
+        }
+      } catch (err) {
+        error.textContent = 'Network error. Please try again.';
+        error.classList.add('show');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Access Investor Portal';
+      }
+    });
+  </script>
+</body>
+</html>
+  `);
+});
+
+// Investor dashboard page
+app.get("/updates/investor/dashboard", (c) => {
+  return c.html(`
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Investor Dashboard - Risivo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f5f7fa;
+      min-height: 100vh;
+    }
+    .header {
+      background: linear-gradient(135deg, #1e3a5f 0%, #0d1b2a 100%);
+      color: white;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header h1 { font-size: 24px; }
+    .header-actions { display: flex; gap: 16px; align-items: center; }
+    .user-info { font-size: 14px; opacity: 0.8; }
+    .logout-btn {
+      background: rgba(255,255,255,0.1);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.3);
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+    .logout-btn:hover { background: rgba(255,255,255,0.2); }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px;
+    }
+    .welcome-banner {
+      background: white;
+      border-radius: 16px;
+      padding: 32px;
+      margin-bottom: 32px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .welcome-banner h2 {
+      color: #1e3a5f;
+      margin-bottom: 8px;
+    }
+    .welcome-banner p { color: #666; }
+    .section-title {
+      font-size: 20px;
+      color: #1e3a5f;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .content-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    .content-card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .content-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    }
+    .content-icon {
+      width: 48px;
+      height: 48px;
+      background: linear-gradient(135deg, #1e3a5f 0%, #0d1b2a 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-bottom: 16px;
+    }
+    .content-card h3 {
+      color: #1e3a5f;
+      margin-bottom: 8px;
+      font-size: 18px;
+    }
+    .content-card p {
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+    .view-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, #1e3a5f 0%, #0d1b2a 100%);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: transform 0.2s;
+    }
+    .view-btn:hover { transform: translateY(-2px); }
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+    }
+    .error-message {
+      background: #fee2e2;
+      color: #dc2626;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🏦 Risivo Investor Portal</h1>
+    <div class="header-actions">
+      <span class="user-info" id="userEmail">Loading...</span>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+  </div>
+  
+  <div class="container">
+    <div class="welcome-banner">
+      <h2>Welcome, <span id="userName">Investor</span>!</h2>
+      <p>Access confidential investor materials below. All documents are protected under NDA.</p>
+    </div>
+    
+    <div id="errorContainer"></div>
+    
+    <h3 class="section-title">📁 Investor Materials</h3>
+    <div class="content-grid" id="contentGrid">
+      <div class="loading">Loading investor content...</div>
+    </div>
+  </div>
+  
+  <script>
+    // Check authentication and load content
+    async function init() {
+      try {
+        // Get user info
+        const meRes = await fetch('/api/investor/me');
+        const meData = await meRes.json();
+        
+        if (!meData.success) {
+          window.location.href = '/updates/investor/login';
+          return;
+        }
+        
+        document.getElementById('userEmail').textContent = meData.user.email;
+        document.getElementById('userName').textContent = meData.user.first_name || 'Investor';
+        
+        // Load content
+        const contentRes = await fetch('/api/investor/content');
+        const contentData = await contentRes.json();
+        
+        if (!contentData.success) {
+          document.getElementById('contentGrid').innerHTML = \`
+            <div class="error-message">\${contentData.error || 'Failed to load content'}</div>
+          \`;
+          return;
+        }
+        
+        renderContent(contentData.content);
+        
+      } catch (error) {
+        console.error('Init error:', error);
+        window.location.href = '/updates/investor/login';
+      }
+    }
+    
+    function renderContent(content) {
+      const grid = document.getElementById('contentGrid');
+      
+      if (!content || content.length === 0) {
+        grid.innerHTML = '<p>No content available yet. Please check back later.</p>';
+        return;
+      }
+      
+      grid.innerHTML = content.map(item => \`
+        <div class="content-card">
+          <div class="content-icon">\${item.icon || '📄'}</div>
+          <h3>\${item.title}</h3>
+          <p>\${item.description || 'Click to view document'}</p>
+          <a href="\${item.file_url}" target="_blank" class="view-btn">
+            \${item.cta_button_text || 'View Document'} →
+          </a>
+        </div>
+      \`).join('');
+    }
+    
+    async function logout() {
+      await fetch('/api/investor/logout', { method: 'POST' });
+      window.location.href = '/updates/investor/login';
+    }
+    
+    init();
   </script>
 </body>
 </html>
