@@ -66,51 +66,191 @@ interface AdminNotificationParams {
 // Get current year dynamically
 const getCurrentYear = () => new Date().getFullYear();
 
+// Logo URLs - using the actual hosted images
+const LOGO_WHITE = 'https://risivo.com/images/risivo-logo-white.png';
+const LOGO_COLOR = 'https://risivo.com/images/risivo-logo.png';
+
+// Email styles matching the exact design provided
 const emailStyles = `
   <style>
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background: #f9fafb; }
-    .email-wrapper { max-width: 600px; margin: 0 auto; padding: 20px; }
-    .container { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
-    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; }
-    .header img { height: 40px; }
-    .header-text { color: white; font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
-    .header-text .risi { color: #1a1a2e; }
-    .header-text .vo { color: #ff6b35; }
-    .content { padding: 40px; }
-    h2 { color: #1a1a2e; font-size: 24px; margin-bottom: 16px; }
-    p { color: #4a4a4a; font-size: 15px; margin-bottom: 16px; line-height: 1.7; }
-    .btn { display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white !important; padding: 14px 32px; text-decoration: none; border-radius: 10px; font-weight: 600; font-size: 16px; margin: 20px 0; }
-    .btn:hover { opacity: 0.9; }
-    .credentials { background: #f8f9fa; border-radius: 12px; padding: 24px; margin: 24px 0; border: 1px solid #e9ecef; }
-    .credentials p { margin: 8px 0; }
-    .credentials strong { color: #667eea; }
-    .info-box { background: #f0f4ff; border: 1px solid #c7d2fe; padding: 16px; border-radius: 10px; margin: 20px 0; }
-    .info-box h4 { color: #4f46e5; margin: 0 0 8px 0; font-size: 14px; }
-    .info-box p { color: #666; font-size: 13px; margin: 0; }
-    .warning { color: #dc2626; font-weight: 500; font-size: 14px; }
-    .divider { border: none; border-top: 1px solid #eee; margin: 30px 0; }
-    .footer { background: #fef3c7; padding: 20px; text-align: center; }
-    .footer p { color: #92400e; font-size: 12px; margin: 4px 0; }
-    .footer p.copyright { font-weight: 600; }
-    .footer p.disclaimer { font-size: 11px; color: #b45309; }
-    .footer-links { margin-top: 12px; }
-    .footer-links a { color: #667eea; text-decoration: none; font-size: 12px; margin: 0 8px; }
-    .link-text { font-size: 12px; color: #999; word-break: break-all; margin-top: 10px; }
-    table.details { width: 100%; border-collapse: collapse; margin: 20px 0; }
-    table.details td { padding: 10px; border-bottom: 1px solid #eee; }
-    table.details td:first-child { font-weight: 600; color: #666; width: 40%; }
+    body { 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      line-height: 1.6; 
+      color: #333; 
+      margin: 0; 
+      padding: 0; 
+      background: #f5f5f5; 
+    }
+    .email-wrapper { 
+      max-width: 600px; 
+      margin: 0 auto; 
+      padding: 20px; 
+    }
+    .container { 
+      background: white; 
+      border-radius: 12px; 
+      overflow: hidden; 
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+    }
+    /* Header - Purple gradient with WHITE logo */
+    .header { 
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+      padding: 30px 20px; 
+      text-align: center; 
+    }
+    .header img { 
+      height: 45px; 
+      max-width: 180px;
+    }
+    .header-subtitle {
+      color: #FFD700;
+      font-size: 14px;
+      margin: 12px 0 0 0;
+      font-weight: 500;
+    }
+    /* Content area - White background */
+    .content { 
+      padding: 40px 30px; 
+      background: white;
+    }
+    h2 { 
+      color: #1a1a2e; 
+      font-size: 22px; 
+      margin: 0 0 20px 0;
+      font-weight: 600;
+    }
+    p { 
+      color: #4a4a4a; 
+      font-size: 15px; 
+      margin: 0 0 16px 0; 
+      line-height: 1.7; 
+    }
+    /* Button - Purple gradient */
+    .btn { 
+      display: inline-block; 
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+      color: white !important; 
+      padding: 14px 32px; 
+      text-decoration: none; 
+      border-radius: 8px; 
+      font-weight: 600; 
+      font-size: 15px; 
+    }
+    .btn-wrapper {
+      text-align: center;
+      margin: 25px 0;
+    }
+    /* Credentials box - Light grey */
+    .credentials { 
+      background: #f8f9fa; 
+      border-radius: 8px; 
+      padding: 20px; 
+      margin: 20px 0; 
+      border: 1px solid #e9ecef; 
+    }
+    .credentials p { 
+      margin: 8px 0; 
+      font-size: 14px;
+    }
+    .credentials strong { 
+      color: #667eea; 
+    }
+    /* Info box - Light blue/purple tint */
+    .info-box { 
+      background: #f0f4ff; 
+      border: 1px solid #c7d2fe; 
+      padding: 16px; 
+      border-radius: 8px; 
+      margin: 20px 0; 
+    }
+    .info-box h4 { 
+      color: #4f46e5; 
+      margin: 0 0 8px 0; 
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .info-box p { 
+      color: #555; 
+      font-size: 13px; 
+      margin: 0;
+      line-height: 1.6;
+    }
+    .warning { 
+      color: #dc2626; 
+      font-weight: 500; 
+      font-size: 14px; 
+    }
+    /* Footer - LIGHT GREY background (NOT yellow) */
+    .footer { 
+      background: #f5f5f5; 
+      padding: 25px 20px; 
+      text-align: center;
+      border-top: 1px solid #e5e5e5;
+    }
+    .footer p { 
+      color: #666; 
+      font-size: 12px; 
+      margin: 4px 0; 
+    }
+    .footer .copyright { 
+      font-weight: 600;
+      color: #444;
+    }
+    .footer .disclaimer { 
+      font-size: 11px; 
+      color: #888;
+      margin-top: 10px;
+    }
+    .footer-links { 
+      margin-top: 15px; 
+    }
+    .footer-links a { 
+      color: #667eea; 
+      text-decoration: none; 
+      font-size: 12px; 
+      margin: 0 10px; 
+    }
+    .link-text { 
+      font-size: 12px; 
+      color: #888; 
+      word-break: break-all; 
+      margin-top: 15px;
+      padding: 10px;
+      background: #f9f9f9;
+      border-radius: 4px;
+    }
+    .link-text a {
+      color: #667eea;
+      word-break: break-all;
+    }
+    /* Details table for admin emails */
+    table.details { 
+      width: 100%; 
+      border-collapse: collapse; 
+      margin: 20px 0; 
+    }
+    table.details td { 
+      padding: 12px 10px; 
+      border-bottom: 1px solid #eee; 
+      font-size: 14px;
+    }
+    table.details td:first-child { 
+      font-weight: 600; 
+      color: #666; 
+      width: 40%; 
+    }
   </style>
 `;
 
-// Email header with proper logo
+// Email header with WHITE logo on purple gradient
 const getEmailHeader = (subtitle?: string) => `
   <div class="header">
-    <div class="header-text"><span class="risi">RISI</span><span class="vo">VO</span></div>
-    ${subtitle ? `<p style="color: white; margin: 10px 0 0 0; font-size: 14px; opacity: 0.9;">👋 ${subtitle}</p>` : ''}
+    <img src="${LOGO_WHITE}" alt="Risivo" />
+    ${subtitle ? `<p class="header-subtitle">👋 ${subtitle}</p>` : ''}
   </div>
 `;
 
-// Email footer with correct copyright
+// Email footer with LIGHT GREY background and correct copyright
 const getEmailFooter = () => `
   <div class="footer">
     <p class="copyright">© ${getCurrentYear()} Risivo. All rights reserved.</p>
@@ -121,8 +261,6 @@ const getEmailFooter = () => `
     </div>
   </div>
 `;
-
-// Note: All email templates now use buildEmailHtml() for consistent branding
 
 export class EmailService {
   private apiKey: string;
@@ -195,11 +333,11 @@ export class EmailService {
       <h2>Password Reset Request</h2>
       <p>Hi ${firstName || 'there'},</p>
       <p>We received a request to reset your password for your Risivo account. Click the button below to reset it:</p>
-      <div style="text-align: center;">
+      <div class="btn-wrapper">
         <a href="${resetUrl}" class="btn">Reset Password</a>
       </div>
       <p style="font-size: 14px; color: #666;">If you didn't request this, you can safely ignore this email. This link will expire in 1 hour.</p>
-      <p class="link-text">If the button doesn't work, copy and paste this link: ${resetUrl}</p>
+      <div class="link-text">If the button doesn't work, copy and paste this link:<br><a href="${resetUrl}">${resetUrl}</a></div>
     `;
 
     await this.sendEmail(email, 'Reset Your Risivo Password', this.buildEmailHtml(content, 'Password Reset'));
@@ -216,14 +354,14 @@ export class EmailService {
       <h2>Verify Your Email Address</h2>
       <p>Hi ${firstName || 'there'},</p>
       <p>Thank you for joining the Risivo waitlist! Please verify your email address by clicking the button below:</p>
-      <div style="text-align: center;">
+      <div class="btn-wrapper">
         <a href="${verifyUrl}" class="btn">Verify Email</a>
       </div>
       <div class="info-box">
         <h4>What happens next?</h4>
         <p>Once verified, you'll receive your login credentials and can access your waitlist dashboard to track your position and get exclusive updates.</p>
       </div>
-      <p class="link-text">If the button doesn't work, copy and paste this link:<br>${verifyUrl}</p>
+      <div class="link-text">If the button doesn't work, copy and paste this link:<br><a href="${verifyUrl}">${verifyUrl}</a></div>
     `;
 
     await this.sendEmail(email, 'Verify Your Risivo Account', this.buildEmailHtml(content, 'Email Verification'));
@@ -243,7 +381,7 @@ export class EmailService {
         <p><strong>Temporary Password:</strong> ${tempPassword}</p>
       </div>
       <p class="warning">⚠️ Please change your password after your first login for security.</p>
-      <div style="text-align: center;">
+      <div class="btn-wrapper">
         <a href="${loginUrl}" class="btn">Login to Dashboard</a>
       </div>
       <div class="info-box">
@@ -285,7 +423,7 @@ export class EmailService {
         <p><strong>Temporary Password:</strong> ${tempPassword}</p>
       </div>
       <p class="warning">⚠️ Please change your password after your first login for security.</p>
-      <div style="text-align: center;">
+      <div class="btn-wrapper">
         <a href="${loginUrl}" class="btn">Login to Dashboard</a>
       </div>
       <div class="info-box">
@@ -308,7 +446,7 @@ export class EmailService {
       <h2>Welcome, Investor! 📊</h2>
       <p>Hi ${firstName},</p>
       <p>Thank you for your interest in investing with Risivo. To access our confidential investor materials, including pitch decks, financial forecasts, and business plans, we require you to review and sign our Non-Disclosure Agreement (NDA).</p>
-      <div style="text-align: center;">
+      <div class="btn-wrapper">
         <a href="${ndaUrl}" class="btn">Review & Sign NDA</a>
       </div>
       <div class="info-box">
@@ -316,7 +454,7 @@ export class EmailService {
         <p>• Comprehensive Pitch Deck<br>• Financial Forecasts & Projections<br>• Detailed Business Plan<br>• Executive Summary<br>• Exclusive Investor Updates</p>
       </div>
       <p style="font-size: 14px; color: #666;">The NDA protects confidential business information and is standard practice for investor relations. Once signed, you'll receive immediate access to all investor materials.</p>
-      <p class="link-text">If the button doesn't work, copy and paste this link: ${ndaUrl}</p>
+      <div class="link-text">If the button doesn't work, copy and paste this link:<br><a href="${ndaUrl}">${ndaUrl}</a></div>
     `;
 
     await this.sendEmail(email, 'Risivo Investor Portal - NDA Required', this.buildEmailHtml(content, 'Investor Portal'));
@@ -338,7 +476,7 @@ export class EmailService {
         <p><strong>Temporary Password:</strong> ${tempPassword}</p>
       </div>
       <p class="warning">⚠️ Please change your password after your first login for security.</p>
-      <div style="text-align: center;">
+      <div class="btn-wrapper">
         <a href="${loginUrl}" class="btn">Access Investor Portal</a>
       </div>
       <div class="info-box">
@@ -423,7 +561,7 @@ export class EmailService {
       <h2>${title}</h2>
       <p>A new activity has been recorded on the Risivo platform:</p>
       ${details}
-      <div style="text-align: center; margin-top: 24px;">
+      <div class="btn-wrapper">
         <a href="https://risivo.com/updates/admin/dashboard" class="btn">View in Admin Dashboard</a>
       </div>
     `;
