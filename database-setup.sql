@@ -84,8 +84,9 @@ CREATE TABLE IF NOT EXISTS password_reset_tokens (
 CREATE TABLE IF NOT EXISTS nda_signatures (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-    full_name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL,
+    full_name VARCHAR(255),
+    full_name_typed VARCHAR(255), -- For typed signature
+    email VARCHAR(255),
     company_name VARCHAR(255),
     ip_address VARCHAR(45),
     user_agent TEXT,
@@ -217,7 +218,7 @@ CREATE TABLE IF NOT EXISTS waitlist_users (
     last_name VARCHAR(100),
     phone VARCHAR(50),
     business_name VARCHAR(255),
-    waitlist_number INTEGER,
+    waitlist_number SERIAL,
     status VARCHAR(50) DEFAULT 'pending', -- 'pending', 'active', 'inactive'
     email_verified BOOLEAN DEFAULT false,
     verification_token VARCHAR(255),

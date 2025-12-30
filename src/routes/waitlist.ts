@@ -141,8 +141,7 @@ app.post('/signup', async (c) => {
         password_hash: hashedPassword,
         verification_token: verificationToken,
         email_verified: false,
-        status: 'pending_verification',
-        is_active: false
+        status: 'pending'
       })
       .select('id, waitlist_number')
       .single();

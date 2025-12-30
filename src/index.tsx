@@ -3691,13 +3691,6 @@ app.get("/", (c) => {
                 </div>
             </div>
             
-            <form class="email-form" id="emailForm">
-                <input type="email" class="email-input" placeholder="Enter your email address" required id="emailInput">
-                <button type="submit" class="submit-btn">Join Waitlist</button>
-            </form>
-            
-            <div class="success-message" id="successMessage">✓ Thanks! We'll notify you when we launch.</div>
-            
             <div class="cta-buttons">
                 <a href="/signup/waitlist" class="cta-btn primary">📋 Join Waitlist</a>
                 <a href="/signup/investor" class="cta-btn secondary">💼 Become an Investor</a>
@@ -3743,53 +3736,6 @@ app.get("/", (c) => {
             }
             updateCountdown();
             setInterval(updateCountdown, 1000);
-            
-            document.getElementById('emailForm').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                const email = document.getElementById('emailInput').value.trim();
-                const submitBtn = document.querySelector('.submit-btn');
-                const successMessage = document.getElementById('successMessage');
-                
-                if (!email || !email.includes('@') || !email.includes('.')) {
-                    successMessage.textContent = '⚠ Please enter a valid email address.';
-                    successMessage.style.background = 'rgba(255, 152, 0, 0.2)';
-                    successMessage.style.borderColor = 'rgba(255, 152, 0, 0.4)';
-                    successMessage.classList.add('show');
-                    setTimeout(() => successMessage.classList.remove('show'), 5000);
-                    return;
-                }
-                
-                submitBtn.disabled = true;
-                submitBtn.textContent = 'Joining...';
-                
-                try {
-                    const response = await fetch('/api/subscribe', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ email, timestamp: new Date().toISOString(), source: 'coming-soon-page' })
-                    });
-                    const data = await response.json();
-                    
-                    if (response.ok) {
-                        successMessage.textContent = "✓ Thanks! You're on the waitlist. We'll notify you when we launch.";
-                        successMessage.style.background = 'rgba(76, 175, 80, 0.2)';
-                        successMessage.style.borderColor = 'rgba(76, 175, 80, 0.4)';
-                        successMessage.classList.add('show');
-                        document.getElementById('emailInput').value = '';
-                    } else {
-                        throw new Error(data.error || 'Failed');
-                    }
-                } catch (error) {
-                    successMessage.textContent = '⚠ Something went wrong. Please try again.';
-                    successMessage.style.background = 'rgba(244, 67, 54, 0.2)';
-                    successMessage.style.borderColor = 'rgba(244, 67, 54, 0.4)';
-                    successMessage.classList.add('show');
-                } finally {
-                    submitBtn.disabled = false;
-                    submitBtn.textContent = 'Join Waitlist';
-                    setTimeout(() => successMessage.classList.remove('show'), 5000);
-                }
-            });
         </script>
     </body>
     </html>
