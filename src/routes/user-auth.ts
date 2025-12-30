@@ -101,9 +101,9 @@ app.post('/login', async (c) => {
     // Generate session token
     const sessionToken = generateSessionToken();
 
-    // Create session in database
+    // Create session in database (using waitlist_sessions table)
     const { error: sessionError } = await supabase
-      .from('user_sessions')
+      .from('waitlist_sessions')
       .insert({
         user_id: user.id,
         session_token: sessionToken,
@@ -114,6 +114,7 @@ app.post('/login', async (c) => {
 
     if (sessionError) {
       console.error('[USER_AUTH] ❌ Session creation error:', sessionError);
+      console.error('[USER_AUTH] ❌ Error details:', JSON.stringify(sessionError));
       return c.json(
         { error: 'Login failed', details: 'Unable to create session' },
         500
@@ -179,7 +180,7 @@ app.post('/logout', async (c) => {
         
         // Delete session from database
         await supabase
-          .from('user_sessions')
+          .from('waitlist_sessions')
           .delete()
           .eq('session_token', sessionToken);
       }
@@ -216,7 +217,7 @@ app.get('/me', async (c) => {
 
     // Verify session and get user
     const { data: session, error: sessionError } = await supabase
-      .from('user_sessions')
+      .from('waitlist_sessions')
       .select('user_id, expires_at')
       .eq('session_token', sessionToken)
       .single();
@@ -228,7 +229,7 @@ app.get('/me', async (c) => {
 
     // Check if session expired
     if (new Date(session.expires_at) < new Date()) {
-      await supabase.from('user_sessions').delete().eq('session_token', sessionToken);
+      await supabase.from('waitlist_sessions').delete().eq('session_token', sessionToken);
       deleteCookie(c, 'user_session', { path: '/' });
       return c.json({ error: 'Session expired' }, 401);
     }
@@ -295,7 +296,7 @@ app.post('/change-password', async (c) => {
 
     // Get user from session
     const { data: session } = await supabase
-      .from('user_sessions')
+      .from('waitlist_sessions')
       .select('user_id')
       .eq('session_token', sessionToken)
       .single();
