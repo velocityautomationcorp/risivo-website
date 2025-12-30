@@ -242,11 +242,19 @@ const emailStyles = `
   </style>
 `;
 
+// =============================================================================
+// RISIVO EMAIL TEMPLATE - DO NOT MODIFY WITHOUT APPROVAL
+// =============================================================================
+// Header: Purple gradient (#667eea -> #764ba2) with WHITE logo
+// Footer: Light grey background (#f5f5f5) with copyright
+// This is the APPROVED design - keep consistent across ALL emails
+// =============================================================================
+
 // Email header with WHITE logo on purple gradient
 const getEmailHeader = (subtitle?: string) => `
   <div class="header">
     <img src="${LOGO_WHITE}" alt="Risivo" />
-    ${subtitle ? `<p class="header-subtitle">👋 ${subtitle}</p>` : ''}
+    ${subtitle ? `<p class="header-subtitle">${subtitle}</p>` : ''}
   </div>
 `;
 
