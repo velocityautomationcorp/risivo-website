@@ -2616,7 +2616,8 @@ app.get("/investor/sign-nda", (c) => {
     
     <div class="nda-content">
       <h3>MUTUAL NON-DISCLOSURE AGREEMENT</h3>
-      <p style="text-align: center; font-weight: 600; margin-bottom: 20px;"><strong>Effective Date: December 21, 2025</strong></p>
+      <p style="text-align: center; font-weight: 600; margin-bottom: 20px;"><strong>Effective Date: <span id="ndaEffectiveDate"></span></strong></p>
+      <script>document.getElementById('ndaEffectiveDate').textContent = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });</script>
       
       <p>This Non-Disclosure Agreement (the "Agreement") is entered into as of the Effective Date by and between:</p>
       
@@ -2779,11 +2780,12 @@ app.get("/investor/sign-nda", (c) => {
         const data = await res.json();
         
         if (data.success) {
-          success.textContent = 'NDA signed successfully! Redirecting to login...';
+          success.innerHTML = '<strong>NDA Signed Successfully!</strong><br><br>' + 
+            'Your application is now under review. You will receive an email with your login credentials once approved (typically within 1 business day).<br><br>' +
+            'Thank you for your interest in Risivo!';
           success.classList.add('show');
-          setTimeout(() => {
-            window.location.href = '/updates/investor/login?nda_signed=true';
-          }, 2000);
+          btn.textContent = 'Application Submitted';
+          // Don't redirect - let them read the message
         } else {
           error.textContent = data.error || 'Failed to sign NDA. Please try again.';
           error.classList.add('show');

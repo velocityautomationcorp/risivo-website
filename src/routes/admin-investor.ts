@@ -1,10 +1,27 @@
 import { Hono } from 'hono';
 import { createClient } from '@supabase/supabase-js';
 import { getCookie } from 'hono/cookie';
+import bcrypt from 'bcryptjs';
+import { EmailService, generateTempPassword } from '../utils/email';
+
+// Helper to get email service
+function getEmailService(env: Bindings) {
+  if (!env.SENDGRID_API_KEY) return null;
+  return new EmailService({
+    SENDGRID_API_KEY: env.SENDGRID_API_KEY,
+    FROM_EMAIL: env.FROM_EMAIL || 'hello@risivo.com',
+    FROM_NAME: env.FROM_NAME || 'Risivo Team',
+    ADMIN_EMAIL: env.ADMIN_EMAIL || 'admin@risivo.com'
+  });
+}
 
 type Bindings = {
   SUPABASE_URL?: string;
   SUPABASE_SERVICE_ROLE_KEY?: string;
+  SENDGRID_API_KEY?: string;
+  FROM_EMAIL?: string;
+  FROM_NAME?: string;
+  ADMIN_EMAIL?: string;
 };
 
 const adminInvestorRoute = new Hono<{ Bindings: Bindings }>();
@@ -94,7 +111,7 @@ adminInvestorRoute.get('/investor/:investor_id/details', async (c) => {
   }
 });
 
-// POST /investor/:id/approve - Approve investor
+// POST /investor/:id/approve - Approve investor and send credentials
 adminInvestorRoute.post('/investor/:investor_id/approve', async (c) => {
   const auth = await verifyAdmin(c);
   if (!auth) {
@@ -107,12 +124,17 @@ adminInvestorRoute.post('/investor/:investor_id/approve', async (c) => {
     const body = await c.req.json().catch(() => ({}));
     const tier = body.tier || 'standard';
 
+    // Generate new password for the investor
+    const tempPassword = generateTempPassword(12);
+    const hashedPassword = await bcrypt.hash(tempPassword, 10);
+
     const { data, error } = await auth.supabase
       .from('users')
       .update({
         investor_status: 'active',
         investor_tier: tier,
         user_type: 'investor',
+        password_hash: hashedPassword,
         updated_at: new Date().toISOString()
       })
       .eq('id', investorId)
@@ -123,9 +145,37 @@ adminInvestorRoute.post('/investor/:investor_id/approve', async (c) => {
 
     console.log('[ADMIN-INVESTOR] ✅ Approved investor:', data.email);
 
+    // Send approval email with credentials
+    const emailService = getEmailService(c.env as Bindings);
+    if (emailService) {
+      try {
+        await emailService.sendInvestorApprovedEmail({
+          email: data.email,
+          firstName: data.first_name,
+          lastName: data.last_name,
+          tempPassword
+        });
+
+        // Send admin notification
+        await emailService.sendAdminNotification({
+          type: 'investor_approved',
+          userData: {
+            firstName: data.first_name,
+            lastName: data.last_name,
+            email: data.email,
+            companyName: data.business_name
+          }
+        });
+
+        console.log('[ADMIN-INVESTOR] ✉️ Sent approval email to:', data.email);
+      } catch (emailError) {
+        console.error('[ADMIN-INVESTOR] Email error:', emailError);
+      }
+    }
+
     return c.json({
       success: true,
-      message: 'Investor approved successfully',
+      message: 'Investor approved and credentials sent via email',
       investor: data
     });
   } catch (error) {
@@ -134,7 +184,7 @@ adminInvestorRoute.post('/investor/:investor_id/approve', async (c) => {
   }
 });
 
-// POST /investor/:id/reject - Reject investor
+// POST /investor/:id/reject - Reject investor and send notification
 adminInvestorRoute.post('/investor/:investor_id/reject', async (c) => {
   const auth = await verifyAdmin(c);
   if (!auth) {
@@ -145,7 +195,7 @@ adminInvestorRoute.post('/investor/:investor_id/reject', async (c) => {
 
   try {
     const body = await c.req.json().catch(() => ({}));
-    const reason = body.reason || 'No reason provided';
+    const reason = body.reason || '';
 
     const { data, error } = await auth.supabase
       .from('users')
@@ -161,9 +211,26 @@ adminInvestorRoute.post('/investor/:investor_id/reject', async (c) => {
 
     console.log('[ADMIN-INVESTOR] ❌ Rejected investor:', data.email, 'Reason:', reason);
 
+    // Send rejection email
+    const emailService = getEmailService(c.env as Bindings);
+    if (emailService) {
+      try {
+        await emailService.sendInvestorRejectedEmail({
+          email: data.email,
+          firstName: data.first_name,
+          lastName: data.last_name,
+          reason: reason || undefined
+        });
+
+        console.log('[ADMIN-INVESTOR] ✉️ Sent rejection email to:', data.email);
+      } catch (emailError) {
+        console.error('[ADMIN-INVESTOR] Email error:', emailError);
+      }
+    }
+
     return c.json({
       success: true,
-      message: 'Investor rejected',
+      message: 'Investor rejected and notification sent',
       investor: data
     });
   } catch (error) {

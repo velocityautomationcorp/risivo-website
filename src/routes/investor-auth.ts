@@ -662,7 +662,7 @@ investorAuth.post('/sign-nda', async (c) => {
       return c.json({ error: 'Failed to sign NDA' }, 500);
     }
 
-    // Update user status to nda_signed
+    // Update user status to nda_signed (pending admin review)
     await supabase
       .from('users')
       .update({ 
@@ -673,7 +673,7 @@ investorAuth.post('/sign-nda', async (c) => {
 
     console.log('[INVESTOR_AUTH] ✅ NDA signed successfully');
 
-    // Send email to investor with credentials
+    // Send pending review email to investor and notification to admin
     const emailService = getEmailService(c.env as Bindings);
     if (emailService) {
       try {
@@ -685,22 +685,11 @@ investorAuth.post('/sign-nda', async (c) => {
           .single();
 
         if (userData) {
-          // Generate new password for the investor
-          const tempPassword = generateTempPassword(12);
-          const hashedPassword = await bcrypt.hash(tempPassword, 10);
-
-          // Update password
-          await supabase
-            .from('users')
-            .update({ password_hash: hashedPassword })
-            .eq('id', session.user_id);
-
-          // Send approval email
-          await emailService.sendInvestorApprovedEmail({
+          // Send pending review email to investor
+          await emailService.sendInvestorPendingReviewEmail({
             email: userData.email,
             firstName: userData.first_name,
-            lastName: userData.last_name,
-            tempPassword
+            lastName: userData.last_name
           });
 
           // Send admin notification
@@ -721,8 +710,7 @@ investorAuth.post('/sign-nda', async (c) => {
 
     return c.json({
       success: true,
-      message: 'NDA signed successfully. You now have access to investor materials.',
-      redirect: '/updates/investor/dashboard'
+      message: 'NDA signed successfully! Your application is now under review. You will receive an email with your login credentials once approved (typically within 1 business day).'
     });
   } catch (error) {
     console.error('[INVESTOR_AUTH] /sign-nda error:', error);
@@ -788,32 +776,29 @@ investorAuth.post('/sign-nda-token', async (c) => {
       return c.json({ success: false, error: 'Failed to sign NDA' }, 500);
     }
 
-    // Generate new password and update user status
-    const tempPassword = generateTempPassword(12);
-    const hashedPassword = await bcrypt.hash(tempPassword, 10);
-
+    // Update user status to nda_signed (pending admin review)
+    // Do NOT generate password yet - admin will approve first
     await supabase
       .from('users')
       .update({
         investor_status: 'nda_signed',
-        password_hash: hashedPassword,
         nda_token: null,
         updated_at: new Date().toISOString()
       })
       .eq('id', user.id);
 
-    // Send approval email with credentials
+    // Send pending review email to investor and notification to admin
     const emailService = getEmailService(c.env as Bindings);
     if (emailService) {
       try {
-        await emailService.sendInvestorApprovedEmail({
+        // Send pending review email to investor
+        await emailService.sendInvestorPendingReviewEmail({
           email: user.email,
           firstName: user.first_name,
-          lastName: user.last_name,
-          tempPassword
+          lastName: user.last_name
         });
 
-        // Send admin notification
+        // Send admin notification that NDA was signed and needs review
         await emailService.sendAdminNotification({
           type: 'nda_signed',
           userData: {
@@ -832,7 +817,7 @@ investorAuth.post('/sign-nda-token', async (c) => {
 
     return c.json({
       success: true,
-      message: 'NDA signed successfully! Check your email for login credentials.'
+      message: 'NDA signed successfully! Your application is now under review. You will receive an email with your login credentials once approved (typically within 1 business day).'
     });
   } catch (error) {
     console.error('[INVESTOR_AUTH] /sign-nda-token error:', error);

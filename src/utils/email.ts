@@ -51,6 +51,19 @@ interface InvestorApprovedParams {
   tempPassword: string;
 }
 
+interface InvestorPendingReviewParams {
+  email: string;
+  firstName: string;
+  lastName: string;
+}
+
+interface InvestorRejectedParams {
+  email: string;
+  firstName: string;
+  lastName: string;
+  reason?: string;
+}
+
 interface AdminNotificationParams {
   type: 'waitlist_signup' | 'investor_signup' | 'nda_signed' | 'investor_approved';
   userData: {
@@ -469,6 +482,45 @@ export class EmailService {
   }
 
   // ===========================================
+  // INVESTOR: PENDING REVIEW (after NDA signed)
+  // ===========================================
+  async sendInvestorPendingReviewEmail(params: InvestorPendingReviewParams): Promise<void> {
+    const { email, firstName, lastName } = params;
+    
+    const content = `
+      <h2>NDA Signed Successfully! 📋</h2>
+      <p>Hi ${firstName},</p>
+      <p>Thank you for signing the Non-Disclosure Agreement. We have received your request to access our investor materials.</p>
+      <div class="info-box">
+        <h4>What Happens Next?</h4>
+        <p>Our team will review your application and, once approved, you'll receive an email with your login credentials to access the Investor Portal.</p>
+      </div>
+      <p>This review process typically takes <strong>1 business day</strong>. We appreciate your patience.</p>
+      <p style="font-size: 14px; color: #666;">If you have any questions in the meantime, please feel free to contact us.</p>
+    `;
+
+    await this.sendEmail(email, 'Risivo - NDA Received, Application Under Review', this.buildEmailHtml(content, 'Application Received'));
+  }
+
+  // ===========================================
+  // INVESTOR: REJECTED
+  // ===========================================
+  async sendInvestorRejectedEmail(params: InvestorRejectedParams): Promise<void> {
+    const { email, firstName, lastName, reason } = params;
+    
+    const content = `
+      <h2>Investor Application Update</h2>
+      <p>Hi ${firstName},</p>
+      <p>Thank you for your interest in Risivo. After careful review, we regret to inform you that we are unable to approve your investor application at this time.</p>
+      ${reason ? `<div class="info-box"><h4>Reason:</h4><p>${reason}</p></div>` : ''}
+      <p>If you believe this decision was made in error or would like to provide additional information, please don't hesitate to contact us.</p>
+      <p style="font-size: 14px; color: #666;">We appreciate your understanding and wish you the best in your future endeavors.</p>
+    `;
+
+    await this.sendEmail(email, 'Risivo - Investor Application Update', this.buildEmailHtml(content, 'Application Update'));
+  }
+
+  // ===========================================
   // INVESTOR: APPROVED & CREDENTIALS
   // ===========================================
   async sendInvestorApprovedEmail(params: InvestorApprovedParams): Promise<void> {
@@ -476,9 +528,9 @@ export class EmailService {
     const loginUrl = 'https://risivo.com/updates/investor/login';
     
     const content = `
-      <h2>NDA Signed - Access Granted! 🎉</h2>
+      <h2>Application Approved - Access Granted! 🎉</h2>
       <p>Hi ${firstName},</p>
-      <p>Thank you for signing the NDA. You now have full access to our investor portal with all confidential materials.</p>
+      <p>Great news! Your investor application has been approved. You now have full access to our investor portal with all confidential materials.</p>
       <div class="credentials">
         <p><strong>Email:</strong> ${email}</p>
         <p><strong>Temporary Password:</strong> ${tempPassword}</p>
