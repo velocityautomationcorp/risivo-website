@@ -288,15 +288,11 @@ adminWaitlistRoute.post('/updates', async (c) => {
             content,
             featured_image_url: featured_image_url || null,
             video_url: video_url || null,
+            gallery_images: (gallery_images && Array.isArray(gallery_images) && gallery_images.length > 0) ? gallery_images : null,
             category_id: category_id || null,
             author_name: author_name || 'Risivo Team',
             status: status || 'draft'
         };
-
-        // Only add gallery_images if provided and not empty
-        if (gallery_images && Array.isArray(gallery_images) && gallery_images.length > 0) {
-            updateData.gallery_images = gallery_images;
-        }
 
         if (status === 'published') {
             updateData.published_at = new Date().toISOString();
@@ -346,15 +342,11 @@ adminWaitlistRoute.put('/updates/:id', async (c) => {
             content,
             featured_image_url: featured_image_url || null,
             video_url: video_url || null,
+            gallery_images: (gallery_images && Array.isArray(gallery_images) && gallery_images.length > 0) ? gallery_images : null,
             category_id: category_id || null,
             author_name: author_name || 'Risivo Team',
             status: status || 'draft'
         };
-
-        // Only add gallery_images if explicitly provided
-        if (gallery_images !== undefined) {
-            updateData.gallery_images = (Array.isArray(gallery_images) && gallery_images.length > 0) ? gallery_images : null;
-        }
 
         // Set published_at if publishing for first time
         if (status === 'published') {
