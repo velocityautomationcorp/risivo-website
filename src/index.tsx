@@ -6203,6 +6203,9 @@ app.get("/verify-email", (c) => {
 // Password Reset Page
 app.get("/reset-password", (c) => {
   const token = c.req.query('token');
+  const userType = c.req.query('type') || ''; // 'investor' or empty for waitlist
+  const backToLoginUrl = userType === 'investor' ? '/updates/investor/login' : '/waitlist/login';
+  const portalName = userType === 'investor' ? 'Investor Portal' : 'Member Portal';
   return c.html(`
 <!DOCTYPE html>
 <html lang="en">
@@ -6260,7 +6263,7 @@ app.get("/reset-password", (c) => {
       <button type="submit" class="submit-btn" id="submitBtn">Reset Password</button>
     </form>
     
-    <a href="/waitlist/login" class="back-link">← Back to Login</a>
+    <a href="${backToLoginUrl}" class="back-link">← Back to ${portalName}</a>
   </div>
   
   <script>
@@ -6303,9 +6306,11 @@ app.get("/reset-password", (c) => {
         const data = await res.json();
         
         if (data.success) {
-          message.textContent = 'Password reset successfully! Redirecting to login...';
+          const redirectUrl = data.redirect || '/waitlist/login';
+          const loginType = data.userType === 'investor' ? 'Investor Portal' : 'Member Portal';
+          message.textContent = 'Password reset successfully! Redirecting to ' + loginType + '...';
           message.className = 'message success show';
-          setTimeout(() => window.location.href = '/waitlist/login', 2000);
+          setTimeout(() => window.location.href = redirectUrl, 2000);
         } else {
           message.textContent = data.error || 'Failed to reset password.';
           message.className = 'message error show';

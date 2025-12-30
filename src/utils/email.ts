@@ -12,6 +12,7 @@ interface PasswordResetEmailParams {
   email: string;
   firstName: string;
   resetToken: string;
+  userType?: 'investor' | 'waitlist';
 }
 
 interface WaitlistWelcomeParams {
@@ -357,8 +358,9 @@ export class EmailService {
   // PASSWORD RESET EMAIL
   // ===========================================
   async sendPasswordResetEmail(params: PasswordResetEmailParams): Promise<void> {
-    const { email, firstName, resetToken } = params;
-    const resetUrl = `https://risivo.com/reset-password?token=${resetToken}`;
+    const { email, firstName, resetToken, userType } = params;
+    const typeParam = userType === 'investor' ? '&type=investor' : '';
+    const resetUrl = `https://risivo.com/reset-password?token=${resetToken}${typeParam}`;
     
     const content = `
       <h2>Password Reset Request</h2>

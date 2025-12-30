@@ -548,6 +548,9 @@ app.post('/reset-password', async (c) => {
       .select('id')
       .maybeSingle();
 
+    // Track which table the user was found in
+    let userType = 'waitlist';
+
     // If not found in waitlist_users, try the users table (for investors)
     if (!waitlistUser) {
       const { error: usersUpdateError } = await supabase
@@ -560,6 +563,7 @@ app.post('/reset-password', async (c) => {
         return c.json({ error: 'Failed to reset password' }, 500);
       }
       console.log('[USER_AUTH] ✅ Password updated in users table (investor)');
+      userType = 'investor';
     } else {
       console.log('[USER_AUTH] ✅ Password updated in waitlist_users table');
     }
@@ -575,7 +579,9 @@ app.post('/reset-password', async (c) => {
 
     return c.json({ 
       success: true, 
-      message: 'Password reset successfully. You can now login with your new password.' 
+      message: 'Password reset successfully. You can now login with your new password.',
+      userType: userType,
+      redirect: userType === 'investor' ? '/updates/investor/login' : '/waitlist/login'
     });
   } catch (error) {
     console.error('[USER_AUTH] Reset password error:', error);

@@ -1046,7 +1046,8 @@ investorAuth.post('/forgot-password', async (c) => {
         await emailService.sendPasswordResetEmail({
           email: user.email,
           firstName: user.first_name,
-          resetToken
+          resetToken,
+          userType: 'investor'
         });
         console.log('[INVESTOR_AUTH] ✅ Reset email sent to:', user.email);
       } catch (emailError) {
