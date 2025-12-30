@@ -15,6 +15,7 @@ import updateInteractions from "./routes/update-interactions";
 import waitlist from "./routes/waitlist";
 import contact from "./routes/contact";
 import newsletter from "./routes/newsletter";
+import uploadRoute from "./routes/upload";
 
 type Bindings = {
   WEBHOOK_URL?: string;
@@ -46,6 +47,7 @@ app.route("/api/interactions", updateInteractions); // Update interactions (like
 app.route("/api/waitlist", waitlist);         // Waitlist signup
 app.route("/api/contact", contact);           // Contact form
 app.route("/api/newsletter", newsletter);     // Newsletter signup
+app.route("/api/upload", uploadRoute);        // Image upload
 
 // ============================================
 // Login Page Routes (HTML Pages)
@@ -344,6 +346,25 @@ app.get("/updates/admin/dashboard", (c) => {
     .form-textarea { min-height: 100px; resize: vertical; }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     .form-hint { font-size: 12px; color: #888; margin-top: 4px; }
+    
+    /* Upload Components */
+    .upload-area { border: 2px dashed #e0e0e0; border-radius: 8px; padding: 16px; text-align: center; background: #fafafa; transition: all 0.2s; }
+    .upload-area:hover { border-color: #667eea; background: #f5f5ff; }
+    .upload-area.dragging { border-color: #667eea; background: #f0f0ff; }
+    .upload-btn { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.2s; }
+    .upload-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); }
+    .upload-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .image-preview { position: relative; display: inline-block; margin-bottom: 12px; }
+    .image-preview img { max-width: 100%; max-height: 200px; border-radius: 8px; display: block; }
+    .remove-image-btn { position: absolute; top: -8px; right: -8px; background: #dc2626; color: white; border: none; width: 24px; height: 24px; border-radius: 50%; cursor: pointer; font-size: 16px; line-height: 1; display: flex; align-items: center; justify-content: center; }
+    .remove-image-btn:hover { background: #b91c1c; }
+    .gallery-upload-area { border: 2px dashed #e0e0e0; border-radius: 8px; padding: 16px; background: #fafafa; }
+    .gallery-preview { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 12px; margin-bottom: 12px; }
+    .gallery-preview:empty { display: none; }
+    .gallery-item { position: relative; aspect-ratio: 1; border-radius: 8px; overflow: hidden; }
+    .gallery-item img { width: 100%; height: 100%; object-fit: cover; }
+    .gallery-item .remove-image-btn { top: 4px; right: 4px; width: 20px; height: 20px; font-size: 14px; }
+    .upload-progress { margin-top: 8px; font-size: 12px; color: #667eea; }
     
     /* Quill Editor */
     .ql-container { font-family: 'Inter', sans-serif; font-size: 14px; }
@@ -769,14 +790,33 @@ app.get("/updates/admin/dashboard", (c) => {
             <div id="invUpdateContentEditor" style="background: white;"></div>
             <input type="hidden" id="invUpdateContent">
           </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Featured Image URL</label>
-              <input type="url" class="form-input" id="invUpdateImage" placeholder="https://...">
+          <div class="form-group">
+            <label class="form-label">Featured Image</label>
+            <div class="upload-area" id="invFeaturedImageArea">
+              <input type="file" id="invFeaturedImageInput" accept="image/*" style="display:none" onchange="handleInvFeaturedUpload(this)">
+              <div id="invFeaturedImagePreview" class="image-preview" style="display:none;">
+                <img id="invFeaturedImageImg" src="" alt="Preview">
+                <button type="button" class="remove-image-btn" onclick="removeInvFeaturedImage()">&times;</button>
+              </div>
+              <button type="button" class="upload-btn" id="invFeaturedImageBtn" onclick="document.getElementById('invFeaturedImageInput').click()">
+                📷 Upload Featured Image
+              </button>
+              <input type="hidden" id="invUpdateImage" value="">
             </div>
-            <div class="form-group">
-              <label class="form-label">Video URL</label>
-              <input type="url" class="form-input" id="invUpdateVideo" placeholder="https://...">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Video URL (YouTube)</label>
+            <input type="url" class="form-input" id="invUpdateVideo" placeholder="https://youtube.com/watch?v=...">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Image Gallery</label>
+            <div class="gallery-upload-area" id="invGalleryArea">
+              <input type="file" id="invGalleryInput" accept="image/*" multiple style="display:none" onchange="handleInvGalleryUpload(this)">
+              <div id="invGalleryPreview" class="gallery-preview"></div>
+              <button type="button" class="upload-btn" onclick="document.getElementById('invGalleryInput').click()">
+                🖼️ Add Gallery Images (max 10)
+              </button>
+              <input type="hidden" id="invGalleryImages" value="[]">
             </div>
           </div>
           <div class="form-group">
@@ -829,14 +869,33 @@ app.get("/updates/admin/dashboard", (c) => {
             <label class="form-label">Content *</label>
             <div id="wlUpdateContentEditor" style="height: 200px; background: white;"></div>
           </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Featured Image URL</label>
-              <input type="url" class="form-input" id="wlUpdateImage" placeholder="https://...">
+          <div class="form-group">
+            <label class="form-label">Featured Image</label>
+            <div class="upload-area" id="wlFeaturedImageArea">
+              <input type="file" id="wlFeaturedImageInput" accept="image/*" style="display:none" onchange="handleWlFeaturedUpload(this)">
+              <div id="wlFeaturedImagePreview" class="image-preview" style="display:none;">
+                <img id="wlFeaturedImageImg" src="" alt="Preview">
+                <button type="button" class="remove-image-btn" onclick="removeWlFeaturedImage()">&times;</button>
+              </div>
+              <button type="button" class="upload-btn" id="wlFeaturedImageBtn" onclick="document.getElementById('wlFeaturedImageInput').click()">
+                📷 Upload Featured Image
+              </button>
+              <input type="hidden" id="wlUpdateImage" value="">
             </div>
-            <div class="form-group">
-              <label class="form-label">Video URL</label>
-              <input type="url" class="form-input" id="wlUpdateVideo" placeholder="https://...">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Video URL (YouTube)</label>
+            <input type="url" class="form-input" id="wlUpdateVideo" placeholder="https://youtube.com/watch?v=...">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Image Gallery</label>
+            <div class="gallery-upload-area" id="wlGalleryArea">
+              <input type="file" id="wlGalleryInput" accept="image/*" multiple style="display:none" onchange="handleWlGalleryUpload(this)">
+              <div id="wlGalleryPreview" class="gallery-preview"></div>
+              <button type="button" class="upload-btn" onclick="document.getElementById('wlGalleryInput').click()">
+                🖼️ Add Gallery Images (max 10)
+              </button>
+              <input type="hidden" id="wlGalleryImages" value="[]">
             </div>
           </div>
           <div class="form-group">
@@ -1319,6 +1378,12 @@ app.get("/updates/admin/dashboard", (c) => {
       document.getElementById('investorUpdateForm').reset();
       document.getElementById('invUpdateId').value = '';
       document.getElementById('invUpdateAuthor').value = 'Risivo Team';
+      document.getElementById('invUpdateImage').value = '';
+      document.getElementById('invGalleryImages').value = '[]';
+      // Clear image previews
+      document.getElementById('invFeaturedImagePreview').style.display = 'none';
+      document.getElementById('invFeaturedImageBtn').style.display = 'inline-block';
+      document.getElementById('invGalleryPreview').innerHTML = '';
       // Clear Quill editor
       if (invUpdateQuill) {
         invUpdateQuill.root.innerHTML = '';
@@ -1343,13 +1408,120 @@ app.get("/updates/admin/dashboard", (c) => {
       document.getElementById('invUpdateImage').value = update.featured_image_url || '';
       document.getElementById('invUpdateVideo').value = update.video_url || '';
       document.getElementById('invUpdateAuthor').value = update.author_name || 'Risivo Team';
+      
+      // Set featured image preview
+      if (update.featured_image_url) {
+        document.getElementById('invFeaturedImageImg').src = update.featured_image_url;
+        document.getElementById('invFeaturedImagePreview').style.display = 'inline-block';
+        document.getElementById('invFeaturedImageBtn').style.display = 'none';
+      } else {
+        document.getElementById('invFeaturedImagePreview').style.display = 'none';
+        document.getElementById('invFeaturedImageBtn').style.display = 'inline-block';
+      }
+      
+      // Set gallery images
+      const gallery = update.gallery_images || [];
+      document.getElementById('invGalleryImages').value = JSON.stringify(gallery);
+      renderInvGalleryPreview(gallery);
+      
       openModal('investorUpdateModal');
+    }
+    
+    // Investor image upload handlers
+    async function handleInvFeaturedUpload(input) {
+      if (!input.files || !input.files[0]) return;
+      const file = input.files[0];
+      const btn = document.getElementById('invFeaturedImageBtn');
+      btn.disabled = true;
+      btn.textContent = 'Uploading...';
+      
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('folder', 'investor-updates');
+        
+        const res = await fetch('/api/upload/image', { method: 'POST', body: formData });
+        const result = await res.json();
+        
+        if (result.success) {
+          document.getElementById('invUpdateImage').value = result.url;
+          document.getElementById('invFeaturedImageImg').src = result.url;
+          document.getElementById('invFeaturedImagePreview').style.display = 'inline-block';
+          btn.style.display = 'none';
+          showToast('Image uploaded!', 'success');
+        } else {
+          showToast(result.error || 'Upload failed', 'error');
+        }
+      } catch (error) {
+        showToast('Upload failed', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '📷 Upload Featured Image';
+        input.value = '';
+      }
+    }
+    
+    function removeInvFeaturedImage() {
+      document.getElementById('invUpdateImage').value = '';
+      document.getElementById('invFeaturedImagePreview').style.display = 'none';
+      document.getElementById('invFeaturedImageBtn').style.display = 'inline-block';
+    }
+    
+    async function handleInvGalleryUpload(input) {
+      if (!input.files || input.files.length === 0) return;
+      const files = Array.from(input.files);
+      const currentGallery = JSON.parse(document.getElementById('invGalleryImages').value || '[]');
+      
+      if (currentGallery.length + files.length > 10) {
+        showToast('Maximum 10 images allowed', 'error');
+        return;
+      }
+      
+      for (const file of files) {
+        try {
+          const formData = new FormData();
+          formData.append('file', file);
+          formData.append('folder', 'investor-gallery');
+          
+          const res = await fetch('/api/upload/image', { method: 'POST', body: formData });
+          const result = await res.json();
+          
+          if (result.success) {
+            currentGallery.push({ url: result.url, path: result.path });
+          }
+        } catch (error) {
+          console.error('Gallery upload error:', error);
+        }
+      }
+      
+      document.getElementById('invGalleryImages').value = JSON.stringify(currentGallery);
+      renderInvGalleryPreview(currentGallery);
+      showToast('Images uploaded!', 'success');
+      input.value = '';
+    }
+    
+    function renderInvGalleryPreview(gallery) {
+      const container = document.getElementById('invGalleryPreview');
+      container.innerHTML = gallery.map((img, idx) => \`
+        <div class="gallery-item">
+          <img src="\${img.url}" alt="Gallery image">
+          <button type="button" class="remove-image-btn" onclick="removeInvGalleryImage(\${idx})">&times;</button>
+        </div>
+      \`).join('');
+    }
+    
+    function removeInvGalleryImage(idx) {
+      const gallery = JSON.parse(document.getElementById('invGalleryImages').value || '[]');
+      gallery.splice(idx, 1);
+      document.getElementById('invGalleryImages').value = JSON.stringify(gallery);
+      renderInvGalleryPreview(gallery);
     }
     
     async function saveInvestorUpdate() {
       const id = document.getElementById('invUpdateId').value;
       // Get content from Quill editor
       const content = invUpdateQuill ? invUpdateQuill.root.innerHTML : '';
+      const galleryImages = JSON.parse(document.getElementById('invGalleryImages').value || '[]');
       const data = {
         title: document.getElementById('invUpdateTitle').value,
         category_id: document.getElementById('invUpdateCategory').value || null,
@@ -1358,6 +1530,7 @@ app.get("/updates/admin/dashboard", (c) => {
         content: content,
         featured_image_url: document.getElementById('invUpdateImage').value || null,
         video_url: document.getElementById('invUpdateVideo').value || null,
+        gallery_images: galleryImages.length > 0 ? galleryImages : null,
         author_name: document.getElementById('invUpdateAuthor').value || 'Risivo Team'
       };
       
@@ -1639,6 +1812,12 @@ app.get("/updates/admin/dashboard", (c) => {
       document.getElementById('waitlistUpdateForm').reset();
       document.getElementById('wlUpdateId').value = '';
       document.getElementById('wlUpdateAuthor').value = 'Risivo Team';
+      document.getElementById('wlUpdateImage').value = '';
+      document.getElementById('wlGalleryImages').value = '[]';
+      // Clear image previews
+      document.getElementById('wlFeaturedImagePreview').style.display = 'none';
+      document.getElementById('wlFeaturedImageBtn').style.display = 'inline-block';
+      document.getElementById('wlGalleryPreview').innerHTML = '';
       if (wlUpdateQuill) wlUpdateQuill.root.innerHTML = '';
       updateWaitlistCategorySelect();
       openModal('waitlistUpdateModal');
@@ -1658,8 +1837,114 @@ app.get("/updates/admin/dashboard", (c) => {
       document.getElementById('wlUpdateImage').value = update.featured_image_url || '';
       document.getElementById('wlUpdateVideo').value = update.video_url || '';
       document.getElementById('wlUpdateAuthor').value = update.author_name || 'Risivo Team';
+      
+      // Set featured image preview
+      if (update.featured_image_url) {
+        document.getElementById('wlFeaturedImageImg').src = update.featured_image_url;
+        document.getElementById('wlFeaturedImagePreview').style.display = 'inline-block';
+        document.getElementById('wlFeaturedImageBtn').style.display = 'none';
+      } else {
+        document.getElementById('wlFeaturedImagePreview').style.display = 'none';
+        document.getElementById('wlFeaturedImageBtn').style.display = 'inline-block';
+      }
+      
+      // Set gallery images
+      const gallery = update.gallery_images || [];
+      document.getElementById('wlGalleryImages').value = JSON.stringify(gallery);
+      renderWlGalleryPreview(gallery);
+      
       updateWaitlistCategorySelect();
       openModal('waitlistUpdateModal');
+    }
+    
+    // Waitlist image upload handlers
+    async function handleWlFeaturedUpload(input) {
+      if (!input.files || !input.files[0]) return;
+      const file = input.files[0];
+      const btn = document.getElementById('wlFeaturedImageBtn');
+      btn.disabled = true;
+      btn.textContent = 'Uploading...';
+      
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('folder', 'waitlist-updates');
+        
+        const res = await fetch('/api/upload/image', { method: 'POST', body: formData });
+        const result = await res.json();
+        
+        if (result.success) {
+          document.getElementById('wlUpdateImage').value = result.url;
+          document.getElementById('wlFeaturedImageImg').src = result.url;
+          document.getElementById('wlFeaturedImagePreview').style.display = 'inline-block';
+          btn.style.display = 'none';
+          showToast('Image uploaded!', 'success');
+        } else {
+          showToast(result.error || 'Upload failed', 'error');
+        }
+      } catch (error) {
+        showToast('Upload failed', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '📷 Upload Featured Image';
+        input.value = '';
+      }
+    }
+    
+    function removeWlFeaturedImage() {
+      document.getElementById('wlUpdateImage').value = '';
+      document.getElementById('wlFeaturedImagePreview').style.display = 'none';
+      document.getElementById('wlFeaturedImageBtn').style.display = 'inline-block';
+    }
+    
+    async function handleWlGalleryUpload(input) {
+      if (!input.files || input.files.length === 0) return;
+      const files = Array.from(input.files);
+      const currentGallery = JSON.parse(document.getElementById('wlGalleryImages').value || '[]');
+      
+      if (currentGallery.length + files.length > 10) {
+        showToast('Maximum 10 images allowed', 'error');
+        return;
+      }
+      
+      for (const file of files) {
+        try {
+          const formData = new FormData();
+          formData.append('file', file);
+          formData.append('folder', 'waitlist-gallery');
+          
+          const res = await fetch('/api/upload/image', { method: 'POST', body: formData });
+          const result = await res.json();
+          
+          if (result.success) {
+            currentGallery.push({ url: result.url, path: result.path });
+          }
+        } catch (error) {
+          console.error('Gallery upload error:', error);
+        }
+      }
+      
+      document.getElementById('wlGalleryImages').value = JSON.stringify(currentGallery);
+      renderWlGalleryPreview(currentGallery);
+      showToast('Images uploaded!', 'success');
+      input.value = '';
+    }
+    
+    function renderWlGalleryPreview(gallery) {
+      const container = document.getElementById('wlGalleryPreview');
+      container.innerHTML = gallery.map((img, idx) => \`
+        <div class="gallery-item">
+          <img src="\${img.url}" alt="Gallery image">
+          <button type="button" class="remove-image-btn" onclick="removeWlGalleryImage(\${idx})">&times;</button>
+        </div>
+      \`).join('');
+    }
+    
+    function removeWlGalleryImage(idx) {
+      const gallery = JSON.parse(document.getElementById('wlGalleryImages').value || '[]');
+      gallery.splice(idx, 1);
+      document.getElementById('wlGalleryImages').value = JSON.stringify(gallery);
+      renderWlGalleryPreview(gallery);
     }
     
     function updateWaitlistCategorySelect() {
@@ -1678,13 +1963,17 @@ app.get("/updates/admin/dashboard", (c) => {
       const featured_image_url = document.getElementById('wlUpdateImage').value;
       const video_url = document.getElementById('wlUpdateVideo').value;
       const author_name = document.getElementById('wlUpdateAuthor').value || 'Risivo Team';
+      const galleryImages = JSON.parse(document.getElementById('wlGalleryImages').value || '[]');
       
       if (!title || !content) {
         showToast('Title and content are required', 'error');
         return;
       }
       
-      const payload = { title, category_id, status, excerpt, content, featured_image_url, video_url, author_name };
+      const payload = { 
+        title, category_id, status, excerpt, content, featured_image_url, video_url, author_name,
+        gallery_images: galleryImages.length > 0 ? galleryImages : null
+      };
       
       try {
         const url = id ? \`/api/admin/waitlist/updates/\${id}\` : '/api/admin/waitlist/updates';
@@ -2969,6 +3258,209 @@ app.get("/updates/investor/dashboard", (c) => {
       opacity: 0.6;
     }
     
+    /* Update Detail Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+      overflow-y: auto;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-content {
+      background: white;
+      border-radius: 20px;
+      max-width: 900px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+    }
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 36px;
+      height: 36px;
+      border: none;
+      background: rgba(0,0,0,0.1);
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      transition: background 0.2s;
+    }
+    .modal-close:hover { background: rgba(0,0,0,0.2); }
+    .modal-featured-image {
+      width: 100%;
+      height: 300px;
+      object-fit: cover;
+      border-radius: 20px 20px 0 0;
+    }
+    .modal-body {
+      padding: 32px;
+    }
+    .modal-category {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, rgba(102,126,234,0.1) 0%, rgba(118,75,162,0.1) 100%);
+      color: #667eea;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    .modal-title {
+      font-size: 28px;
+      font-weight: 800;
+      color: #1a1a2e;
+      margin-bottom: 16px;
+      line-height: 1.3;
+    }
+    .modal-meta {
+      display: flex;
+      gap: 20px;
+      color: #888;
+      font-size: 14px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .modal-meta span {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .modal-text {
+      color: #444;
+      line-height: 1.8;
+      font-size: 16px;
+    }
+    .modal-text img { max-width: 100%; height: auto; border-radius: 8px; margin: 16px 0; }
+    .modal-text p { margin-bottom: 16px; }
+    .modal-text h1, .modal-text h2, .modal-text h3 { margin: 24px 0 12px; color: #1a1a2e; }
+    .modal-text ul, .modal-text ol { margin: 16px 0; padding-left: 24px; }
+    .modal-text li { margin-bottom: 8px; }
+    
+    /* Video Embed */
+    .video-container {
+      position: relative;
+      width: 100%;
+      padding-bottom: 56.25%;
+      margin: 24px 0;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #000;
+    }
+    .video-container iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    
+    /* Image Gallery */
+    .gallery-section {
+      margin-top: 32px;
+    }
+    .gallery-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 12px;
+    }
+    .gallery-thumb {
+      aspect-ratio: 16/9;
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .gallery-thumb:hover { transform: scale(1.02); }
+    .gallery-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    /* Lightbox */
+    .lightbox-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.95);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+    .lightbox-overlay.active { display: flex; }
+    .lightbox-img {
+      max-width: 90%;
+      max-height: 90%;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+    .lightbox-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 44px;
+      height: 44px;
+      border: none;
+      background: rgba(255,255,255,0.1);
+      color: white;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .lightbox-close:hover { background: rgba(255,255,255,0.2); }
+    .lightbox-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 50px;
+      height: 50px;
+      border: none;
+      background: rgba(255,255,255,0.1);
+      color: white;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .lightbox-nav:hover { background: rgba(255,255,255,0.2); }
+    .lightbox-nav.prev { left: 20px; }
+    .lightbox-nav.next { right: 20px; }
+    
     /* Responsive */
     @media (max-width: 1024px) {
       .welcome-section { flex-direction: column; gap: 24px; text-align: center; }
@@ -3066,6 +3558,36 @@ app.get("/updates/investor/dashboard", (c) => {
       </div>
     </section>
   </main>
+  
+  <!-- Update Detail Modal -->
+  <div class="modal-overlay" id="updateDetailModal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeUpdateModal()">&times;</button>
+      <img class="modal-featured-image" id="modalFeaturedImage" src="" alt="" style="display:none;">
+      <div class="modal-body">
+        <div class="modal-category" id="modalCategory"></div>
+        <h1 class="modal-title" id="modalTitle"></h1>
+        <div class="modal-meta">
+          <span id="modalDate"></span>
+          <span id="modalAuthor"></span>
+        </div>
+        <div id="modalVideoContainer"></div>
+        <div class="modal-text" id="modalContent"></div>
+        <div class="gallery-section" id="modalGallerySection" style="display:none;">
+          <h3 class="gallery-title">🖼️ Image Gallery</h3>
+          <div class="gallery-grid" id="modalGalleryGrid"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Lightbox for Gallery -->
+  <div class="lightbox-overlay" id="lightboxOverlay">
+    <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+    <button class="lightbox-nav prev" onclick="navigateLightbox(-1)">&#8249;</button>
+    <img class="lightbox-img" id="lightboxImg" src="" alt="">
+    <button class="lightbox-nav next" onclick="navigateLightbox(1)">&#8250;</button>
+  </div>
   
   <footer class="footer">
     <div class="footer-inner">
@@ -3203,9 +3725,14 @@ app.get("/updates/investor/dashboard", (c) => {
       \`).join('');
     }
     
+    let allUpdates = [];
+    let currentGalleryImages = [];
+    let currentLightboxIndex = 0;
+    
     function renderUpdates(updates) {
+      allUpdates = updates;
       const grid = document.getElementById('updatesGrid');
-      grid.innerHTML = updates.map(item => {
+      grid.innerHTML = updates.map((item, idx) => {
         const category = item.investor_categories || {};
         const categoryIcon = category.icon || '📌';
         const categoryName = category.name || 'Update';
@@ -3214,7 +3741,7 @@ app.get("/updates/investor/dashboard", (c) => {
         }) : '';
         
         return \`
-          <div class="update-card \${item.video_url ? 'video-card' : ''}">
+          <div class="update-card \${item.video_url ? 'video-card' : ''}" onclick="openUpdateDetail(\${idx})" style="cursor:pointer;">
             <div class="update-image">
               \${item.featured_image_url 
                 ? \`<img src="\${item.featured_image_url}" alt="\${escapeHtml(item.title)}">\`
@@ -3236,6 +3763,137 @@ app.get("/updates/investor/dashboard", (c) => {
         \`;
       }).join('');
     }
+    
+    function openUpdateDetail(idx) {
+      const item = allUpdates[idx];
+      if (!item) return;
+      
+      const category = item.investor_categories || {};
+      const categoryIcon = category.icon || '📌';
+      const categoryName = category.name || 'Update';
+      const date = item.published_at ? new Date(item.published_at).toLocaleDateString('en-US', { 
+        year: 'numeric', month: 'long', day: 'numeric' 
+      }) : '';
+      
+      // Featured image
+      const featuredImg = document.getElementById('modalFeaturedImage');
+      if (item.featured_image_url) {
+        featuredImg.src = item.featured_image_url;
+        featuredImg.style.display = 'block';
+      } else {
+        featuredImg.style.display = 'none';
+      }
+      
+      // Category
+      document.getElementById('modalCategory').innerHTML = categoryIcon + ' ' + escapeHtml(categoryName);
+      
+      // Title
+      document.getElementById('modalTitle').textContent = item.title;
+      
+      // Meta
+      document.getElementById('modalDate').innerHTML = date ? '📅 ' + date : '';
+      document.getElementById('modalAuthor').innerHTML = item.author_name ? '✍️ ' + escapeHtml(item.author_name) : '';
+      
+      // Video
+      const videoContainer = document.getElementById('modalVideoContainer');
+      if (item.video_url) {
+        const embedUrl = getYouTubeEmbedUrl(item.video_url);
+        if (embedUrl) {
+          videoContainer.innerHTML = \`<div class="video-container"><iframe src="\${embedUrl}" allowfullscreen></iframe></div>\`;
+        } else {
+          videoContainer.innerHTML = \`<p><a href="\${item.video_url}" target="_blank">🎬 Watch Video</a></p>\`;
+        }
+      } else {
+        videoContainer.innerHTML = '';
+      }
+      
+      // Content
+      document.getElementById('modalContent').innerHTML = item.content || '';
+      
+      // Gallery
+      const gallerySection = document.getElementById('modalGallerySection');
+      const galleryGrid = document.getElementById('modalGalleryGrid');
+      const galleryImages = item.gallery_images || [];
+      
+      if (galleryImages.length > 0) {
+        currentGalleryImages = galleryImages.map(g => g.url || g);
+        galleryGrid.innerHTML = currentGalleryImages.map((url, i) => \`
+          <div class="gallery-thumb" onclick="openLightbox(\${i})">
+            <img src="\${url}" alt="Gallery image \${i + 1}">
+          </div>
+        \`).join('');
+        gallerySection.style.display = 'block';
+      } else {
+        currentGalleryImages = [];
+        gallerySection.style.display = 'none';
+      }
+      
+      // Show modal
+      document.getElementById('updateDetailModal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    
+    function closeUpdateModal() {
+      document.getElementById('updateDetailModal').classList.remove('active');
+      document.body.style.overflow = '';
+      document.getElementById('modalVideoContainer').innerHTML = '';
+    }
+    
+    function getYouTubeEmbedUrl(url) {
+      if (!url) return null;
+      let videoId = null;
+      
+      // Handle various YouTube URL formats
+      if (url.includes('youtube.com/watch')) {
+        const urlParams = new URL(url).searchParams;
+        videoId = urlParams.get('v');
+      } else if (url.includes('youtu.be/')) {
+        videoId = url.split('youtu.be/')[1]?.split('?')[0];
+      } else if (url.includes('youtube.com/embed/')) {
+        videoId = url.split('embed/')[1]?.split('?')[0];
+      }
+      
+      return videoId ? \`https://www.youtube.com/embed/\${videoId}\` : null;
+    }
+    
+    function openLightbox(idx) {
+      currentLightboxIndex = idx;
+      document.getElementById('lightboxImg').src = currentGalleryImages[idx];
+      document.getElementById('lightboxOverlay').classList.add('active');
+    }
+    
+    function closeLightbox() {
+      document.getElementById('lightboxOverlay').classList.remove('active');
+    }
+    
+    function navigateLightbox(dir) {
+      currentLightboxIndex = (currentLightboxIndex + dir + currentGalleryImages.length) % currentGalleryImages.length;
+      document.getElementById('lightboxImg').src = currentGalleryImages[currentLightboxIndex];
+    }
+    
+    // Close modals on escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        if (document.getElementById('lightboxOverlay').classList.contains('active')) {
+          closeLightbox();
+        } else if (document.getElementById('updateDetailModal').classList.contains('active')) {
+          closeUpdateModal();
+        }
+      }
+      // Arrow keys for lightbox
+      if (document.getElementById('lightboxOverlay').classList.contains('active')) {
+        if (e.key === 'ArrowLeft') navigateLightbox(-1);
+        if (e.key === 'ArrowRight') navigateLightbox(1);
+      }
+    });
+    
+    // Close modal when clicking outside
+    document.getElementById('updateDetailModal').addEventListener('click', (e) => {
+      if (e.target.id === 'updateDetailModal') closeUpdateModal();
+    });
+    document.getElementById('lightboxOverlay').addEventListener('click', (e) => {
+      if (e.target.id === 'lightboxOverlay') closeLightbox();
+    });
     
     function escapeHtml(text) {
       if (!text) return '';
