@@ -114,17 +114,30 @@ app.get('/list', async (c) => {
     const categoryMap: Record<string, any> = {};
     if (categories) {
       categories.forEach((cat: any) => {
-        categoryMap[cat.id] = cat;
+        // Store with lowercase key for case-insensitive matching
+        categoryMap[cat.id.toLowerCase()] = cat;
       });
     }
+    
+    console.log('[UPDATES] Categories loaded:', Object.keys(categoryMap).length);
 
     // Map category names to updates
-    const updatesWithCategories = (updates || []).map((update: any) => ({
-      ...update,
-      category_name: update.category && categoryMap[update.category] ? categoryMap[update.category].name : 'Update',
-      category_icon: update.category && categoryMap[update.category] ? categoryMap[update.category].icon : '📰',
-      category_color: update.category && categoryMap[update.category] ? categoryMap[update.category].color : '#667eea'
-    }));
+    const updatesWithCategories = (updates || []).map((update: any) => {
+      // Normalize category to lowercase for matching
+      const categoryKey = update.category ? update.category.toLowerCase().trim() : null;
+      const matchedCategory = categoryKey ? categoryMap[categoryKey] : null;
+      
+      if (update.category && !matchedCategory) {
+        console.log('[UPDATES] Category not found:', update.category, 'Available:', Object.keys(categoryMap).slice(0, 5));
+      }
+      
+      return {
+        ...update,
+        category_name: matchedCategory ? matchedCategory.name : 'Update',
+        category_icon: matchedCategory ? matchedCategory.icon : '📰',
+        category_color: matchedCategory ? matchedCategory.color : '#667eea'
+      };
+    });
 
     console.log('[UPDATES] ✅ Found', updatesWithCategories.length, 'updates');
 
