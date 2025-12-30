@@ -948,6 +948,7 @@ app.get("/updates/admin/dashboard", (c) => {
         // Load all data
         await Promise.all([
           loadInvestors(),
+          loadWaitlistUsers(),
           loadDocuments(),
           loadInvestorUpdates(),
           loadWaitlistUpdates(),
@@ -1005,19 +1006,33 @@ app.get("/updates/admin/dashboard", (c) => {
         if (data.success && data.investors) {
           investors = data.investors;
           const realInvestors = investors.filter(i => i.user_type === 'investor');
-          const waitlistUsers = investors.filter(i => i.user_type === 'waitlist');
           const pending = realInvestors.filter(i => ['pending_nda', 'nda_signed'].includes(i.investor_status));
           
           document.getElementById('investorCount').textContent = realInvestors.length;
-          document.getElementById('waitlistCount').textContent = waitlistUsers.length;
           document.getElementById('pendingCount').textContent = pending.length;
           
           renderInvestorsTable(realInvestors);
-          renderWaitlistTable(waitlistUsers);
         }
       } catch (error) {
         console.error('Load investors error:', error);
         showToast('Failed to load investors', 'error');
+      }
+    }
+    
+    // Load Waitlist Users (from waitlist_users table)
+    async function loadWaitlistUsers() {
+      try {
+        const res = await fetch('/api/admin/waitlist/users');
+        const data = await res.json();
+        
+        if (data.success && data.waitlistUsers) {
+          waitlist = data.waitlistUsers;
+          document.getElementById('waitlistCount').textContent = waitlist.length;
+          renderWaitlistTable(waitlist);
+        }
+      } catch (error) {
+        console.error('Load waitlist error:', error);
+        showToast('Failed to load waitlist', 'error');
       }
     }
     
@@ -1047,17 +1062,18 @@ app.get("/updates/admin/dashboard", (c) => {
     function renderWaitlistTable(data) {
       const tbody = document.getElementById('waitlistTableBody');
       if (!data || data.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><div class="empty-state-icon">📋</div><h3>No waitlist subscribers</h3></td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><div class="empty-state-icon">📋</div><h3>No waitlist subscribers</h3></td></tr>';
         return;
       }
       tbody.innerHTML = data.map(item => \`
         <tr>
           <td>\${escapeHtml(item.email)}</td>
           <td>\${escapeHtml(item.first_name || '')} \${escapeHtml(item.last_name || '')}</td>
-          <td>Website</td>
+          <td>\${escapeHtml(item.business_name || '-')}</td>
+          <td><span class="badge badge-\${item.email_verified ? 'active' : 'pending'}">\${item.email_verified ? 'Verified' : 'Pending'}</span></td>
           <td>\${item.created_at ? new Date(item.created_at).toLocaleDateString() : '-'}</td>
           <td class="action-btns">
-            <button class="action-btn delete" onclick="confirmDeleteWaitlist('\${item.id}')" title="Delete">🗑️</button>
+            <button class="action-btn delete" onclick="confirmDeleteWaitlistUser('\${item.id}')" title="Delete">🗑️</button>
           </td>
         </tr>
       \`).join('');
@@ -1395,6 +1411,12 @@ app.get("/updates/admin/dashboard", (c) => {
       openModal('confirmModal');
     }
     
+    function confirmDeleteWaitlistUser(id) {
+      deleteTarget = { type: 'waitlist-user', id };
+      document.getElementById('confirmMessage').textContent = 'Are you sure you want to remove this subscriber from the waitlist?';
+      openModal('confirmModal');
+    }
+    
     async function confirmDelete() {
       if (!deleteTarget) return;
       
@@ -1413,6 +1435,9 @@ app.get("/updates/admin/dashboard", (c) => {
           case 'waitlist':
             url = \`/api/admin/waitlist/\${deleteTarget.id}\`;
             break;
+          case 'waitlist-user':
+            url = \`/api/admin/waitlist/user/\${deleteTarget.id}\`;
+            break;
           case 'waitlist-update':
             url = \`/api/admin/waitlist/updates/\${deleteTarget.id}\`;
             break;
@@ -1429,6 +1454,7 @@ app.get("/updates/admin/dashboard", (c) => {
           if (deleteTarget.type === 'document') await loadDocuments();
           else if (deleteTarget.type === 'investor-update') await loadInvestorUpdates();
           else if (deleteTarget.type === 'waitlist-update') await loadWaitlistUpdates();
+          else if (deleteTarget.type === 'waitlist-user') await loadWaitlistUsers();
           else if (deleteTarget.type === 'investor' || deleteTarget.type === 'waitlist') await loadInvestors();
         } else {
           showToast(result.error || 'Delete failed', 'error');

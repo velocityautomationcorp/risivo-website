@@ -36,7 +36,53 @@ async function verifyAdmin(c: any) {
 // WAITLIST USER MANAGEMENT
 // ==========================================
 
-// Delete waitlist user
+// GET all waitlist users
+adminWaitlistRoute.get('/users', async (c) => {
+    const auth = await verifyAdmin(c);
+    if (!auth) {
+        return c.json({ error: 'Unauthorized' }, 401);
+    }
+
+    try {
+        const { data: waitlistUsers, error } = await auth.supabase
+            .from('waitlist_users')
+            .select('id, email, first_name, last_name, business_name, phone, status, email_verified, waitlist_number, created_at, last_login_at')
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        return c.json({ success: true, waitlistUsers: waitlistUsers || [] });
+    } catch (error) {
+        console.error('[ADMIN-WAITLIST] List error:', error);
+        return c.json({ error: 'Failed to fetch waitlist users' }, 500);
+    }
+});
+
+// Delete waitlist user (from waitlist_users table)
+adminWaitlistRoute.delete('/user/:id', async (c) => {
+    const auth = await verifyAdmin(c);
+    if (!auth) {
+        return c.json({ error: 'Unauthorized' }, 401);
+    }
+
+    const userId = c.req.param('id');
+
+    try {
+        const { error } = await auth.supabase
+            .from('waitlist_users')
+            .delete()
+            .eq('id', userId);
+
+        if (error) throw error;
+
+        return c.json({ success: true, message: 'Waitlist user deleted' });
+    } catch (error) {
+        console.error('[ADMIN-WAITLIST] Delete error:', error);
+        return c.json({ error: 'Failed to delete waitlist user' }, 500);
+    }
+});
+
+// Delete waitlist user (legacy - from users table)
 adminWaitlistRoute.delete('/:id', async (c) => {
     const auth = await verifyAdmin(c);
     if (!auth) {
