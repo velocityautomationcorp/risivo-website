@@ -4243,6 +4243,9 @@ app.get("/waitlist/login", (c) => {
     .submit-btn:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
     .error-msg { background: #fee2e2; color: #dc2626; padding: 14px; border-radius: 12px; margin-bottom: 20px; display: none; font-size: 14px; }
     .error-msg.show { display: block; }
+    .success-msg { background: #d1fae5; color: #047857; padding: 16px; border-radius: 12px; margin-bottom: 20px; display: none; font-size: 14px; line-height: 1.6; border: 1px solid #a7f3d0; }
+    .success-msg.show { display: block; }
+    .success-msg strong { display: block; margin-bottom: 6px; font-size: 15px; color: #065f46; }
     .links { text-align: center; margin-top: 24px; }
     .links a { color: #667eea; text-decoration: none; font-size: 14px; margin: 0 8px; }
     .links a:hover { text-decoration: underline; }
@@ -4258,6 +4261,7 @@ app.get("/waitlist/login", (c) => {
     </div>
     <h2>Sign In</h2>
     
+    <div id="success" class="success-msg"></div>
     <div id="error" class="error-msg"></div>
     
     <form id="loginForm">
@@ -4280,14 +4284,26 @@ app.get("/waitlist/login", (c) => {
   </div>
   
   <script>
+    // Check for verification success message
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('verified') === 'true') {
+      const successEl = document.getElementById('success');
+      successEl.innerHTML = '<strong>Email Verified Successfully!</strong>Your account is now active. Please check your email for your login credentials (temporary password). If you don\\'t see it, check your spam folder.';
+      successEl.classList.add('show');
+      // Clean URL without reloading
+      window.history.replaceState({}, document.title, '/waitlist/login');
+    }
+    
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const btn = document.getElementById('submitBtn');
       const error = document.getElementById('error');
+      const success = document.getElementById('success');
       
       btn.disabled = true;
       btn.textContent = 'Signing in...';
       error.classList.remove('show');
+      success.classList.remove('show');
       
       try {
         const res = await fetch('/api/user/login', {
