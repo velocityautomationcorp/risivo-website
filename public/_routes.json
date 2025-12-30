@@ -9,6 +9,7 @@
     "/risivo-logo.png",
     "/risivo-logo-white.png",
     "/images/*",
-    "/static/*"
+    "/static/*",
+    "/upload_files/*"
   ]
 }

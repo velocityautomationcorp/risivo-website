@@ -3458,15 +3458,20 @@ app.get("/", (c) => {
         <script src="https://fast.wistia.com/embed/fqt1aw1yl3.js" async type="module"></script>
         <style>
             * { margin: 0; padding: 0; box-sizing: border-box; }
+            html, body {
+                height: 100%;
+            }
             body {
                 font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                 color: white;
-                min-height: 100vh;
+                min-height: 100%;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                justify-content: center;
+                justify-content: flex-start;
+                padding-top: 40px;
+                padding-bottom: 20px;
                 position: relative;
                 overflow-x: hidden;
             }
