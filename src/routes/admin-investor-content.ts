@@ -100,28 +100,23 @@ adminInvestorContentRoute.post('/', async (c) => {
 
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const contentData = {
+    // Build content data with only fields that exist in the database
+    const contentData: any = {
       title: body.title,
       description: body.description || null,
-      content_type: body.content_type,
-      category: body.category || null,
       file_url: body.file_url || null,
-      video_url: body.video_url || null,
-      thumbnail_url: body.thumbnail_url || null,
       icon: body.icon || '📄',
-      file_format: body.file_format || null,
-      file_size: body.file_size || null,
-      duration_seconds: body.duration_seconds || null,
-      visibility: body.visibility || 'active_investors_only',
-      visible_to_tiers: body.visible_to_tiers || null,
-      requires_nda: body.requires_nda !== false,
+      cta_button_text: body.cta_button_text || 'View Document',
       sort_order: body.sort_order || 0,
-      is_featured: body.is_featured || false,
-      show_on_dashboard: body.show_on_dashboard !== false,
-      cta_button_text: body.cta_button_text || (body.content_type === 'video' ? 'Watch Video' : 'Download'),
-      status: body.status || 'active',
-      published_at: body.status === 'active' ? new Date().toISOString() : null
+      is_active: body.status === 'active' || body.status === 'Active'
     };
+
+    // Add optional fields if provided
+    if (body.content_type) contentData.content_type = body.content_type;
+    if (body.category) contentData.category = body.category;
+    if (body.visibility) contentData.visibility = body.visibility;
+
+    console.log('[ADMIN-CONTENT] Creating with data:', JSON.stringify(contentData, null, 2));
 
     const { data: content, error } = await supabase
       .from('investor_content')
@@ -171,31 +166,21 @@ adminInvestorContentRoute.put('/:id', async (c) => {
       updated_at: new Date().toISOString()
     };
 
-    // Only include fields that were provided
+    // Only include fields that were provided and exist in the database
     if (body.title !== undefined) updateData.title = body.title;
     if (body.description !== undefined) updateData.description = body.description;
     if (body.content_type !== undefined) updateData.content_type = body.content_type;
     if (body.category !== undefined) updateData.category = body.category;
     if (body.file_url !== undefined) updateData.file_url = body.file_url;
-    if (body.video_url !== undefined) updateData.video_url = body.video_url;
-    if (body.thumbnail_url !== undefined) updateData.thumbnail_url = body.thumbnail_url;
     if (body.icon !== undefined) updateData.icon = body.icon;
-    if (body.file_format !== undefined) updateData.file_format = body.file_format;
-    if (body.file_size !== undefined) updateData.file_size = body.file_size;
-    if (body.duration_seconds !== undefined) updateData.duration_seconds = body.duration_seconds;
-    if (body.visibility !== undefined) updateData.visibility = body.visibility;
-    if (body.visible_to_tiers !== undefined) updateData.visible_to_tiers = body.visible_to_tiers;
-    if (body.requires_nda !== undefined) updateData.requires_nda = body.requires_nda;
     if (body.sort_order !== undefined) updateData.sort_order = body.sort_order;
-    if (body.is_featured !== undefined) updateData.is_featured = body.is_featured;
-    if (body.show_on_dashboard !== undefined) updateData.show_on_dashboard = body.show_on_dashboard;
     if (body.cta_button_text !== undefined) updateData.cta_button_text = body.cta_button_text;
+    if (body.visibility !== undefined) updateData.visibility = body.visibility;
     if (body.status !== undefined) {
-      updateData.status = body.status;
-      if (body.status === 'active' && !body.published_at) {
-        updateData.published_at = new Date().toISOString();
-      }
+      updateData.is_active = body.status === 'active' || body.status === 'Active';
     }
+
+    console.log('[ADMIN-CONTENT] Updating with data:', JSON.stringify(updateData, null, 2));
 
     const { data: content, error } = await supabase
       .from('investor_content')
