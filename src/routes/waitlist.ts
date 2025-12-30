@@ -13,7 +13,7 @@ type Bindings = {
 
 const app = new Hono<{ Bindings: Bindings }>();
 
-// Debug endpoint to test database connection
+// Debug endpoint to test database connection with full fields
 app.get('/debug', async (c) => {
   try {
     const supabaseUrl = c.env?.SUPABASE_URL;
@@ -24,40 +24,39 @@ app.get('/debug', async (c) => {
         success: false,
         error: 'Missing env vars',
         hasUrl: !!supabaseUrl,
-        hasKey: !!supabaseKey,
-        urlPrefix: supabaseUrl?.substring(0, 30) || 'none'
+        hasKey: !!supabaseKey
       });
     }
     
     const supabase = createClient(supabaseUrl, supabaseKey);
     
-    // Try to count waitlist_users
-    const { count, error } = await supabase
-      .from('waitlist_users')
-      .select('*', { count: 'exact', head: true });
-    
-    if (error) {
-      return c.json({
-        success: false,
-        error: 'Database query failed',
-        details: error.message,
-        code: error.code
-      });
-    }
-    
-    // Try a simple insert and delete
+    // Test with FULL signup fields
     const testEmail = `test_${Date.now()}@test.com`;
+    const testData = {
+      email: testEmail,
+      first_name: 'Test',
+      last_name: 'User',
+      phone: '+1234567890',
+      business_name: 'Test Company',
+      password_hash: 'testhash123',
+      verification_token: 'testtoken123',
+      email_verified: false,
+      status: 'pending',
+      is_active: false
+    };
+    
     const { error: insertError } = await supabase
       .from('waitlist_users')
-      .insert({ email: testEmail, first_name: 'Test', last_name: 'User' });
+      .insert(testData);
     
     if (insertError) {
       return c.json({
         success: false,
-        error: 'Insert test failed',
+        error: 'Insert with full fields failed',
         details: insertError.message,
         code: insertError.code,
-        hint: insertError.hint
+        hint: insertError.hint,
+        testedFields: Object.keys(testData)
       });
     }
     
@@ -66,8 +65,8 @@ app.get('/debug', async (c) => {
     
     return c.json({
       success: true,
-      message: 'Database connection OK',
-      waitlistCount: count
+      message: 'Full insert test OK - all fields work',
+      testedFields: Object.keys(testData)
     });
   } catch (err) {
     return c.json({
