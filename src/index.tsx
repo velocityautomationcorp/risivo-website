@@ -325,6 +325,7 @@ app.get("/updates/admin/dashboard", (c) => {
     .action-btn.edit:hover { background: #dbeafe; }
     .action-btn.delete:hover { background: #fee2e2; }
     .action-btn.approve:hover { background: #dcfce7; }
+    .action-btn.reject:hover { background: #fee2e2; }
     .action-btn.view:hover { background: #f3e8ff; }
     
     /* Modal */
@@ -1111,7 +1112,7 @@ app.get("/updates/admin/dashboard", (c) => {
           <td>\${inv.created_at ? new Date(inv.created_at).toLocaleDateString() : '-'}</td>
           <td class="action-btns">
             <button class="action-btn view" onclick="viewInvestor('\${inv.id}')" title="View">👁️</button>
-            \${inv.investor_status === 'nda_signed' ? \`<button class="action-btn approve" onclick="approveInvestor('\${inv.id}')" title="Approve">✅</button>\` : ''}
+            \${inv.investor_status === 'nda_signed' ? \`<button class="action-btn approve" onclick="approveInvestor('\${inv.id}')" title="Approve">✅</button><button class="action-btn reject" onclick="rejectInvestor('\${inv.id}')" title="Reject">❌</button>\` : ''}
             <button class="action-btn delete" onclick="confirmDeleteInvestor('\${inv.id}')" title="Delete">🗑️</button>
           </td>
         </tr>
@@ -1677,7 +1678,7 @@ app.get("/updates/admin/dashboard", (c) => {
           \`;
           
           actions.innerHTML = \`
-            \${inv.investor_status === 'nda_signed' ? \`<button class="btn btn-success" onclick="approveInvestor('\${id}'); closeModal('viewInvestorModal');">✅ Approve</button>\` : ''}
+            \${inv.investor_status === 'nda_signed' ? \`<button class="btn btn-success" onclick="approveInvestor('\${id}'); closeModal('viewInvestorModal');">✅ Approve</button><button class="btn btn-danger" style="background:#dc2626;margin-left:8px;" onclick="rejectInvestor('\${id}'); closeModal('viewInvestorModal');">❌ Reject</button>\` : ''}
             <button class="btn btn-secondary" onclick="closeModal('viewInvestorModal')">Close</button>
           \`;
         } else {
@@ -1690,6 +1691,7 @@ app.get("/updates/admin/dashboard", (c) => {
     }
     
     async function approveInvestor(id) {
+      if (!confirm('Approve this investor? They will receive an email with login credentials.')) return;
       try {
         const res = await fetch(\`/api/admin/investors/investor/\${id}/approve\`, {
           method: 'POST',
@@ -1699,7 +1701,7 @@ app.get("/updates/admin/dashboard", (c) => {
         const result = await res.json();
         
         if (result.success) {
-          showToast('Investor approved!', 'success');
+          showToast('Investor approved! Credentials sent via email.', 'success');
           await loadInvestors();
         } else {
           showToast(result.error || 'Approval failed', 'error');
@@ -1707,6 +1709,30 @@ app.get("/updates/admin/dashboard", (c) => {
       } catch (error) {
         console.error('Approve error:', error);
         showToast('Approval failed', 'error');
+      }
+    }
+    
+    async function rejectInvestor(id) {
+      const reason = prompt('Enter rejection reason (optional):');
+      if (reason === null) return; // User cancelled
+      
+      try {
+        const res = await fetch(\`/api/admin/investors/investor/\${id}/reject\`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reason: reason || '' })
+        });
+        const result = await res.json();
+        
+        if (result.success) {
+          showToast('Investor rejected. Notification sent.', 'success');
+          await loadInvestors();
+        } else {
+          showToast(result.error || 'Rejection failed', 'error');
+        }
+      } catch (error) {
+        console.error('Reject error:', error);
+        showToast('Rejection failed', 'error');
       }
     }
     
