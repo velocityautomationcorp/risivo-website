@@ -9,7 +9,7 @@ type Bindings = {
 
 const app = new Hono<{ Bindings: Bindings }>();
 
-// Middleware to check user authentication
+// Middleware to check user authentication (supports both investors and waitlist users)
 async function checkUserAuth(c: any) {
   const sessionToken = getCookie(c, 'user_session');
   
@@ -26,29 +26,47 @@ async function checkUserAuth(c: any) {
 
   const supabase = createClient(supabaseUrl, supabaseKey);
 
-  // Verify session
-  const { data: session } = await supabase
+  // First try waitlist_sessions (for waitlist users)
+  const { data: waitlistSession } = await supabase
+    .from('waitlist_sessions')
+    .select('user_id, expires_at')
+    .eq('session_token', sessionToken)
+    .single();
+
+  if (waitlistSession && new Date(waitlistSession.expires_at) > new Date()) {
+    // Get waitlist user
+    const { data: waitlistUser } = await supabase
+      .from('waitlist_users')
+      .select('id, email, first_name, last_name, status, is_active')
+      .eq('id', waitlistSession.user_id)
+      .single();
+
+    if (waitlistUser && waitlistUser.is_active) {
+      return { ...waitlistUser, userType: 'waitlist' };
+    }
+  }
+
+  // Try user_sessions (for investors)
+  const { data: userSession } = await supabase
     .from('user_sessions')
     .select('user_id, expires_at')
     .eq('session_token', sessionToken)
     .single();
 
-  if (!session || new Date(session.expires_at) < new Date()) {
-    return null;
+  if (userSession && new Date(userSession.expires_at) > new Date()) {
+    // Get investor user
+    const { data: user } = await supabase
+      .from('users')
+      .select('id, email, first_name, last_name, status')
+      .eq('id', userSession.user_id)
+      .single();
+
+    if (user && user.status === 'active') {
+      return { ...user, userType: 'investor' };
+    }
   }
 
-  // Get user
-  const { data: user } = await supabase
-    .from('users')
-    .select('id, email, first_name, last_name, status')
-    .eq('id', session.user_id)
-    .single();
-
-  if (!user || user.status !== 'active') {
-    return null;
-  }
-
-  return user;
+  return null;
 }
 
 // GET /api/updates/list - Get all published updates

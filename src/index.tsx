@@ -4450,17 +4450,19 @@ app.get("/waitlist/dashboard", (c) => {
     
     async function loadUpdates() {
       try {
-        const res = await fetch('/api/updates?limit=5');
+        const res = await fetch('/api/updates/list');
         const data = await res.json();
         
         const container = document.getElementById('updatesList');
         
-        if (!data.updates || data.updates.length === 0) {
+        if (!data.success || !data.updates || data.updates.length === 0) {
           container.innerHTML = '<div class="update-card"><p style="color: #888;">No updates yet. Check back soon!</p></div>';
           return;
         }
         
-        container.innerHTML = data.updates.map(u => '<div class="update-card"><div class="update-date">' + new Date(u.published_at || u.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) + '</div><h3 class="update-title">' + u.title + '</h3><p class="update-excerpt">' + (u.excerpt || '') + '</p></div>').join('');
+        // Show only first 5 updates
+        const recentUpdates = data.updates.slice(0, 5);
+        container.innerHTML = recentUpdates.map(u => '<div class="update-card"><div class="update-date">' + new Date(u.published_at || u.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) + '</div><h3 class="update-title">' + u.title + '</h3><p class="update-excerpt">' + (u.excerpt || '') + '</p></div>').join('');
       } catch (error) {
         console.error('Load updates error:', error);
         document.getElementById('updatesList').innerHTML = '<div class="update-card"><p style="color: #888;">Unable to load updates.</p></div>';

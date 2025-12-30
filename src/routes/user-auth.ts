@@ -237,7 +237,7 @@ app.get('/me', async (c) => {
     // Get user info
     const { data: user, error: userError } = await supabase
       .from('waitlist_users')
-      .select('id, email, first_name, last_name, business_name, preferred_language, is_active, last_login_at')
+      .select('id, email, first_name, last_name, business_name, preferred_language, is_active, last_login_at, waitlist_number, status, created_at')
       .eq('id', session.user_id)
       .single();
 
@@ -255,7 +255,10 @@ app.get('/me', async (c) => {
         last_name: user.last_name,
         business_name: user.business_name,
         preferred_language: user.preferred_language,
-        last_login_at: user.last_login_at
+        last_login_at: user.last_login_at,
+        waitlist_number: user.waitlist_number,
+        status: user.status,
+        created_at: user.created_at
       }
     });
   } catch (error) {
