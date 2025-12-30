@@ -3803,16 +3803,17 @@ app.get("/updates/investor/dashboard", (c) => {
         const category = item.investor_categories || {};
         const categoryIcon = category.icon || '📌';
         const categoryName = category.name || 'Update';
+        const hasVideo = item.video_url || (item.media_url && item.media_type === 'video');
         const date = item.published_at ? new Date(item.published_at).toLocaleDateString('en-US', { 
           year: 'numeric', month: 'long', day: 'numeric' 
         }) : '';
         
         return \`
-          <div class="update-card \${item.video_url ? 'video-card' : ''}" onclick="openUpdateDetail(\${idx})" style="cursor:pointer;">
+          <div class="update-card \${hasVideo ? 'video-card' : ''}" onclick="openUpdateDetail(\${idx})" style="cursor:pointer;">
             <div class="update-image">
               \${item.featured_image_url 
                 ? \`<img src="\${item.featured_image_url}" alt="\${escapeHtml(item.title)}">\`
-                : \`<span class="placeholder">\${item.video_url ? '🎬' : '📄'}</span>\`
+                : \`<span class="placeholder">\${hasVideo ? '🎬' : '📄'}</span>\`
               }
             </div>
             <div class="update-body">
@@ -3822,10 +3823,10 @@ app.get("/updates/investor/dashboard", (c) => {
               <div class="update-meta">
                 \${date ? \`<span>📅 \${date}</span>\` : ''}
                 \${item.author_name ? \`<span>✍️ \${escapeHtml(item.author_name)}</span>\` : ''}
-                \${item.video_url ? \`<span>🎬 Video</span>\` : ''}
+                \${hasVideo ? \`<span>🎬 Video</span>\` : ''}
               </div>
             </div>
-            \${item.video_url ? '<div class="video-badge">▶ Video</div>' : ''}
+            \${hasVideo ? '<div class="video-badge">▶ Video</div>' : ''}
           </div>
         \`;
       }).join('');
@@ -3861,14 +3862,15 @@ app.get("/updates/investor/dashboard", (c) => {
       document.getElementById('modalDate').innerHTML = date ? '📅 ' + date : '';
       document.getElementById('modalAuthor').innerHTML = item.author_name ? '✍️ ' + escapeHtml(item.author_name) : '';
       
-      // Video
+      // Video - support both video_url and media_url
       const videoContainer = document.getElementById('modalVideoContainer');
-      if (item.video_url) {
-        const embedUrl = getYouTubeEmbedUrl(item.video_url);
+      const videoUrl = item.video_url || (item.media_type === 'video' ? item.media_url : null);
+      if (videoUrl) {
+        const embedUrl = getYouTubeEmbedUrl(videoUrl);
         if (embedUrl) {
           videoContainer.innerHTML = \`<div class="video-container"><iframe src="\${embedUrl}" allowfullscreen></iframe></div>\`;
         } else {
-          videoContainer.innerHTML = \`<p><a href="\${item.video_url}" target="_blank">🎬 Watch Video</a></p>\`;
+          videoContainer.innerHTML = \`<p><a href="\${videoUrl}" target="_blank">🎬 Watch Video</a></p>\`;
         }
       } else {
         videoContainer.innerHTML = '';
@@ -5174,19 +5176,87 @@ app.get("/waitlist/dashboard", (c) => {
     .stat-title { font-size: 14px; color: #666; margin-bottom: 4px; }
     .stat-value { font-size: 24px; font-weight: 700; color: #1a1a2e; }
     .content-section { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
-    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-    .section-title { font-size: 18px; font-weight: 700; color: #1a1a2e; }
-    .update-card { border: 1px solid #eee; border-radius: 12px; padding: 20px; margin-bottom: 16px; transition: all 0.2s; }
-    .update-card:hover { border-color: #667eea; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1); }
-    .update-date { font-size: 12px; color: #888; margin-bottom: 8px; }
-    .update-title { font-size: 16px; font-weight: 600; color: #1a1a2e; margin-bottom: 8px; }
-    .update-excerpt { font-size: 14px; color: #666; line-height: 1.6; }
+    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .section-title { font-size: 22px; font-weight: 700; color: #1a1a2e; }
+    
+    /* Blog-style update cards */
+    .updates-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 24px; }
+    .update-card { background: white; border: 1px solid #e5e7eb; border-radius: 16px; overflow: hidden; transition: all 0.3s ease; cursor: pointer; }
+    .update-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(102, 126, 234, 0.15); border-color: #667eea; }
+    .update-image { width: 100%; height: 200px; object-fit: cover; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .update-image-placeholder { width: 100%; height: 200px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 48px; }
+    .update-content { padding: 20px; }
+    .update-meta { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+    .update-category { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+    .update-date { font-size: 13px; color: #888; }
+    .update-title { font-size: 18px; font-weight: 700; color: #1a1a2e; margin-bottom: 10px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .update-excerpt { font-size: 14px; color: #666; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 16px; }
+    .update-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 16px; border-top: 1px solid #f0f0f0; }
+    .update-author { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #666; }
+    .update-author-avatar { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: 600; }
+    .update-stats { display: flex; gap: 12px; font-size: 12px; color: #888; }
+    .update-stat { display: flex; align-items: center; gap: 4px; }
+    .read-more-btn { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .read-more-btn:hover { transform: scale(1.05); box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); }
+    
+    /* Detail Modal */
+    .detail-modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); display: none; z-index: 2000; overflow-y: auto; }
+    .detail-modal.show { display: block; }
+    .detail-container { max-width: 900px; margin: 40px auto; background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 25px 80px rgba(0,0,0,0.3); }
+    .detail-close { position: fixed; top: 20px; right: 20px; width: 48px; height: 48px; background: white; border: none; border-radius: 50%; font-size: 24px; cursor: pointer; box-shadow: 0 4px 20px rgba(0,0,0,0.2); z-index: 2001; display: flex; align-items: center; justify-content: center; }
+    .detail-close:hover { background: #f5f5f5; }
+    .detail-featured-image { width: 100%; height: 400px; object-fit: cover; }
+    .detail-body { padding: 40px; }
+    .detail-meta { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+    .detail-category { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; text-transform: uppercase; }
+    .detail-date { font-size: 14px; color: #888; }
+    .detail-author { font-size: 14px; color: #666; }
+    .detail-title { font-size: 32px; font-weight: 800; color: #1a1a2e; margin-bottom: 24px; line-height: 1.3; }
+    .detail-stats { display: flex; gap: 24px; margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid #eee; }
+    .detail-stat { display: flex; align-items: center; gap: 6px; font-size: 14px; color: #666; }
+    .detail-stat svg { width: 18px; height: 18px; }
+    .detail-content { font-size: 16px; line-height: 1.8; color: #444; }
+    .detail-content p { margin-bottom: 16px; }
+    .detail-content h1, .detail-content h2, .detail-content h3 { color: #1a1a2e; margin: 24px 0 16px; }
+    .detail-content ul, .detail-content ol { margin: 16px 0; padding-left: 24px; }
+    .detail-content li { margin-bottom: 8px; }
+    .detail-content img { max-width: 100%; border-radius: 12px; margin: 16px 0; }
+    .detail-content a { color: #667eea; }
+    
+    /* Video embed */
+    .detail-video { margin: 24px 0; border-radius: 12px; overflow: hidden; }
+    .detail-video iframe { width: 100%; aspect-ratio: 16/9; border: none; }
+    
+    /* Gallery */
+    .detail-gallery { margin: 32px 0; }
+    .detail-gallery-title { font-size: 18px; font-weight: 700; color: #1a1a2e; margin-bottom: 16px; }
+    .detail-gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+    .detail-gallery-item { aspect-ratio: 1; border-radius: 12px; overflow: hidden; cursor: pointer; transition: transform 0.2s; }
+    .detail-gallery-item:hover { transform: scale(1.05); }
+    .detail-gallery-item img { width: 100%; height: 100%; object-fit: cover; }
+    
+    /* Lightbox */
+    .lightbox { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.95); display: none; align-items: center; justify-content: center; z-index: 3000; }
+    .lightbox.show { display: flex; }
+    .lightbox img { max-width: 90%; max-height: 90%; object-fit: contain; border-radius: 8px; }
+    .lightbox-close { position: absolute; top: 20px; right: 20px; width: 48px; height: 48px; background: rgba(255,255,255,0.1); border: none; border-radius: 50%; color: white; font-size: 24px; cursor: pointer; }
+    .lightbox-close:hover { background: rgba(255,255,255,0.2); }
+    .lightbox-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 48px; height: 48px; background: rgba(255,255,255,0.1); border: none; border-radius: 50%; color: white; font-size: 24px; cursor: pointer; }
+    .lightbox-nav:hover { background: rgba(255,255,255,0.2); }
+    .lightbox-prev { left: 20px; }
+    .lightbox-next { right: 20px; }
+    
     .footer { text-align: center; padding: 40px 20px; color: #888; font-size: 13px; }
-    .loading { text-align: center; padding: 40px; color: #666; }
+    .loading { text-align: center; padding: 60px; color: #666; }
+    .empty-state { text-align: center; padding: 60px 20px; color: #888; }
+    .empty-state-icon { font-size: 64px; margin-bottom: 16px; opacity: 0.5; }
+    .empty-state-text { font-size: 16px; }
+    
     /* Settings button */
     .settings-btn { background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 6px; }
     .settings-btn:hover { background: rgba(255,255,255,0.25); }
-    /* Modal */
+    
+    /* Password Modal */
     .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
     .modal-overlay.show { display: flex; }
     .modal { background: white; border-radius: 20px; max-width: 420px; width: 100%; padding: 32px; box-shadow: 0 25px 80px rgba(0,0,0,0.3); }
@@ -5204,6 +5274,15 @@ app.get("/waitlist/dashboard", (c) => {
     .modal-msg { padding: 12px; border-radius: 8px; margin-bottom: 16px; font-size: 14px; display: none; }
     .modal-msg.error { background: #fee2e2; color: #dc2626; display: block; }
     .modal-msg.success { background: #dcfce7; color: #16a34a; display: block; }
+    
+    @media (max-width: 768px) {
+      .updates-grid { grid-template-columns: 1fr; }
+      .detail-container { margin: 0; border-radius: 0; min-height: 100vh; }
+      .detail-featured-image { height: 250px; }
+      .detail-body { padding: 24px; }
+      .detail-title { font-size: 24px; }
+      .detail-close { top: 10px; right: 10px; width: 40px; height: 40px; }
+    }
   </style>
 </head>
 <body>
@@ -5275,11 +5354,45 @@ app.get("/waitlist/dashboard", (c) => {
       <div class="section-header">
         <h2 class="section-title">Latest Updates</h2>
       </div>
-      <div id="updatesList">
+      <div id="updatesList" class="updates-grid">
         <div class="loading">Loading updates...</div>
       </div>
     </div>
   </main>
+  
+  <!-- Update Detail Modal -->
+  <div class="detail-modal" id="detailModal">
+    <button class="detail-close" onclick="closeDetail()">&times;</button>
+    <div class="detail-container">
+      <img class="detail-featured-image" id="detailImage" src="" alt="">
+      <div class="detail-body">
+        <div class="detail-meta">
+          <span class="detail-category" id="detailCategory">Update</span>
+          <span class="detail-date" id="detailDate"></span>
+          <span class="detail-author" id="detailAuthor"></span>
+        </div>
+        <h1 class="detail-title" id="detailTitle"></h1>
+        <div class="detail-stats">
+          <div class="detail-stat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg><span id="detailViews">0 views</span></div>
+          <div class="detail-stat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg><span id="detailLikes">0 likes</span></div>
+        </div>
+        <div class="detail-content" id="detailContent"></div>
+        <div class="detail-video" id="detailVideo" style="display:none;"></div>
+        <div class="detail-gallery" id="detailGallery" style="display:none;">
+          <h3 class="detail-gallery-title">Gallery</h3>
+          <div class="detail-gallery-grid" id="detailGalleryGrid"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox">
+    <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+    <button class="lightbox-nav lightbox-prev" onclick="prevImage()">&#10094;</button>
+    <img id="lightboxImage" src="" alt="">
+    <button class="lightbox-nav lightbox-next" onclick="nextImage()">&#10095;</button>
+  </div>
   
   <footer class="footer">
     <p>© ${currentYear} Risivo. Owned by Velocity Automation Corp. All rights reserved.</p>
@@ -5312,6 +5425,10 @@ app.get("/waitlist/dashboard", (c) => {
       }
     }
     
+    let allUpdates = [];
+    let galleryImages = [];
+    let currentImageIndex = 0;
+    
     async function loadUpdates() {
       try {
         const res = await fetch('/api/updates/list');
@@ -5320,18 +5437,139 @@ app.get("/waitlist/dashboard", (c) => {
         const container = document.getElementById('updatesList');
         
         if (!data.success || !data.updates || data.updates.length === 0) {
-          container.innerHTML = '<div class="update-card"><p style="color: #888;">No updates yet. Check back soon!</p></div>';
+          container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📰</div><p class="empty-state-text">No updates yet. Check back soon!</p></div>';
           return;
         }
         
-        // Show only first 5 updates
-        const recentUpdates = data.updates.slice(0, 5);
-        container.innerHTML = recentUpdates.map(u => '<div class="update-card"><div class="update-date">' + new Date(u.published_at || u.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) + '</div><h3 class="update-title">' + u.title + '</h3><p class="update-excerpt">' + (u.excerpt || '') + '</p></div>').join('');
+        allUpdates = data.updates;
+        container.innerHTML = allUpdates.map((u, index) => {
+          const date = new Date(u.published_at || u.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+          const authorInitial = (u.author_name || 'R')[0].toUpperCase();
+          const hasImage = u.featured_image_url;
+          
+          return '<div class="update-card" onclick="openDetail(' + index + ')">' +
+            (hasImage 
+              ? '<img class="update-image" src="' + u.featured_image_url + '" alt="' + u.title + '" onerror="this.outerHTML=\\'<div class=\\\\'update-image-placeholder\\\\'>📰</div>\\'">'
+              : '<div class="update-image-placeholder">📰</div>') +
+            '<div class="update-content">' +
+              '<div class="update-meta">' +
+                '<span class="update-category">' + (u.category || 'Update') + '</span>' +
+                '<span class="update-date">' + date + '</span>' +
+              '</div>' +
+              '<h3 class="update-title">' + u.title + '</h3>' +
+              '<p class="update-excerpt">' + (u.excerpt || stripHtml(u.content || '').substring(0, 150) + '...') + '</p>' +
+              '<div class="update-footer">' +
+                '<div class="update-author">' +
+                  '<div class="update-author-avatar">' + authorInitial + '</div>' +
+                  '<span>' + (u.author_name || 'Risivo Team') + '</span>' +
+                '</div>' +
+                '<div class="update-stats">' +
+                  '<span class="update-stat">👁 ' + (u.views_count || 0) + '</span>' +
+                  '<span class="update-stat">👍 ' + (u.likes_count || 0) + '</span>' +
+                '</div>' +
+              '</div>' +
+            '</div>' +
+          '</div>';
+        }).join('');
       } catch (error) {
         console.error('Load updates error:', error);
-        document.getElementById('updatesList').innerHTML = '<div class="update-card"><p style="color: #888;">Unable to load updates.</p></div>';
+        document.getElementById('updatesList').innerHTML = '<div class="empty-state"><div class="empty-state-icon">⚠️</div><p class="empty-state-text">Unable to load updates.</p></div>';
       }
     }
+    
+    function stripHtml(html) {
+      const tmp = document.createElement('div');
+      tmp.innerHTML = html;
+      return tmp.textContent || tmp.innerText || '';
+    }
+    
+    function openDetail(index) {
+      const update = allUpdates[index];
+      if (!update) return;
+      
+      document.getElementById('detailImage').src = update.featured_image_url || '';
+      document.getElementById('detailImage').style.display = update.featured_image_url ? 'block' : 'none';
+      document.getElementById('detailCategory').textContent = update.category || 'Update';
+      document.getElementById('detailDate').textContent = new Date(update.published_at || update.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+      document.getElementById('detailAuthor').textContent = 'By ' + (update.author_name || 'Risivo Team');
+      document.getElementById('detailTitle').textContent = update.title;
+      document.getElementById('detailViews').textContent = (update.views_count || 0) + ' views';
+      document.getElementById('detailLikes').textContent = (update.likes_count || 0) + ' likes';
+      document.getElementById('detailContent').innerHTML = update.content || '';
+      
+      // Video
+      const videoContainer = document.getElementById('detailVideo');
+      if (update.media_url && update.media_type === 'video') {
+        const videoId = extractYoutubeId(update.media_url);
+        if (videoId) {
+          videoContainer.innerHTML = '<iframe src="https://www.youtube.com/embed/' + videoId + '" allowfullscreen></iframe>';
+          videoContainer.style.display = 'block';
+        } else {
+          videoContainer.style.display = 'none';
+        }
+      } else {
+        videoContainer.style.display = 'none';
+      }
+      
+      // Gallery
+      const galleryContainer = document.getElementById('detailGallery');
+      const galleryGrid = document.getElementById('detailGalleryGrid');
+      if (update.gallery_images && update.gallery_images.length > 0) {
+        galleryImages = update.gallery_images;
+        galleryGrid.innerHTML = update.gallery_images.map((img, i) => 
+          '<div class="detail-gallery-item" onclick="openLightbox(' + i + ')"><img src="' + img + '" alt="Gallery image"></div>'
+        ).join('');
+        galleryContainer.style.display = 'block';
+      } else {
+        galleryImages = [];
+        galleryContainer.style.display = 'none';
+      }
+      
+      document.getElementById('detailModal').classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+    
+    function closeDetail() {
+      document.getElementById('detailModal').classList.remove('show');
+      document.body.style.overflow = '';
+    }
+    
+    function extractYoutubeId(url) {
+      if (!url) return null;
+      const match = url.match(/(?:youtube\\.com\\/(?:watch\\?v=|embed\\/)|youtu\\.be\\/)([a-zA-Z0-9_-]{11})/);
+      return match ? match[1] : null;
+    }
+    
+    function openLightbox(index) {
+      currentImageIndex = index;
+      document.getElementById('lightboxImage').src = galleryImages[index];
+      document.getElementById('lightbox').classList.add('show');
+    }
+    
+    function closeLightbox() {
+      document.getElementById('lightbox').classList.remove('show');
+    }
+    
+    function prevImage() {
+      currentImageIndex = (currentImageIndex - 1 + galleryImages.length) % galleryImages.length;
+      document.getElementById('lightboxImage').src = galleryImages[currentImageIndex];
+    }
+    
+    function nextImage() {
+      currentImageIndex = (currentImageIndex + 1) % galleryImages.length;
+      document.getElementById('lightboxImage').src = galleryImages[currentImageIndex];
+    }
+    
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      if (document.getElementById('lightbox').classList.contains('show')) {
+        if (e.key === 'Escape') closeLightbox();
+        if (e.key === 'ArrowLeft') prevImage();
+        if (e.key === 'ArrowRight') nextImage();
+      } else if (document.getElementById('detailModal').classList.contains('show')) {
+        if (e.key === 'Escape') closeDetail();
+      }
+    });
     
     async function logout() {
       try {
