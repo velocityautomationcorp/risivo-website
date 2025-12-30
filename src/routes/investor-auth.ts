@@ -1018,14 +1018,26 @@ investorAuth.post('/forgot-password', async (c) => {
     const resetToken = generateResetToken();
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000).toISOString(); // 1 hour
 
-    // Store token
-    await supabase
+    console.log('[INVESTOR_AUTH] 🔑 Generating reset token for user:', user.id);
+
+    // Store token - WITH ERROR CHECKING
+    const { data: insertedToken, error: tokenError } = await supabase
       .from('password_reset_tokens')
       .insert({
         user_id: user.id,
         token: resetToken,
         expires_at: expiresAt
-      });
+      })
+      .select()
+      .single();
+
+    if (tokenError) {
+      console.error('[INVESTOR_AUTH] ❌ Token storage error:', tokenError);
+      console.error('[INVESTOR_AUTH] ❌ Error details:', JSON.stringify(tokenError));
+      return c.json({ success: false, error: 'Failed to process reset request' }, 500);
+    }
+
+    console.log('[INVESTOR_AUTH] ✅ Token stored successfully, id:', insertedToken?.id);
 
     // Send email
     const emailService = getEmailService(c.env as Bindings);
@@ -1036,8 +1048,9 @@ investorAuth.post('/forgot-password', async (c) => {
           firstName: user.first_name,
           resetToken
         });
+        console.log('[INVESTOR_AUTH] ✅ Reset email sent to:', user.email);
       } catch (emailError) {
-        console.error('[INVESTOR_AUTH] Password reset email error:', emailError);
+        console.error('[INVESTOR_AUTH] ❌ Password reset email error:', emailError);
       }
     }
 
