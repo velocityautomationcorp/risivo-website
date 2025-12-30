@@ -3458,13 +3458,17 @@ app.get("/", (c) => {
         <script src="https://fast.wistia.com/embed/fqt1aw1yl3.js" async type="module"></script>
         <style>
             * { margin: 0; padding: 0; box-sizing: border-box; }
-            html {
-                background: #667eea;
+            html, body {
+                background: none;
+                margin: 0;
+                padding: 0;
             }
             body {
                 font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                 color: white;
+            }
+            .page-wrapper {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                 display: flex;
                 flex-direction: column;
                 align-items: center;
@@ -3727,11 +3731,12 @@ app.get("/", (c) => {
         </style>
     </head>
     <body>
-        <div class="bg-shape shape-1"></div>
-        <div class="bg-shape shape-2"></div>
-        <div class="bg-shape shape-3"></div>
-        
-        <div class="container">
+        <div class="page-wrapper">
+            <div class="bg-shape shape-1"></div>
+            <div class="bg-shape shape-2"></div>
+            <div class="bg-shape shape-3"></div>
+            
+            <div class="container">
             <div class="logo">
                 <img src="/images/risivo-logo-white.png" alt="Risivo" />
             </div>
@@ -3809,6 +3814,7 @@ app.get("/", (c) => {
                 </div>
                 <p>© ${currentYear} Risivo ™ Owned by Velocity Automation Corp. All rights reserved.</p>
             </div>
+        </div>
         </div>
         
         <script>
