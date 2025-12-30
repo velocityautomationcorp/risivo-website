@@ -120,7 +120,7 @@ uploadRoute.post('/image', async (c) => {
     
     // Upload to Supabase Storage
     const { data, error } = await supabase.storage
-      .from('images')
+      .from('media')
       .upload(filePath, buffer, {
         contentType: file.type,
         upsert: false
@@ -137,7 +137,7 @@ uploadRoute.post('/image', async (c) => {
     
     // Get public URL
     const { data: urlData } = supabase.storage
-      .from('images')
+      .from('media')
       .getPublicUrl(filePath);
     
     return c.json({ 
@@ -221,7 +221,7 @@ uploadRoute.post('/gallery', async (c) => {
       
       // Upload to Supabase Storage
       const { data, error } = await supabase.storage
-        .from('images')
+        .from('media')
         .upload(filePath, buffer, {
           contentType: file.type,
           upsert: false
@@ -234,7 +234,7 @@ uploadRoute.post('/gallery', async (c) => {
       
       // Get public URL
       const { data: urlData } = supabase.storage
-        .from('images')
+        .from('media')
         .getPublicUrl(filePath);
       
       uploadedImages.push({
@@ -288,7 +288,7 @@ uploadRoute.delete('/image', async (c) => {
     }
     
     const { error } = await supabase.storage
-      .from('images')
+      .from('media')
       .remove([path]);
     
     if (error) {
