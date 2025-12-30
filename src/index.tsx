@@ -3583,27 +3583,97 @@ app.get("/", (c) => {
             }
             .success-message.show { display: block; animation: slideIn 0.3s ease; }
             @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-            .cta-buttons {
+            
+            /* CTA Cards */
+            .cta-cards-container {
                 display: flex;
-                gap: 1rem;
-                justify-content: center;
-                margin: 2rem 0;
+                gap: 24px;
+                max-width: 900px;
+                margin: 40px auto;
+                padding: 0 20px;
                 flex-wrap: wrap;
+                justify-content: center;
             }
-            .cta-btn {
-                padding: 1rem 2rem;
-                border-radius: 50px;
-                font-size: 1rem;
+            .cta-card {
+                flex: 1;
+                min-width: 320px;
+                max-width: 420px;
+                background: rgba(255, 255, 255, 0.1);
+                backdrop-filter: blur(10px);
+                border-radius: 20px;
+                padding: 32px 28px;
+                border: 2px solid rgba(255, 255, 255, 0.15);
+                transition: all 0.3s ease;
+                text-align: center;
+            }
+            .cta-card:hover {
+                transform: translateY(-8px);
+                border-color: rgba(255, 255, 255, 0.3);
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            }
+            .card-icon {
+                font-size: 48px;
+                margin-bottom: 16px;
+                animation: float 3s ease-in-out infinite;
+            }
+            @keyframes float {
+                0%, 100% { transform: translateY(0px); }
+                50% { transform: translateY(-10px); }
+            }
+            .cta-card h3 {
+                font-size: 24px;
+                font-weight: 700;
+                color: #ffffff;
+                margin-bottom: 12px;
+                letter-spacing: -0.5px;
+            }
+            .cta-card p {
+                font-size: 15px;
+                line-height: 1.6;
+                color: rgba(255, 255, 255, 0.85);
+                margin-bottom: 24px;
+                min-height: 75px;
+            }
+            .cta-card p strong {
+                color: #FFD700;
                 font-weight: 600;
-                text-decoration: none;
-                transition: all 0.3s;
-                display: inline-flex;
-                align-items: center;
-                gap: 8px;
             }
-            .cta-btn.primary { background: white; color: #667eea; }
-            .cta-btn.secondary { background: rgba(255,255,255,0.15); color: white; border: 2px solid rgba(255,255,255,0.3); }
-            .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+            .cta-button {
+                width: 100%;
+                padding: 16px 24px;
+                font-size: 16px;
+                font-weight: 600;
+                border-radius: 12px;
+                border: none;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                text-decoration: none;
+            }
+            .primary-btn {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+            }
+            .primary-btn:hover {
+                background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+                transform: scale(1.05);
+                box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+            }
+            .secondary-btn {
+                background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+                color: white;
+            }
+            .secondary-btn:hover {
+                background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+                transform: scale(1.05);
+                box-shadow: 0 10px 25px rgba(245, 87, 108, 0.4);
+            }
+            .cta-button .icon {
+                font-size: 20px;
+            }
             .social-links {
                 display: flex;
                 justify-content: center;
@@ -3646,9 +3716,8 @@ app.get("/", (c) => {
                 .countdown { gap: 0.75rem; }
                 .countdown-item { min-width: 80px; padding: 1rem; }
                 .countdown-number { font-size: 2rem; }
-                .email-form { flex-direction: column; }
-                .email-input { min-width: 100%; }
-                .cta-buttons { flex-direction: column; align-items: center; }
+                .cta-cards-container { flex-direction: column; gap: 20px; }
+                .cta-card { max-width: 100%; min-width: auto; }
             }
         </style>
     </head>
@@ -3691,9 +3760,26 @@ app.get("/", (c) => {
                 </div>
             </div>
             
-            <div class="cta-buttons">
-                <a href="/signup/waitlist" class="cta-btn primary">📋 Join Waitlist</a>
-                <a href="/signup/investor" class="cta-btn secondary">💼 Become an Investor</a>
+            <div class="cta-cards-container">
+                <!-- Waitlist Card -->
+                <div class="cta-card waitlist-card">
+                    <div class="card-icon">🎁</div>
+                    <h3>Join Early Access</h3>
+                    <p>Be among the first to experience Risivo AI CRM. Early subscribers get a <strong>14-day free trial</strong> plus <strong>50% lifetime discount</strong> when we launch!</p>
+                    <a href="/signup/waitlist" class="cta-button primary-btn">
+                        <span class="icon">📋</span> Join Waitlist
+                    </a>
+                </div>
+                
+                <!-- Investor Card -->
+                <div class="cta-card investor-card">
+                    <div class="card-icon">💼</div>
+                    <h3>Investment Opportunity</h3>
+                    <p>Access our complete project documentation including pitch deck, financial forecasts, business plan, executive summary, and real-time updates.</p>
+                    <a href="/signup/investor" class="cta-button secondary-btn">
+                        <span class="icon">🔐</span> Investor Portal
+                    </a>
+                </div>
             </div>
             
             <div class="social-links">
