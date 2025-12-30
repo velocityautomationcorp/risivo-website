@@ -129,29 +129,37 @@ app.post('/signup', async (c) => {
     const tempPassword = generateTempPassword(12);
     const hashedPassword = await bcrypt.hash(tempPassword, 10);
 
-    // Create waitlist user
+    // Create waitlist user - using only confirmed columns from schema
+    const insertData = {
+      email: email.toLowerCase(),
+      first_name,
+      last_name,
+      phone,
+      business_name,
+      password_hash: hashedPassword,
+      verification_token: verificationToken,
+      email_verified: false,
+      status: 'pending',
+      is_active: false
+    };
+    
+    console.log('[WAITLIST-SIGNUP] 📦 Insert data:', JSON.stringify(insertData, null, 2));
+    
     const { data: newUser, error: insertError } = await supabase
       .from('waitlist_users')
-      .insert({
-        email: email.toLowerCase(),
-        first_name,
-        last_name,
-        phone,
-        business_name,
-        password_hash: hashedPassword,
-        verification_token: verificationToken,
-        email_verified: false,
-        status: 'pending'
-      })
+      .insert(insertData)
       .select('id, waitlist_number')
       .single();
 
     if (insertError) {
-      console.error('[WAITLIST-SIGNUP] ❌ Insert error:', insertError);
+      console.error('[WAITLIST-SIGNUP] ❌ Insert error:', JSON.stringify(insertError, null, 2));
+      console.error('[WAITLIST-SIGNUP] ❌ Error code:', insertError.code);
+      console.error('[WAITLIST-SIGNUP] ❌ Error message:', insertError.message);
+      console.error('[WAITLIST-SIGNUP] ❌ Error details:', insertError.details);
       return c.json({
         success: false,
         error: 'Registration failed',
-        details: 'Unable to create account. Please try again.'
+        details: insertError.message || 'Unable to create account. Please try again.'
       }, 500);
     }
 
