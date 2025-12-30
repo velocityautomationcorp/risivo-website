@@ -13,6 +13,71 @@ type Bindings = {
 
 const app = new Hono<{ Bindings: Bindings }>();
 
+// Debug endpoint to test database connection
+app.get('/debug', async (c) => {
+  try {
+    const supabaseUrl = c.env?.SUPABASE_URL;
+    const supabaseKey = c.env?.SUPABASE_SERVICE_ROLE_KEY;
+    
+    if (!supabaseUrl || !supabaseKey) {
+      return c.json({
+        success: false,
+        error: 'Missing env vars',
+        hasUrl: !!supabaseUrl,
+        hasKey: !!supabaseKey,
+        urlPrefix: supabaseUrl?.substring(0, 30) || 'none'
+      });
+    }
+    
+    const supabase = createClient(supabaseUrl, supabaseKey);
+    
+    // Try to count waitlist_users
+    const { count, error } = await supabase
+      .from('waitlist_users')
+      .select('*', { count: 'exact', head: true });
+    
+    if (error) {
+      return c.json({
+        success: false,
+        error: 'Database query failed',
+        details: error.message,
+        code: error.code
+      });
+    }
+    
+    // Try a simple insert and delete
+    const testEmail = `test_${Date.now()}@test.com`;
+    const { error: insertError } = await supabase
+      .from('waitlist_users')
+      .insert({ email: testEmail, first_name: 'Test', last_name: 'User' });
+    
+    if (insertError) {
+      return c.json({
+        success: false,
+        error: 'Insert test failed',
+        details: insertError.message,
+        code: insertError.code,
+        hint: insertError.hint
+      });
+    }
+    
+    // Delete the test record
+    await supabase.from('waitlist_users').delete().eq('email', testEmail);
+    
+    return c.json({
+      success: true,
+      message: 'Database connection OK',
+      waitlistCount: count
+    });
+  } catch (err) {
+    return c.json({
+      success: false,
+      error: 'Exception',
+      details: err instanceof Error ? err.message : 'Unknown error'
+    });
+  }
+});
+
 // Helper to get email service
 function getEmailService(env: Bindings): EmailService | null {
   if (!env.SENDGRID_API_KEY) return null;
