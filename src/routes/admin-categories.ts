@@ -102,11 +102,11 @@ adminCategories.get('/', async (c) => {
     
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    console.log('Categories API: Fetching from update_categories table');
+    console.log('Categories API: Fetching from investor_categories table');
     const { data: categories, error } = await supabase
-      .from('update_categories')
+      .from('investor_categories')
       .select('*')
-      .order('display_order', { ascending: true });
+      .order('sort_order', { ascending: true });
 
     if (error) {
       console.error('Categories API: Database error:', error);
@@ -141,10 +141,10 @@ adminCategories.get('/active', async (c) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     const { data: categories, error } = await supabase
-      .from('update_categories')
+      .from('investor_categories')
       .select('*')
       .eq('is_active', true)
-      .order('display_order', { ascending: true });
+      .order('sort_order', { ascending: true });
 
     if (error) {
       console.error('Failed to fetch active categories:', error);
@@ -187,7 +187,7 @@ adminCategories.post('/', async (c) => {
 
     // Check if category with same name or slug already exists
     const { data: existing } = await supabase
-      .from('update_categories')
+      .from('investor_categories')
       .select('id')
       .or(`name.eq.${name},slug.eq.${slug}`)
       .single();
@@ -196,26 +196,26 @@ adminCategories.post('/', async (c) => {
       return c.json({ error: 'Category with this name already exists' }, 409);
     }
 
-    // Get max display_order
+    // Get max sort_order
     const { data: maxOrder } = await supabase
-      .from('update_categories')
-      .select('display_order')
-      .order('display_order', { ascending: false })
+      .from('investor_categories')
+      .select('sort_order')
+      .order('sort_order', { ascending: false })
       .limit(1)
       .single();
 
-    const nextOrder = (maxOrder?.display_order || 0) + 1;
+    const nextOrder = (maxOrder?.sort_order || 0) + 1;
 
     // Create category
     const { data: category, error } = await supabase
-      .from('update_categories')
+      .from('investor_categories')
       .insert({
         name: name.trim(),
         slug,
         description: description?.trim() || null,
         color: color || '#667eea',
-        icon: icon?.trim() || null,
-        display_order: nextOrder,
+        icon: icon?.trim() || '💼',
+        sort_order: nextOrder,
         is_active: true
       })
       .select()
@@ -257,7 +257,7 @@ adminCategories.put('/:id', async (c) => {
 
     // Check if category exists
     const { data: existing } = await supabase
-      .from('update_categories')
+      .from('investor_categories')
       .select('*')
       .eq('id', categoryId)
       .single();
@@ -283,11 +283,11 @@ adminCategories.put('/:id', async (c) => {
     }
 
     if (icon !== undefined) {
-      updateData.icon = icon?.trim() || null;
+      updateData.icon = icon?.trim() || '💼';
     }
 
     if (display_order !== undefined) {
-      updateData.display_order = parseInt(display_order, 10);
+      updateData.sort_order = parseInt(display_order, 10);
     }
 
     if (is_active !== undefined) {
@@ -296,7 +296,7 @@ adminCategories.put('/:id', async (c) => {
 
     // Update category
     const { data: category, error } = await supabase
-      .from('update_categories')
+      .from('investor_categories')
       .update(updateData)
       .eq('id', categoryId)
       .select()
@@ -336,7 +336,7 @@ adminCategories.delete('/:id', async (c) => {
 
     // Check if category exists
     const { data: existing } = await supabase
-      .from('update_categories')
+      .from('investor_categories')
       .select('*')
       .eq('id', categoryId)
       .single();
@@ -345,11 +345,11 @@ adminCategories.delete('/:id', async (c) => {
       return c.json({ error: 'Category not found' }, 404);
     }
 
-    // Check if category is being used
+    // Check if category is being used by investor updates
     const { data: updates, error: checkError } = await supabase
-      .from('project_updates')
+      .from('investor_updates')
       .select('id')
-      .eq('category', existing.name)
+      .eq('category_id', categoryId)
       .limit(1);
 
     if (checkError) {
@@ -366,7 +366,7 @@ adminCategories.delete('/:id', async (c) => {
 
     // Delete category
     const { error } = await supabase
-      .from('update_categories')
+      .from('investor_categories')
       .delete()
       .eq('id', categoryId);
 
@@ -406,11 +406,11 @@ adminCategories.post('/reorder', async (c) => {
     const supabaseKey = c.env.SUPABASE_SERVICE_ROLE_KEY;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Update each category's display_order
+    // Update each category's sort_order
     const updates = order.map(item => 
       supabase
-        .from('update_categories')
-        .update({ display_order: item.display_order })
+        .from('investor_categories')
+        .update({ sort_order: item.display_order })
         .eq('id', item.id)
     );
 
