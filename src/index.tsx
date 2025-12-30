@@ -1381,8 +1381,8 @@ app.get("/updates/admin/dashboard", (c) => {
         icon: document.getElementById('docIcon').value,
         file_url: document.getElementById('docFileUrl').value,
         cta_button_text: document.getElementById('docCta').value || 'View Document',
-        status: document.getElementById('docStatus').value,
         sort_order: parseInt(document.getElementById('docSortOrder').value) || 0
+        // Note: status field removed - column doesn't exist in database
       };
       
       try {

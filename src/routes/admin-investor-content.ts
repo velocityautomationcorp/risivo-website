@@ -100,21 +100,19 @@ adminInvestorContentRoute.post('/', async (c) => {
 
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Build content data with only fields that exist in the database
+    // Build content data with ONLY columns that exist in investor_content table:
+    // id, title, description, content_type, file_url, file_format, icon, visibility, sort_order, cta_button_text, created_at, updated_at
     const contentData: any = {
       title: body.title,
       description: body.description || null,
+      content_type: body.content_type || 'document',
       file_url: body.file_url || null,
+      file_format: body.file_format || null,
       icon: body.icon || '📄',
-      cta_button_text: body.cta_button_text || 'View Document',
+      visibility: body.visibility || 'all_investors',
       sort_order: body.sort_order || 0,
-      is_active: body.status === 'active' || body.status === 'Active'
+      cta_button_text: body.cta_button_text || 'View Document'
     };
-
-    // Add optional fields if provided
-    if (body.content_type) contentData.content_type = body.content_type;
-    if (body.category) contentData.category = body.category;
-    if (body.visibility) contentData.visibility = body.visibility;
 
     console.log('[ADMIN-CONTENT] Creating with data:', JSON.stringify(contentData, null, 2));
 
@@ -162,23 +160,22 @@ adminInvestorContentRoute.put('/:id', async (c) => {
 
     const supabase = createClient(supabaseUrl, supabaseKey);
 
+    // Only columns that exist: id, title, description, content_type, file_url, file_format, icon, visibility, sort_order, cta_button_text, created_at, updated_at
     const updateData: any = {
       updated_at: new Date().toISOString()
     };
 
-    // Only include fields that were provided and exist in the database
+    // Only include fields that exist in the database
     if (body.title !== undefined) updateData.title = body.title;
     if (body.description !== undefined) updateData.description = body.description;
     if (body.content_type !== undefined) updateData.content_type = body.content_type;
-    if (body.category !== undefined) updateData.category = body.category;
     if (body.file_url !== undefined) updateData.file_url = body.file_url;
+    if (body.file_format !== undefined) updateData.file_format = body.file_format;
     if (body.icon !== undefined) updateData.icon = body.icon;
+    if (body.visibility !== undefined) updateData.visibility = body.visibility;
     if (body.sort_order !== undefined) updateData.sort_order = body.sort_order;
     if (body.cta_button_text !== undefined) updateData.cta_button_text = body.cta_button_text;
-    if (body.visibility !== undefined) updateData.visibility = body.visibility;
-    if (body.status !== undefined) {
-      updateData.is_active = body.status === 'active' || body.status === 'Active';
-    }
+    // Note: status/is_active column doesn't exist - ignoring
 
     console.log('[ADMIN-CONTENT] Updating with data:', JSON.stringify(updateData, null, 2));
 
