@@ -448,6 +448,168 @@ investorAuth.get('/updates', async (c) => {
   }
 });
 
+// POST /api/investor/updates/:id/view - Track view for investor update
+investorAuth.post('/updates/:id/view', async (c) => {
+  try {
+    const sessionToken = getCookie(c, 'user_session');
+    if (!sessionToken) {
+      return c.json({ error: 'Not authenticated' }, 401);
+    }
+
+    const updateId = c.req.param('id');
+    const supabaseUrl = c.env?.SUPABASE_URL;
+    const supabaseKey = c.env?.SUPABASE_SERVICE_ROLE_KEY;
+    
+    if (!supabaseUrl || !supabaseKey) {
+      return c.json({ error: 'Service configuration error' }, 503);
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Verify session
+    const { data: session } = await supabase
+      .from('user_sessions')
+      .select('user_id')
+      .eq('session_token', sessionToken)
+      .single();
+
+    if (!session) {
+      return c.json({ error: 'Invalid session' }, 401);
+    }
+
+    // Get current view count
+    const { data: update } = await supabase
+      .from('investor_updates')
+      .select('views_count')
+      .eq('id', updateId)
+      .single();
+
+    if (!update) {
+      return c.json({ error: 'Update not found' }, 404);
+    }
+
+    // Increment view count
+    const newViewCount = (update.views_count || 0) + 1;
+    await supabase
+      .from('investor_updates')
+      .update({ views_count: newViewCount })
+      .eq('id', updateId);
+
+    return c.json({ success: true, views_count: newViewCount });
+  } catch (error) {
+    console.error('[INVESTOR_AUTH] View tracking error:', error);
+    return c.json({ error: 'Internal server error' }, 500);
+  }
+});
+
+// POST /api/investor/updates/:id/like - Like investor update
+investorAuth.post('/updates/:id/like', async (c) => {
+  try {
+    const sessionToken = getCookie(c, 'user_session');
+    if (!sessionToken) {
+      return c.json({ error: 'Not authenticated' }, 401);
+    }
+
+    const updateId = c.req.param('id');
+    const supabaseUrl = c.env?.SUPABASE_URL;
+    const supabaseKey = c.env?.SUPABASE_SERVICE_ROLE_KEY;
+    
+    if (!supabaseUrl || !supabaseKey) {
+      return c.json({ error: 'Service configuration error' }, 503);
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Verify session
+    const { data: session } = await supabase
+      .from('user_sessions')
+      .select('user_id')
+      .eq('session_token', sessionToken)
+      .single();
+
+    if (!session) {
+      return c.json({ error: 'Invalid session' }, 401);
+    }
+
+    // Get current like count
+    const { data: update } = await supabase
+      .from('investor_updates')
+      .select('likes_count')
+      .eq('id', updateId)
+      .single();
+
+    if (!update) {
+      return c.json({ error: 'Update not found' }, 404);
+    }
+
+    // Increment like count
+    const newLikeCount = (update.likes_count || 0) + 1;
+    await supabase
+      .from('investor_updates')
+      .update({ likes_count: newLikeCount })
+      .eq('id', updateId);
+
+    return c.json({ success: true, likes_count: newLikeCount });
+  } catch (error) {
+    console.error('[INVESTOR_AUTH] Like error:', error);
+    return c.json({ error: 'Internal server error' }, 500);
+  }
+});
+
+// POST /api/investor/updates/:id/dislike - Dislike investor update
+investorAuth.post('/updates/:id/dislike', async (c) => {
+  try {
+    const sessionToken = getCookie(c, 'user_session');
+    if (!sessionToken) {
+      return c.json({ error: 'Not authenticated' }, 401);
+    }
+
+    const updateId = c.req.param('id');
+    const supabaseUrl = c.env?.SUPABASE_URL;
+    const supabaseKey = c.env?.SUPABASE_SERVICE_ROLE_KEY;
+    
+    if (!supabaseUrl || !supabaseKey) {
+      return c.json({ error: 'Service configuration error' }, 503);
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Verify session
+    const { data: session } = await supabase
+      .from('user_sessions')
+      .select('user_id')
+      .eq('session_token', sessionToken)
+      .single();
+
+    if (!session) {
+      return c.json({ error: 'Invalid session' }, 401);
+    }
+
+    // Get current dislike count
+    const { data: update } = await supabase
+      .from('investor_updates')
+      .select('dislikes_count')
+      .eq('id', updateId)
+      .single();
+
+    if (!update) {
+      return c.json({ error: 'Update not found' }, 404);
+    }
+
+    // Increment dislike count
+    const newDislikeCount = (update.dislikes_count || 0) + 1;
+    await supabase
+      .from('investor_updates')
+      .update({ dislikes_count: newDislikeCount })
+      .eq('id', updateId);
+
+    return c.json({ success: true, dislikes_count: newDislikeCount });
+  } catch (error) {
+    console.error('[INVESTOR_AUTH] Dislike error:', error);
+    return c.json({ error: 'Internal server error' }, 500);
+  }
+});
+
 // POST /api/investor/sign-nda - Sign NDA
 investorAuth.post('/sign-nda', async (c) => {
   try {

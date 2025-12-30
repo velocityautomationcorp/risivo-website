@@ -3638,6 +3638,11 @@ app.get("/updates/investor/dashboard", (c) => {
           <span id="modalDate"></span>
           <span id="modalAuthor"></span>
         </div>
+        <div class="modal-stats" style="display: flex; gap: 16px; margin: 16px 0; padding: 16px 0; border-top: 1px solid #eee; border-bottom: 1px solid #eee;">
+          <span style="display: flex; align-items: center; gap: 6px; color: #666; font-size: 14px;">👁 <span id="modalViews">0</span> views</span>
+          <button onclick="likeInvestorUpdate()" style="display: flex; align-items: center; gap: 6px; padding: 8px 16px; border: 1px solid #e0e0e0; border-radius: 20px; background: white; cursor: pointer; font-size: 14px; color: #666; transition: all 0.2s;" onmouseover="this.style.borderColor='#10b981';this.style.color='#10b981'" onmouseout="this.style.borderColor='#e0e0e0';this.style.color='#666'">👍 <span id="modalLikes">0</span></button>
+          <button onclick="dislikeInvestorUpdate()" style="display: flex; align-items: center; gap: 6px; padding: 8px 16px; border: 1px solid #e0e0e0; border-radius: 20px; background: white; cursor: pointer; font-size: 14px; color: #666; transition: all 0.2s;" onmouseover="this.style.borderColor='#ef4444';this.style.color='#ef4444'" onmouseout="this.style.borderColor='#e0e0e0';this.style.color='#666'">👎 <span id="modalDislikes">0</span></button>
+        </div>
         <div id="modalVideoContainer"></div>
         <div class="modal-text" id="modalContent"></div>
         <div class="gallery-section" id="modalGallerySection" style="display:none;">
@@ -3832,9 +3837,24 @@ app.get("/updates/investor/dashboard", (c) => {
       }).join('');
     }
     
+    let currentInvestorUpdateId = null;
+    
     function openUpdateDetail(idx) {
       const item = allUpdates[idx];
       if (!item) return;
+      
+      currentInvestorUpdateId = item.id;
+      
+      // Track view
+      fetch('/api/investor/updates/' + item.id + '/view', { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            item.views_count = data.views_count;
+            document.getElementById('modalViews').textContent = data.views_count;
+          }
+        })
+        .catch(err => console.log('View tracking error:', err));
       
       const category = item.investor_categories || {};
       const categoryIcon = category.icon || '📌';
@@ -3861,6 +3881,11 @@ app.get("/updates/investor/dashboard", (c) => {
       // Meta
       document.getElementById('modalDate').innerHTML = date ? '📅 ' + date : '';
       document.getElementById('modalAuthor').innerHTML = item.author_name ? '✍️ ' + escapeHtml(item.author_name) : '';
+      
+      // Stats
+      document.getElementById('modalViews').textContent = item.views_count || 0;
+      document.getElementById('modalLikes').textContent = item.likes_count || 0;
+      document.getElementById('modalDislikes').textContent = item.dislikes_count || 0;
       
       // Video - support both video_url and media_url
       const videoContainer = document.getElementById('modalVideoContainer');
@@ -3969,6 +3994,32 @@ app.get("/updates/investor/dashboard", (c) => {
       const div = document.createElement('div');
       div.textContent = text;
       return div.innerHTML;
+    }
+    
+    async function likeInvestorUpdate() {
+      if (!currentInvestorUpdateId) return;
+      try {
+        const res = await fetch('/api/investor/updates/' + currentInvestorUpdateId + '/like', { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById('modalLikes').textContent = data.likes_count;
+        }
+      } catch (err) {
+        console.error('Like error:', err);
+      }
+    }
+    
+    async function dislikeInvestorUpdate() {
+      if (!currentInvestorUpdateId) return;
+      try {
+        const res = await fetch('/api/investor/updates/' + currentInvestorUpdateId + '/dislike', { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById('modalDislikes').textContent = data.dislikes_count;
+        }
+      } catch (err) {
+        console.error('Dislike error:', err);
+      }
     }
     
     async function logout() {
