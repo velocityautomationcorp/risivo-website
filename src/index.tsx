@@ -4383,6 +4383,27 @@ app.get("/waitlist/dashboard", (c) => {
     .update-excerpt { font-size: 14px; color: #666; line-height: 1.6; }
     .footer { text-align: center; padding: 40px 20px; color: #888; font-size: 13px; }
     .loading { text-align: center; padding: 40px; color: #666; }
+    /* Settings button */
+    .settings-btn { background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.3); padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+    .settings-btn:hover { background: rgba(255,255,255,0.25); }
+    /* Modal */
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+    .modal-overlay.show { display: flex; }
+    .modal { background: white; border-radius: 20px; max-width: 420px; width: 100%; padding: 32px; box-shadow: 0 25px 80px rgba(0,0,0,0.3); }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .modal-title { font-size: 20px; font-weight: 700; color: #1a1a2e; }
+    .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: #888; padding: 4px; }
+    .modal-close:hover { color: #333; }
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 14px; color: #333; }
+    .form-input { width: 100%; padding: 12px 14px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 14px; transition: border-color 0.2s; }
+    .form-input:focus { outline: none; border-color: #667eea; }
+    .modal-btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .modal-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4); }
+    .modal-btn:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+    .modal-msg { padding: 12px; border-radius: 8px; margin-bottom: 16px; font-size: 14px; display: none; }
+    .modal-msg.error { background: #fee2e2; color: #dc2626; display: block; }
+    .modal-msg.success { background: #dcfce7; color: #16a34a; display: block; }
   </style>
 </head>
 <body>
@@ -4393,10 +4414,37 @@ app.get("/waitlist/dashboard", (c) => {
       </div>
       <div class="header-nav">
         <span class="user-info" id="userEmail">Loading...</span>
+        <button class="settings-btn" onclick="openChangePassword()">🔑 Change Password</button>
         <button class="logout-btn" onclick="logout()">Logout</button>
       </div>
     </div>
   </header>
+  
+  <!-- Change Password Modal -->
+  <div class="modal-overlay" id="passwordModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Change Password</h3>
+        <button class="modal-close" onclick="closeChangePassword()">&times;</button>
+      </div>
+      <div id="passwordMsg" class="modal-msg"></div>
+      <form id="changePasswordForm">
+        <div class="form-group">
+          <label>Current Password</label>
+          <input type="password" class="form-input" id="currentPassword" required placeholder="Enter current password">
+        </div>
+        <div class="form-group">
+          <label>New Password</label>
+          <input type="password" class="form-input" id="newPassword" required placeholder="Enter new password (min 8 characters)" minlength="8">
+        </div>
+        <div class="form-group">
+          <label>Confirm New Password</label>
+          <input type="password" class="form-input" id="confirmPassword" required placeholder="Confirm new password">
+        </div>
+        <button type="submit" class="modal-btn" id="changePasswordBtn">Update Password</button>
+      </form>
+    </div>
+  </div>
   
   <main class="main">
     <div class="welcome">
@@ -4491,6 +4539,73 @@ app.get("/waitlist/dashboard", (c) => {
       } catch (e) {}
       window.location.href = '/waitlist/login';
     }
+    
+    function openChangePassword() {
+      document.getElementById('passwordModal').classList.add('show');
+      document.getElementById('changePasswordForm').reset();
+      document.getElementById('passwordMsg').className = 'modal-msg';
+      document.getElementById('passwordMsg').textContent = '';
+    }
+    
+    function closeChangePassword() {
+      document.getElementById('passwordModal').classList.remove('show');
+    }
+    
+    // Close modal on overlay click
+    document.getElementById('passwordModal').addEventListener('click', (e) => {
+      if (e.target.id === 'passwordModal') closeChangePassword();
+    });
+    
+    document.getElementById('changePasswordForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('changePasswordBtn');
+      const msg = document.getElementById('passwordMsg');
+      const currentPassword = document.getElementById('currentPassword').value;
+      const newPassword = document.getElementById('newPassword').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+      
+      // Validation
+      if (newPassword !== confirmPassword) {
+        msg.className = 'modal-msg error';
+        msg.textContent = 'New passwords do not match';
+        return;
+      }
+      
+      if (newPassword.length < 8) {
+        msg.className = 'modal-msg error';
+        msg.textContent = 'Password must be at least 8 characters';
+        return;
+      }
+      
+      btn.disabled = true;
+      btn.textContent = 'Updating...';
+      msg.className = 'modal-msg';
+      
+      try {
+        const res = await fetch('/api/user/change-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ current_password: currentPassword, new_password: newPassword })
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+          msg.className = 'modal-msg success';
+          msg.textContent = 'Password updated successfully!';
+          document.getElementById('changePasswordForm').reset();
+          setTimeout(closeChangePassword, 2000);
+        } else {
+          msg.className = 'modal-msg error';
+          msg.textContent = data.error || 'Failed to update password';
+        }
+      } catch (err) {
+        msg.className = 'modal-msg error';
+        msg.textContent = 'Connection error. Please try again.';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Update Password';
+      }
+    });
     
     init();
   </script>
