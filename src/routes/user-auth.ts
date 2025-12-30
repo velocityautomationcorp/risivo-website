@@ -509,15 +509,28 @@ app.post('/reset-password', async (c) => {
     // Hash new password
     const newPasswordHash = await bcrypt.hash(new_password, 10);
 
-    // Update password
-    const { error: updateError } = await supabase
+    // Try to update password in waitlist_users first
+    const { error: waitlistUpdateError, data: waitlistUser } = await supabase
       .from('waitlist_users')
       .update({ password_hash: newPasswordHash })
-      .eq('id', resetToken.user_id);
+      .eq('id', resetToken.user_id)
+      .select('id')
+      .maybeSingle();
 
-    if (updateError) {
-      console.error('[USER_AUTH] ❌ Password update error:', updateError);
-      return c.json({ error: 'Failed to reset password' }, 500);
+    // If not found in waitlist_users, try the users table (for investors)
+    if (!waitlistUser) {
+      const { error: usersUpdateError } = await supabase
+        .from('users')
+        .update({ password_hash: newPasswordHash })
+        .eq('id', resetToken.user_id);
+      
+      if (usersUpdateError) {
+        console.error('[USER_AUTH] ❌ Password update error (users table):', usersUpdateError);
+        return c.json({ error: 'Failed to reset password' }, 500);
+      }
+      console.log('[USER_AUTH] ✅ Password updated in users table (investor)');
+    } else {
+      console.log('[USER_AUTH] ✅ Password updated in waitlist_users table');
     }
 
     // Mark token as used

@@ -6298,7 +6298,7 @@ app.get("/reset-password", (c) => {
         const res = await fetch('/api/user/reset-password', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token, password })
+          body: JSON.stringify({ token, new_password: password })
         });
         const data = await res.json();
         
