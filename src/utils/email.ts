@@ -64,6 +64,16 @@ interface InvestorRejectedParams {
   reason?: string;
 }
 
+interface NewUpdateNotificationParams {
+  email: string;
+  firstName: string;
+  updateTitle: string;
+  updateExcerpt?: string;
+  featuredImageUrl?: string;
+  updateUrl: string;
+  updateType: 'investor' | 'waitlist';
+}
+
 interface AdminNotificationParams {
   type: 'waitlist_signup' | 'investor_signup' | 'nda_signed' | 'investor_approved';
   userData: {
@@ -547,6 +557,92 @@ export class EmailService {
     `;
 
     await this.sendEmail(email, 'Risivo Investor Portal - Access Granted', this.buildEmailHtml(content, 'Access Granted'));
+  }
+
+  // ===========================================
+  // NEW UPDATE NOTIFICATION
+  // ===========================================
+  async sendNewUpdateNotification(params: NewUpdateNotificationParams): Promise<void> {
+    const { email, firstName, updateTitle, updateExcerpt, featuredImageUrl, updateUrl, updateType } = params;
+    
+    const isInvestor = updateType === 'investor';
+    const portalName = isInvestor ? 'Investor Portal' : 'Waitlist Dashboard';
+    const subtitle = isInvestor ? 'New Investor Update' : 'New Project Update';
+    
+    const content = `
+      <h2>📢 New Update Available!</h2>
+      <p>Hi ${firstName || 'there'},</p>
+      <p>We've just published a new update that we think you'll find interesting:</p>
+      
+      ${featuredImageUrl ? `
+      <div style="margin: 24px 0; border-radius: 12px; overflow: hidden;">
+        <img src="${featuredImageUrl}" alt="${updateTitle}" style="width: 100%; max-height: 300px; object-fit: cover; display: block;">
+      </div>
+      ` : ''}
+      
+      <div style="background: #f8f9fa; border-left: 4px solid #667eea; padding: 20px; margin: 20px 0; border-radius: 0 8px 8px 0;">
+        <h3 style="margin: 0 0 12px 0; color: #1a1a2e; font-size: 20px;">${updateTitle}</h3>
+        ${updateExcerpt ? `<p style="margin: 0; color: #4a4a4a; font-size: 15px; line-height: 1.6;">${updateExcerpt}</p>` : ''}
+      </div>
+      
+      <div class="btn-wrapper">
+        <a href="${updateUrl}" class="btn">Read Full Update →</a>
+      </div>
+      
+      <p style="font-size: 14px; color: #666; margin-top: 24px;">
+        Log in to your ${portalName} to view this update and all available content.
+      </p>
+    `;
+
+    const subject = isInvestor 
+      ? `📢 New Investor Update: ${updateTitle}`
+      : `📢 New Project Update: ${updateTitle}`;
+
+    await this.sendEmail(email, subject, this.buildEmailHtml(content, subtitle));
+  }
+
+  // Bulk send new update notifications
+  async sendBulkUpdateNotifications(
+    recipients: Array<{ email: string; firstName: string }>,
+    updateDetails: {
+      title: string;
+      excerpt?: string;
+      featuredImageUrl?: string;
+      slug: string;
+      updateType: 'investor' | 'waitlist';
+    }
+  ): Promise<{ sent: number; failed: number }> {
+    const { title, excerpt, featuredImageUrl, slug, updateType } = updateDetails;
+    
+    const baseUrl = updateType === 'investor' 
+      ? 'https://risivo.com/updates/investor/dashboard'
+      : 'https://risivo.com/waitlist/dashboard';
+    
+    let sent = 0;
+    let failed = 0;
+
+    for (const recipient of recipients) {
+      try {
+        await this.sendNewUpdateNotification({
+          email: recipient.email,
+          firstName: recipient.firstName,
+          updateTitle: title,
+          updateExcerpt: excerpt,
+          featuredImageUrl: featuredImageUrl,
+          updateUrl: baseUrl,
+          updateType
+        });
+        sent++;
+        // Small delay to avoid rate limits
+        await new Promise(resolve => setTimeout(resolve, 100));
+      } catch (error) {
+        console.error(`[EMAIL] Failed to send to ${recipient.email}:`, error);
+        failed++;
+      }
+    }
+
+    console.log(`[EMAIL] Bulk notifications sent: ${sent} success, ${failed} failed`);
+    return { sent, failed };
   }
 
   // ===========================================

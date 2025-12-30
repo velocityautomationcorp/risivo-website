@@ -1,11 +1,27 @@
 import { Hono } from 'hono';
 import { createClient } from '@supabase/supabase-js';
 import { getCookie } from 'hono/cookie';
+import { EmailService } from '../utils/email';
 
 type Bindings = {
     SUPABASE_URL?: string;
     SUPABASE_SERVICE_ROLE_KEY?: string;
+    SENDGRID_API_KEY?: string;
+    FROM_EMAIL?: string;
+    FROM_NAME?: string;
+    ADMIN_EMAIL?: string;
 };
+
+// Helper to get email service
+function getEmailService(env: Bindings) {
+    if (!env.SENDGRID_API_KEY) return null;
+    return new EmailService({
+        SENDGRID_API_KEY: env.SENDGRID_API_KEY,
+        FROM_EMAIL: env.FROM_EMAIL || 'hello@risivo.com',
+        FROM_NAME: env.FROM_NAME || 'Risivo Team',
+        ADMIN_EMAIL: env.ADMIN_EMAIL || 'admin@risivo.com'
+    });
+}
 
 const adminInvestorUpdatesRoute = new Hono<{ Bindings: Bindings }>();
 
@@ -258,6 +274,43 @@ adminInvestorUpdatesRoute.post('/', async (c) => {
             throw error;
         }
 
+        // Send email notifications if published
+        if (status === 'published') {
+            const emailService = getEmailService(c.env as Bindings);
+            if (emailService) {
+                try {
+                    // Get all active investors
+                    const { data: investors } = await auth.supabase
+                        .from('users')
+                        .select('email, first_name')
+                        .eq('user_type', 'investor')
+                        .eq('investor_status', 'active');
+
+                    if (investors && investors.length > 0) {
+                        const recipients = investors.map(inv => ({
+                            email: inv.email,
+                            firstName: inv.first_name || 'Investor'
+                        }));
+
+                        // Send notifications in background (don't await)
+                        emailService.sendBulkUpdateNotifications(recipients, {
+                            title,
+                            excerpt: excerpt || undefined,
+                            featuredImageUrl: featured_image_url || undefined,
+                            slug: data.slug,
+                            updateType: 'investor'
+                        }).then(result => {
+                            console.log(`[INVESTOR UPDATE] ✉️ Notifications sent: ${result.sent} success, ${result.failed} failed`);
+                        }).catch(err => {
+                            console.error('[INVESTOR UPDATE] Email notification error:', err);
+                        });
+                    }
+                } catch (emailError) {
+                    console.error('[INVESTOR UPDATE] Failed to send notifications:', emailError);
+                }
+            }
+        }
+
         return c.json({ success: true, update: data });
     } catch (error: any) {
         console.error('Create investor update error:', error);
@@ -296,16 +349,18 @@ adminInvestorUpdatesRoute.put('/:id', async (c) => {
             status: status || 'draft'
         };
 
-        // Set published_at if publishing for first time
+        // Check if this is a first-time publish
+        let isFirstPublish = false;
         if (status === 'published') {
             const { data: existing } = await auth.supabase
                 .from('investor_updates')
-                .select('published_at')
+                .select('published_at, status')
                 .eq('id', updateId)
                 .single();
             
-            if (!existing?.published_at) {
+            if (!existing?.published_at || existing?.status !== 'published') {
                 updateData.published_at = new Date().toISOString();
+                isFirstPublish = true;
             }
         }
 
@@ -317,6 +372,43 @@ adminInvestorUpdatesRoute.put('/:id', async (c) => {
             .single();
 
         if (error) throw error;
+
+        // Send email notifications if this is a first-time publish
+        if (isFirstPublish) {
+            const emailService = getEmailService(c.env as Bindings);
+            if (emailService) {
+                try {
+                    // Get all active investors
+                    const { data: investors } = await auth.supabase
+                        .from('users')
+                        .select('email, first_name')
+                        .eq('user_type', 'investor')
+                        .eq('investor_status', 'active');
+
+                    if (investors && investors.length > 0) {
+                        const recipients = investors.map(inv => ({
+                            email: inv.email,
+                            firstName: inv.first_name || 'Investor'
+                        }));
+
+                        // Send notifications in background
+                        emailService.sendBulkUpdateNotifications(recipients, {
+                            title,
+                            excerpt: excerpt || undefined,
+                            featuredImageUrl: featured_image_url || undefined,
+                            slug: data.slug,
+                            updateType: 'investor'
+                        }).then(result => {
+                            console.log(`[INVESTOR UPDATE] ✉️ Notifications sent: ${result.sent} success, ${result.failed} failed`);
+                        }).catch(err => {
+                            console.error('[INVESTOR UPDATE] Email notification error:', err);
+                        });
+                    }
+                } catch (emailError) {
+                    console.error('[INVESTOR UPDATE] Failed to send notifications:', emailError);
+                }
+            }
+        }
 
         return c.json({ success: true, update: data });
     } catch (error) {
