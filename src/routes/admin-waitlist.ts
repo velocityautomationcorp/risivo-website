@@ -284,19 +284,25 @@ adminWaitlistRoute.post('/updates', async (c) => {
         const updateData: any = {
             title,
             slug: slug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-            excerpt,
+            excerpt: excerpt || null,
             content,
-            featured_image_url,
-            video_url,
-            gallery_images: gallery_images || [],
-            category_id,
+            featured_image_url: featured_image_url || null,
+            video_url: video_url || null,
+            category_id: category_id || null,
             author_name: author_name || 'Risivo Team',
             status: status || 'draft'
         };
 
+        // Only add gallery_images if provided and not empty
+        if (gallery_images && Array.isArray(gallery_images) && gallery_images.length > 0) {
+            updateData.gallery_images = gallery_images;
+        }
+
         if (status === 'published') {
             updateData.published_at = new Date().toISOString();
         }
+
+        console.log('[WAITLIST UPDATE] Creating update with data:', JSON.stringify(updateData, null, 2));
 
         const { data, error } = await auth.supabase
             .from('project_updates')
@@ -304,12 +310,15 @@ adminWaitlistRoute.post('/updates', async (c) => {
             .select()
             .single();
 
-        if (error) throw error;
+        if (error) {
+            console.error('[WAITLIST UPDATE] Supabase error:', error);
+            throw error;
+        }
 
         return c.json({ success: true, update: data });
-    } catch (error) {
+    } catch (error: any) {
         console.error('Create waitlist update error:', error);
-        return c.json({ error: 'Failed to create update' }, 500);
+        return c.json({ error: 'Failed to create update', details: error?.message || 'Unknown error' }, 500);
     }
 });
 
@@ -333,15 +342,19 @@ adminWaitlistRoute.put('/updates/:id', async (c) => {
         const updateData: any = {
             title,
             slug,
-            excerpt,
+            excerpt: excerpt || null,
             content,
-            featured_image_url,
-            video_url,
-            gallery_images,
-            category_id,
-            author_name,
-            status
+            featured_image_url: featured_image_url || null,
+            video_url: video_url || null,
+            category_id: category_id || null,
+            author_name: author_name || 'Risivo Team',
+            status: status || 'draft'
         };
+
+        // Only add gallery_images if explicitly provided
+        if (gallery_images !== undefined) {
+            updateData.gallery_images = (Array.isArray(gallery_images) && gallery_images.length > 0) ? gallery_images : null;
+        }
 
         // Set published_at if publishing for first time
         if (status === 'published') {
