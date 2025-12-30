@@ -5215,6 +5215,11 @@ app.get("/waitlist/dashboard", (c) => {
     .detail-stats { display: flex; gap: 24px; margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid #eee; }
     .detail-stat { display: flex; align-items: center; gap: 6px; font-size: 14px; color: #666; }
     .detail-stat svg { width: 18px; height: 18px; }
+    .detail-action-btn { display: flex; align-items: center; gap: 6px; padding: 8px 16px; border: 1px solid #e0e0e0; border-radius: 20px; background: white; cursor: pointer; font-size: 14px; color: #666; transition: all 0.2s; }
+    .detail-action-btn:hover { border-color: #667eea; color: #667eea; background: rgba(102, 126, 234, 0.05); }
+    .detail-action-btn svg { width: 18px; height: 18px; }
+    .like-btn:hover { border-color: #10b981; color: #10b981; background: rgba(16, 185, 129, 0.05); }
+    .dislike-btn:hover { border-color: #ef4444; color: #ef4444; background: rgba(239, 68, 68, 0.05); }
     .detail-content { font-size: 16px; line-height: 1.8; color: #444; }
     .detail-content p { margin-bottom: 16px; }
     .detail-content h1, .detail-content h2, .detail-content h3 { color: #1a1a2e; margin: 24px 0 16px; }
@@ -5374,7 +5379,8 @@ app.get("/waitlist/dashboard", (c) => {
         <h1 class="detail-title" id="detailTitle"></h1>
         <div class="detail-stats">
           <div class="detail-stat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg><span id="detailViews">0 views</span></div>
-          <div class="detail-stat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg><span id="detailLikes">0 likes</span></div>
+          <button class="detail-action-btn like-btn" onclick="likeUpdate()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg><span id="detailLikes">0</span></button>
+          <button class="detail-action-btn dislike-btn" onclick="dislikeUpdate()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"></path></svg><span id="detailDislikes">0</span></button>
         </div>
         <div class="detail-content" id="detailContent"></div>
         <div class="detail-video" id="detailVideo" style="display:none;"></div>
@@ -5447,17 +5453,19 @@ app.get("/waitlist/dashboard", (c) => {
           const authorInitial = (u.author_name || 'R')[0].toUpperCase();
           const hasImage = u.featured_image_url;
           const safeTitle = (u.title || '').replace(/"/g, '&quot;');
+          const categoryName = u.category_name || 'Update';
+          const categoryIcon = u.category_icon || '📰';
           
           let html = '<div class="update-card" onclick="openDetail(' + index + ')">';
           if (hasImage) {
             html += '<img class="update-image" src="' + u.featured_image_url + '" alt="' + safeTitle + '" onerror="this.style.display=\\'none\\';this.nextElementSibling.style.display=\\'flex\\';">';
-            html += '<div class="update-image-placeholder" style="display:none;">📰</div>';
+            html += '<div class="update-image-placeholder" style="display:none;">' + categoryIcon + '</div>';
           } else {
-            html += '<div class="update-image-placeholder">📰</div>';
+            html += '<div class="update-image-placeholder">' + categoryIcon + '</div>';
           }
           html += '<div class="update-content">';
           html += '<div class="update-meta">';
-          html += '<span class="update-category">' + (u.category || 'Update') + '</span>';
+          html += '<span class="update-category">' + categoryIcon + ' ' + categoryName + '</span>';
           html += '<span class="update-date">' + date + '</span>';
           html += '</div>';
           html += '<h3 class="update-title">' + safeTitle + '</h3>';
@@ -5488,19 +5496,38 @@ app.get("/waitlist/dashboard", (c) => {
       return tmp.textContent || tmp.innerText || '';
     }
     
+    let currentUpdateId = null;
+    
     function openDetail(index) {
       const update = allUpdates[index];
       if (!update) return;
       
+      currentUpdateId = update.id;
+      
+      // Track view
+      fetch('/api/updates/' + update.id + '/view', { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            update.views_count = data.views_count;
+            document.getElementById('detailViews').textContent = data.views_count + ' views';
+          }
+        })
+        .catch(err => console.log('View tracking error:', err));
+      
       document.getElementById('detailImage').src = update.featured_image_url || '';
       document.getElementById('detailImage').style.display = update.featured_image_url ? 'block' : 'none';
-      document.getElementById('detailCategory').textContent = update.category || 'Update';
+      
+      const categoryName = update.category_name || 'Update';
+      const categoryIcon = update.category_icon || '📰';
+      document.getElementById('detailCategory').textContent = categoryIcon + ' ' + categoryName;
       document.getElementById('detailDate').textContent = new Date(update.published_at || update.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
       document.getElementById('detailAuthor').textContent = 'By ' + (update.author_name || 'Risivo Team');
       document.getElementById('detailTitle').textContent = update.title;
       document.getElementById('detailViews').textContent = (update.views_count || 0) + ' views';
-      document.getElementById('detailLikes').textContent = (update.likes_count || 0) + ' likes';
-      document.getElementById('detailContent').innerHTML = update.content || '';
+      document.getElementById('detailLikes').textContent = (update.likes_count || 0);
+      document.getElementById('detailDislikes').textContent = (update.dislikes_count || 0);
+      document.getElementById('detailContent').innerHTML = update.content || '<p>No content available.</p>';
       
       // Video
       const videoContainer = document.getElementById('detailVideo');
@@ -5516,13 +5543,21 @@ app.get("/waitlist/dashboard", (c) => {
         videoContainer.style.display = 'none';
       }
       
-      // Gallery
+      // Gallery - handle both array of strings and array of objects
       const galleryContainer = document.getElementById('detailGallery');
       const galleryGrid = document.getElementById('detailGalleryGrid');
-      if (update.gallery_images && update.gallery_images.length > 0) {
-        galleryImages = update.gallery_images;
-        galleryGrid.innerHTML = update.gallery_images.map((img, i) => 
-          '<div class="detail-gallery-item" onclick="openLightbox(' + i + ')"><img src="' + img + '" alt="Gallery image"></div>'
+      let galleryArr = update.gallery_images || [];
+      
+      // Parse if it's a string
+      if (typeof galleryArr === 'string') {
+        try { galleryArr = JSON.parse(galleryArr); } catch(e) { galleryArr = []; }
+      }
+      
+      if (Array.isArray(galleryArr) && galleryArr.length > 0) {
+        // Handle both string URLs and objects with url property
+        galleryImages = galleryArr.map(img => typeof img === 'string' ? img : (img.url || img));
+        galleryGrid.innerHTML = galleryImages.map((imgUrl, i) => 
+          '<div class="detail-gallery-item" onclick="event.stopPropagation();openLightbox(' + i + ')"><img src="' + imgUrl + '" alt="Gallery image ' + (i+1) + '" onerror="this.parentElement.style.display=\\'none\\'"></div>'
         ).join('');
         galleryContainer.style.display = 'block';
       } else {
@@ -5532,6 +5567,38 @@ app.get("/waitlist/dashboard", (c) => {
       
       document.getElementById('detailModal').classList.add('show');
       document.body.style.overflow = 'hidden';
+    }
+    
+    async function likeUpdate() {
+      if (!currentUpdateId) return;
+      try {
+        const res = await fetch('/api/updates/' + currentUpdateId + '/like', { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById('detailLikes').textContent = data.likes_count;
+          // Update in allUpdates array
+          const update = allUpdates.find(u => u.id === currentUpdateId);
+          if (update) update.likes_count = data.likes_count;
+        }
+      } catch (err) {
+        console.error('Like error:', err);
+      }
+    }
+    
+    async function dislikeUpdate() {
+      if (!currentUpdateId) return;
+      try {
+        const res = await fetch('/api/updates/' + currentUpdateId + '/dislike', { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById('detailDislikes').textContent = data.dislikes_count;
+          // Update in allUpdates array
+          const update = allUpdates.find(u => u.id === currentUpdateId);
+          if (update) update.dislikes_count = data.dislikes_count;
+        }
+      } catch (err) {
+        console.error('Dislike error:', err);
+      }
     }
     
     function closeDetail() {

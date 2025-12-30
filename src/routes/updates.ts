@@ -93,9 +93,10 @@ app.get('/list', async (c) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     // Get all published updates (featured first, then by published date)
+    // Include content for detail view
     const { data: updates, error } = await supabase
       .from('project_updates')
-      .select('id, slug, title, excerpt, category, author_name, featured_image_url, views_count, shares_count, likes_count, dislikes_count, comments_count, media_type, media_url, gallery_images, published_at, created_at, is_featured')
+      .select('id, slug, title, excerpt, content, category, author_name, featured_image_url, views_count, shares_count, likes_count, dislikes_count, comments_count, media_type, media_url, gallery_images, published_at, created_at, is_featured')
       .eq('status', 'published')
       .order('is_featured', { ascending: false, nullsFirst: false })
       .order('published_at', { ascending: false });
@@ -105,15 +106,164 @@ app.get('/list', async (c) => {
       return c.json({ error: 'Failed to fetch updates' }, 500);
     }
 
-    console.log('[UPDATES] ✅ Found', updates?.length || 0, 'updates');
+    // Get all categories to map category UUIDs to names
+    const { data: categories } = await supabase
+      .from('waitlist_categories')
+      .select('id, name, icon, color');
+    
+    const categoryMap: Record<string, any> = {};
+    if (categories) {
+      categories.forEach((cat: any) => {
+        categoryMap[cat.id] = cat;
+      });
+    }
+
+    // Map category names to updates
+    const updatesWithCategories = (updates || []).map((update: any) => ({
+      ...update,
+      category_name: update.category && categoryMap[update.category] ? categoryMap[update.category].name : 'Update',
+      category_icon: update.category && categoryMap[update.category] ? categoryMap[update.category].icon : '📰',
+      category_color: update.category && categoryMap[update.category] ? categoryMap[update.category].color : '#667eea'
+    }));
+
+    console.log('[UPDATES] ✅ Found', updatesWithCategories.length, 'updates');
 
     return c.json({
       success: true,
-      updates: updates || [],
-      count: updates?.length || 0
+      updates: updatesWithCategories,
+      count: updatesWithCategories.length
     });
   } catch (error) {
     console.error('[UPDATES] Error:', error);
+    return c.json({ error: 'Internal server error' }, 500);
+  }
+});
+
+// POST /api/updates/:id/view - Track view for an update
+app.post('/:id/view', async (c) => {
+  try {
+    const user = await checkUserAuth(c);
+    if (!user) {
+      return c.json({ error: 'Authentication required' }, 401);
+    }
+
+    const updateId = c.req.param('id');
+    
+    const supabaseUrl = c.env?.SUPABASE_URL;
+    const supabaseKey = c.env?.SUPABASE_SERVICE_ROLE_KEY;
+    if (!supabaseUrl || !supabaseKey) {
+      return c.json({ error: 'Service configuration error' }, 503);
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Get current view count
+    const { data: update } = await supabase
+      .from('project_updates')
+      .select('views_count')
+      .eq('id', updateId)
+      .single();
+
+    if (!update) {
+      return c.json({ error: 'Update not found' }, 404);
+    }
+
+    // Increment view count
+    const newViewCount = (update.views_count || 0) + 1;
+    await supabase
+      .from('project_updates')
+      .update({ views_count: newViewCount })
+      .eq('id', updateId);
+
+    return c.json({ success: true, views_count: newViewCount });
+  } catch (error) {
+    console.error('[UPDATES] View tracking error:', error);
+    return c.json({ error: 'Internal server error' }, 500);
+  }
+});
+
+// POST /api/updates/:id/like - Like an update
+app.post('/:id/like', async (c) => {
+  try {
+    const user = await checkUserAuth(c);
+    if (!user) {
+      return c.json({ error: 'Authentication required' }, 401);
+    }
+
+    const updateId = c.req.param('id');
+    
+    const supabaseUrl = c.env?.SUPABASE_URL;
+    const supabaseKey = c.env?.SUPABASE_SERVICE_ROLE_KEY;
+    if (!supabaseUrl || !supabaseKey) {
+      return c.json({ error: 'Service configuration error' }, 503);
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Get current like count
+    const { data: update } = await supabase
+      .from('project_updates')
+      .select('likes_count')
+      .eq('id', updateId)
+      .single();
+
+    if (!update) {
+      return c.json({ error: 'Update not found' }, 404);
+    }
+
+    // Increment like count
+    const newLikeCount = (update.likes_count || 0) + 1;
+    await supabase
+      .from('project_updates')
+      .update({ likes_count: newLikeCount })
+      .eq('id', updateId);
+
+    return c.json({ success: true, likes_count: newLikeCount });
+  } catch (error) {
+    console.error('[UPDATES] Like error:', error);
+    return c.json({ error: 'Internal server error' }, 500);
+  }
+});
+
+// POST /api/updates/:id/dislike - Dislike an update
+app.post('/:id/dislike', async (c) => {
+  try {
+    const user = await checkUserAuth(c);
+    if (!user) {
+      return c.json({ error: 'Authentication required' }, 401);
+    }
+
+    const updateId = c.req.param('id');
+    
+    const supabaseUrl = c.env?.SUPABASE_URL;
+    const supabaseKey = c.env?.SUPABASE_SERVICE_ROLE_KEY;
+    if (!supabaseUrl || !supabaseKey) {
+      return c.json({ error: 'Service configuration error' }, 503);
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Get current dislike count
+    const { data: update } = await supabase
+      .from('project_updates')
+      .select('dislikes_count')
+      .eq('id', updateId)
+      .single();
+
+    if (!update) {
+      return c.json({ error: 'Update not found' }, 404);
+    }
+
+    // Increment dislike count
+    const newDislikeCount = (update.dislikes_count || 0) + 1;
+    await supabase
+      .from('project_updates')
+      .update({ dislikes_count: newDislikeCount })
+      .eq('id', updateId);
+
+    return c.json({ success: true, dislikes_count: newDislikeCount });
+  } catch (error) {
+    console.error('[UPDATES] Dislike error:', error);
     return c.json({ error: 'Internal server error' }, 500);
   }
 });
