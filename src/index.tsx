@@ -3953,6 +3953,8 @@ app.get("/updates/investor/dashboard", (c) => {
           if (data.success) {
             item.views_count = data.views_count;
             document.getElementById('modalViews').textContent = data.views_count;
+            // Update list view as well
+            renderUpdates(allUpdates);
           }
         })
         .catch(err => console.log('View tracking error:', err));
@@ -4103,7 +4105,15 @@ app.get("/updates/investor/dashboard", (c) => {
         const res = await fetch('/api/investor/updates/' + currentInvestorUpdateId + '/like', { method: 'POST' });
         const data = await res.json();
         if (data.success) {
+          // Update modal
           document.getElementById('modalLikes').textContent = data.likes_count;
+          
+          // Update local data and re-render list
+          const updateIndex = allUpdates.findIndex(u => u.id === currentInvestorUpdateId);
+          if (updateIndex !== -1) {
+            allUpdates[updateIndex].likes_count = data.likes_count;
+            renderUpdates(allUpdates);
+          }
         }
       } catch (err) {
         console.error('Like error:', err);
@@ -4116,7 +4126,15 @@ app.get("/updates/investor/dashboard", (c) => {
         const res = await fetch('/api/investor/updates/' + currentInvestorUpdateId + '/dislike', { method: 'POST' });
         const data = await res.json();
         if (data.success) {
+          // Update modal
           document.getElementById('modalDislikes').textContent = data.dislikes_count;
+          
+          // Update local data and re-render list
+          const updateIndex = allUpdates.findIndex(u => u.id === currentInvestorUpdateId);
+          if (updateIndex !== -1) {
+            allUpdates[updateIndex].dislikes_count = data.dislikes_count;
+            renderUpdates(allUpdates);
+          }
         }
       } catch (err) {
         console.error('Dislike error:', err);
