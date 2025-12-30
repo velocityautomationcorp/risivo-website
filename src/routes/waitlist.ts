@@ -145,17 +145,13 @@ app.post('/signup', async (c) => {
     
     console.log('[WAITLIST-SIGNUP] 📦 Insert data:', JSON.stringify(insertData, null, 2));
     
-    const { data: newUser, error: insertError } = await supabase
+    // First, just insert without returning data
+    const { error: insertError } = await supabase
       .from('waitlist_users')
-      .insert(insertData)
-      .select('id, waitlist_number')
-      .single();
+      .insert(insertData);
 
     if (insertError) {
       console.error('[WAITLIST-SIGNUP] ❌ Insert error:', JSON.stringify(insertError, null, 2));
-      console.error('[WAITLIST-SIGNUP] ❌ Error code:', insertError.code);
-      console.error('[WAITLIST-SIGNUP] ❌ Error message:', insertError.message);
-      console.error('[WAITLIST-SIGNUP] ❌ Error details:', insertError.details);
       return c.json({
         success: false,
         error: 'Registration failed',
@@ -163,7 +159,14 @@ app.post('/signup', async (c) => {
       }, 500);
     }
 
-    console.log('[WAITLIST-SIGNUP] ✅ User created:', newUser.id);
+    // Then fetch the created user
+    const { data: newUser } = await supabase
+      .from('waitlist_users')
+      .select('id, waitlist_number')
+      .eq('email', email.toLowerCase())
+      .single();
+
+    console.log('[WAITLIST-SIGNUP] ✅ User created:', newUser?.id);
 
     // Send verification email
     const emailService = getEmailService(c.env as Bindings);
@@ -195,7 +198,7 @@ app.post('/signup', async (c) => {
 
     // Also send to Make.com webhook if configured
     const webhookUrl = c.env?.WEBHOOK_URL;
-    if (webhookUrl) {
+    if (webhookUrl && newUser) {
       try {
         await fetch(webhookUrl, {
           method: 'POST',
@@ -206,7 +209,7 @@ app.post('/signup', async (c) => {
             last_name,
             phone,
             business_name,
-            waitlist_number: newUser.waitlist_number,
+            waitlist_number: newUser?.waitlist_number,
             source: 'waitlist-signup',
             timestamp: new Date().toISOString()
           })
