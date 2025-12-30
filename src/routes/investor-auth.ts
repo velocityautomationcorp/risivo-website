@@ -904,4 +904,90 @@ investorAuth.post('/forgot-password', async (c) => {
   }
 });
 
+// POST /api/investor/change-password - Change password for logged in investor
+investorAuth.post('/change-password', async (c) => {
+  try {
+    const sessionToken = getCookie(c, 'user_session');
+
+    if (!sessionToken) {
+      return c.json({ success: false, error: 'Not authenticated' }, 401);
+    }
+
+    const body = await c.req.json();
+    const { current_password, new_password } = body;
+
+    if (!current_password || !new_password) {
+      return c.json({ success: false, error: 'Current and new password are required' }, 400);
+    }
+
+    if (new_password.length < 8) {
+      return c.json({ success: false, error: 'New password must be at least 8 characters' }, 400);
+    }
+
+    const supabaseUrl = c.env?.SUPABASE_URL;
+    const supabaseKey = c.env?.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!supabaseUrl || !supabaseKey) {
+      return c.json({ success: false, error: 'Service unavailable' }, 503);
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Get user from session
+    const { data: session } = await supabase
+      .from('user_sessions')
+      .select('user_id')
+      .eq('session_token', sessionToken)
+      .single();
+
+    if (!session) {
+      return c.json({ success: false, error: 'Invalid session' }, 401);
+    }
+
+    // Get user with password
+    const { data: user } = await supabase
+      .from('users')
+      .select('id, password_hash')
+      .eq('id', session.user_id)
+      .single();
+
+    if (!user || !user.password_hash) {
+      return c.json({ success: false, error: 'User not found' }, 404);
+    }
+
+    // Verify current password
+    const passwordMatch = await bcrypt.compare(current_password, user.password_hash);
+    if (!passwordMatch) {
+      return c.json({ success: false, error: 'Current password is incorrect' }, 400);
+    }
+
+    // Hash new password
+    const newPasswordHash = await bcrypt.hash(new_password, 10);
+
+    // Update password
+    const { error: updateError } = await supabase
+      .from('users')
+      .update({ 
+        password_hash: newPasswordHash,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', user.id);
+
+    if (updateError) {
+      console.error('[INVESTOR_AUTH] Password update error:', updateError);
+      return c.json({ success: false, error: 'Failed to update password' }, 500);
+    }
+
+    console.log('[INVESTOR_AUTH] ✅ Password changed successfully for user:', user.id);
+
+    return c.json({
+      success: true,
+      message: 'Password updated successfully'
+    });
+  } catch (error) {
+    console.error('[INVESTOR_AUTH] change-password error:', error);
+    return c.json({ success: false, error: 'Password change failed' }, 500);
+  }
+});
+
 export default investorAuth;

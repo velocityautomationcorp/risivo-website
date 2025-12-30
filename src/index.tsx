@@ -2407,6 +2407,17 @@ app.get("/updates/investor/login", (c) => {
       border: 1px solid #fca5a5;
     }
     .error-msg.show { display: block; }
+    .success-msg {
+      background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+      color: #16a34a;
+      padding: 14px 18px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      display: none;
+      font-size: 14px;
+      border: 1px solid #86efac;
+    }
+    .success-msg.show { display: block; }
     .login-footer {
       text-align: center;
       margin-top: 24px;
@@ -2464,6 +2475,7 @@ app.get("/updates/investor/login", (c) => {
           <h3>Investor Sign In</h3>
           <p>Enter your credentials to access the portal</p>
         </div>
+        <div id="success" class="success-msg"></div>
         <div id="error" class="error-msg"></div>
         <form id="loginForm">
           <div class="form-group">
@@ -2492,16 +2504,28 @@ app.get("/updates/investor/login", (c) => {
     </div>
   </div>
   <script>
+    // Check for NDA signed success message
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('nda_signed') === 'true') {
+      const success = document.getElementById('success');
+      success.innerHTML = '<strong>NDA Signed Successfully!</strong><br>Your account is now active. Please check your email for your login credentials. If you don\\'t see it, check your spam folder.';
+      success.classList.add('show');
+      // Clean up URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+    
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const btn = document.getElementById('submitBtn');
       const error = document.getElementById('error');
+      const success = document.getElementById('success');
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
       
       btn.disabled = true;
       btn.textContent = 'Authenticating...';
       error.classList.remove('show');
+      success.classList.remove('show');
       
       try {
         const res = await fetch('/api/investor/login', {
@@ -2893,6 +2917,21 @@ app.get("/updates/investor/dashboard", (c) => {
       transition: all 0.2s;
     }
     .logout-btn:hover { background: rgba(255,255,255,0.25); }
+    .settings-btn {
+      background: rgba(255,255,255,0.15);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.3);
+      padding: 10px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .settings-btn:hover { background: rgba(255,255,255,0.25); }
     
     /* Main Content */
     .main-content {
@@ -3496,10 +3535,38 @@ app.get("/updates/investor/dashboard", (c) => {
           <div class="user-avatar" id="userAvatar">?</div>
           <span class="user-name" id="userName">Loading...</span>
         </div>
+        <button class="settings-btn" onclick="openChangePasswordModal()">🔑 Change Password</button>
         <button class="logout-btn" onclick="logout()">Logout</button>
       </div>
     </div>
   </header>
+  
+  <!-- Change Password Modal -->
+  <div class="modal-overlay" id="changePasswordModal">
+    <div class="modal-content" style="max-width: 420px;">
+      <button class="modal-close" onclick="closeChangePasswordModal()">&times;</button>
+      <div class="modal-body">
+        <h2 style="font-size: 22px; font-weight: 700; color: #1a1a2e; margin-bottom: 8px;">Change Password</h2>
+        <p style="color: #666; font-size: 14px; margin-bottom: 24px;">Update your account password</p>
+        <div id="pwdModalMsg" style="padding: 12px; border-radius: 8px; margin-bottom: 16px; font-size: 14px; display: none;"></div>
+        <form id="changePasswordForm">
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; margin-bottom: 6px; font-weight: 600; font-size: 14px; color: #333;">Current Password</label>
+            <input type="password" id="currentPwd" required placeholder="Enter current password" style="width: 100%; padding: 12px 14px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 14px;">
+          </div>
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; margin-bottom: 6px; font-weight: 600; font-size: 14px; color: #333;">New Password</label>
+            <input type="password" id="newPwd" required placeholder="Enter new password (min 8 chars)" minlength="8" style="width: 100%; padding: 12px 14px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 14px;">
+          </div>
+          <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 6px; font-weight: 600; font-size: 14px; color: #333;">Confirm New Password</label>
+            <input type="password" id="confirmPwd" required placeholder="Confirm new password" style="width: 100%; padding: 12px 14px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 14px;">
+          </div>
+          <button type="submit" id="changePwdBtn" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer;">Update Password</button>
+        </form>
+      </div>
+    </div>
+  </div>
   
   <main class="main-content">
     <!-- Welcome Section -->
@@ -3906,6 +3973,81 @@ app.get("/updates/investor/dashboard", (c) => {
       await fetch('/api/investor/logout', { method: 'POST' });
       window.location.href = '/updates/investor/login';
     }
+    
+    // Change Password Modal Functions
+    function openChangePasswordModal() {
+      document.getElementById('changePasswordModal').classList.add('active');
+      document.getElementById('changePasswordForm').reset();
+      document.getElementById('pwdModalMsg').style.display = 'none';
+    }
+    
+    function closeChangePasswordModal() {
+      document.getElementById('changePasswordModal').classList.remove('active');
+    }
+    
+    document.getElementById('changePasswordForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('changePwdBtn');
+      const msg = document.getElementById('pwdModalMsg');
+      const currentPwd = document.getElementById('currentPwd').value;
+      const newPwd = document.getElementById('newPwd').value;
+      const confirmPwd = document.getElementById('confirmPwd').value;
+      
+      if (newPwd !== confirmPwd) {
+        msg.style.background = '#fee2e2';
+        msg.style.color = '#dc2626';
+        msg.textContent = 'New passwords do not match.';
+        msg.style.display = 'block';
+        return;
+      }
+      
+      if (newPwd.length < 8) {
+        msg.style.background = '#fee2e2';
+        msg.style.color = '#dc2626';
+        msg.textContent = 'Password must be at least 8 characters.';
+        msg.style.display = 'block';
+        return;
+      }
+      
+      btn.disabled = true;
+      btn.textContent = 'Updating...';
+      msg.style.display = 'none';
+      
+      try {
+        const res = await fetch('/api/investor/change-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ current_password: currentPwd, new_password: newPwd })
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+          msg.style.background = '#dcfce7';
+          msg.style.color = '#16a34a';
+          msg.textContent = 'Password updated successfully!';
+          msg.style.display = 'block';
+          setTimeout(() => closeChangePasswordModal(), 2000);
+        } else {
+          msg.style.background = '#fee2e2';
+          msg.style.color = '#dc2626';
+          msg.textContent = data.error || 'Failed to update password.';
+          msg.style.display = 'block';
+        }
+      } catch (err) {
+        msg.style.background = '#fee2e2';
+        msg.style.color = '#dc2626';
+        msg.textContent = 'Connection error. Please try again.';
+        msg.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Update Password';
+      }
+    });
+    
+    // Close modal on click outside
+    document.getElementById('changePasswordModal').addEventListener('click', (e) => {
+      if (e.target.id === 'changePasswordModal') closeChangePasswordModal();
+    });
     
     init();
   </script>
