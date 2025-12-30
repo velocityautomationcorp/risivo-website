@@ -287,9 +287,10 @@ adminWaitlistRoute.post('/updates', async (c) => {
             excerpt: excerpt || null,
             content,
             featured_image_url: featured_image_url || null,
-            video_url: video_url || null,
+            media_url: video_url || null,
+            media_type: video_url ? 'video' : null,
             gallery_images: (gallery_images && Array.isArray(gallery_images) && gallery_images.length > 0) ? gallery_images : null,
-            category_id: category_id || null,
+            category: category_id || null,
             author_name: author_name || 'Risivo Team',
             status: status || 'draft'
         };
@@ -341,9 +342,10 @@ adminWaitlistRoute.put('/updates/:id', async (c) => {
             excerpt: excerpt || null,
             content,
             featured_image_url: featured_image_url || null,
-            video_url: video_url || null,
+            media_url: video_url || null,
+            media_type: video_url ? 'video' : null,
             gallery_images: (gallery_images && Array.isArray(gallery_images) && gallery_images.length > 0) ? gallery_images : null,
-            category_id: category_id || null,
+            category: category_id || null,
             author_name: author_name || 'Risivo Team',
             status: status || 'draft'
         };
