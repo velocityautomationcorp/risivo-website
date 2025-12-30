@@ -418,14 +418,16 @@ app.post('/forgot-password', async (c) => {
       });
     }
     
-    console.log(`[USER_AUTH] ✅ User found in ${userTable} table`);
+    console.log(`[USER_AUTH] ✅ User found in ${userTable} table, user_id: ${user.id}`);
 
     // Generate reset token
     const resetToken = generateResetToken();
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
 
+    console.log('[USER_AUTH] 🔑 Generated token, attempting to store...');
+
     // Store reset token
-    const { error: tokenError } = await supabase
+    const { data: insertedToken, error: tokenError } = await supabase
       .from('password_reset_tokens')
       .insert({
         user_id: user.id,
@@ -433,12 +435,17 @@ app.post('/forgot-password', async (c) => {
         expires_at: expiresAt.toISOString(),
         ip_address: c.req.header('cf-connecting-ip') || c.req.header('x-forwarded-for') || 'unknown',
         user_agent: c.req.header('user-agent') || 'unknown'
-      });
+      })
+      .select()
+      .single();
 
     if (tokenError) {
       console.error('[USER_AUTH] ❌ Token storage error:', tokenError);
+      console.error('[USER_AUTH] ❌ Token error details:', JSON.stringify(tokenError));
       return c.json({ error: 'Failed to process reset request' }, 500);
     }
+
+    console.log('[USER_AUTH] ✅ Token stored successfully, id:', insertedToken?.id);
 
     // Send reset email
     if (sendgridKey) {
