@@ -2240,7 +2240,7 @@ app.get("/updates/login", (c) => {
 <body>
   <div class="login-card">
     <div class="logo">
-      <h1>Risivo</h1>
+      <img src="/images/risivo-logo.png" alt="Risivo" style="height: 48px; margin-bottom: 12px;" onerror="this.outerHTML='<h1 style=\\'color:#667eea;font-size:32px;font-weight:800;margin-bottom:12px\\'>Risivo</h1>'">
       <p>Project Updates Portal</p>
     </div>
     <h2>Welcome Back</h2>
@@ -2257,8 +2257,8 @@ app.get("/updates/login", (c) => {
       <button type="submit" id="submitBtn">Sign In</button>
     </form>
     <div class="links">
-      <a href="/updates/forgot-password">Forgot Password?</a>
-      <a href="/updates/signup">Create Account</a>
+      <a href="/waitlist/forgot-password">Forgot Password?</a>
+      <a href="/signup/waitlist">Create Account</a>
     </div>
   </div>
   <script>
@@ -2552,7 +2552,7 @@ app.get("/updates/investor/login", (c) => {
           <button type="submit" class="submit-btn" id="submitBtn">Access Portal</button>
         </form>
         <div class="login-footer">
-          <a href="https://risivo.com">Request Access</a>
+          <a href="/investor/forgot-password">Forgot Password?</a>
           <a href="https://risivo.com">Back to Risivo.com</a>
         </div>
       </div>
