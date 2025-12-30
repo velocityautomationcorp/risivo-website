@@ -372,29 +372,53 @@ app.post('/forgot-password', async (c) => {
 
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Find user
-    const { data: user, error: userError } = await supabase
+    // Find user in waitlist_users first
+    let user: any = null;
+    let userTable = 'waitlist_users';
+    
+    const { data: waitlistUser } = await supabase
       .from('waitlist_users')
       .select('id, email, first_name, last_name, is_active')
       .eq('email', email.toLowerCase())
       .single();
+    
+    if (waitlistUser) {
+      user = waitlistUser;
+      userTable = 'waitlist_users';
+    } else {
+      // Try the users table (for investors)
+      const { data: investorUser } = await supabase
+        .from('users')
+        .select('id, email, first_name, last_name, investor_status')
+        .eq('email', email.toLowerCase())
+        .single();
+      
+      if (investorUser) {
+        user = investorUser;
+        userTable = 'users';
+      }
+    }
 
     // Always return success even if user doesn't exist (security best practice)
-    if (userError || !user) {
-      console.log('[USER_AUTH] ℹ️ User not found (returning success for security)');
+    if (!user) {
+      console.log('[USER_AUTH] ℹ️ User not found in any table (returning success for security)');
       return c.json({ 
         success: true, 
         message: 'If this email is registered, you will receive a password reset link.' 
       });
     }
 
-    if (!user.is_active) {
+    // Check if user is active
+    const isActive = userTable === 'waitlist_users' ? user.is_active : (user.investor_status === 'active' || user.investor_status === 'nda_signed');
+    if (!isActive) {
       console.log('[USER_AUTH] ⚠️ User account is inactive');
       return c.json({ 
         success: true, 
         message: 'If this email is registered, you will receive a password reset link.' 
       });
     }
+    
+    console.log(`[USER_AUTH] ✅ User found in ${userTable} table`);
 
     // Generate reset token
     const resetToken = generateResetToken();
