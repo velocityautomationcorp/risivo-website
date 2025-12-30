@@ -63,14 +63,22 @@ interface AdminNotificationParams {
   };
 }
 
+// Get current year dynamically
+const getCurrentYear = () => new Date().getFullYear();
+
 const emailStyles = `
   <style>
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background: #f9fafb; }
-    .container { background: white; border-radius: 16px; padding: 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
-    .header { text-align: center; margin-bottom: 30px; }
-    .logo { font-size: 32px; font-weight: 800; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background: #f9fafb; }
+    .email-wrapper { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .container { background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; text-align: center; }
+    .header img { height: 40px; }
+    .header-text { color: white; font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
+    .header-text .risi { color: #1a1a2e; }
+    .header-text .vo { color: #ff6b35; }
+    .content { padding: 40px; }
     h2 { color: #1a1a2e; font-size: 24px; margin-bottom: 16px; }
-    p { color: #4a4a4a; font-size: 15px; margin-bottom: 16px; }
+    p { color: #4a4a4a; font-size: 15px; margin-bottom: 16px; line-height: 1.7; }
     .btn { display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white !important; padding: 14px 32px; text-decoration: none; border-radius: 10px; font-weight: 600; font-size: 16px; margin: 20px 0; }
     .btn:hover { opacity: 0.9; }
     .credentials { background: #f8f9fa; border-radius: 12px; padding: 24px; margin: 24px 0; border: 1px solid #e9ecef; }
@@ -79,10 +87,14 @@ const emailStyles = `
     .info-box { background: #f0f4ff; border: 1px solid #c7d2fe; padding: 16px; border-radius: 10px; margin: 20px 0; }
     .info-box h4 { color: #4f46e5; margin: 0 0 8px 0; font-size: 14px; }
     .info-box p { color: #666; font-size: 13px; margin: 0; }
-    .warning { color: #dc2626; font-weight: 500; }
+    .warning { color: #dc2626; font-weight: 500; font-size: 14px; }
     .divider { border: none; border-top: 1px solid #eee; margin: 30px 0; }
-    .footer { text-align: center; font-size: 12px; color: #999; margin-top: 30px; }
-    .footer a { color: #667eea; text-decoration: none; }
+    .footer { background: #fef3c7; padding: 20px; text-align: center; }
+    .footer p { color: #92400e; font-size: 12px; margin: 4px 0; }
+    .footer p.copyright { font-weight: 600; }
+    .footer p.disclaimer { font-size: 11px; color: #b45309; }
+    .footer-links { margin-top: 12px; }
+    .footer-links a { color: #667eea; text-decoration: none; font-size: 12px; margin: 0 8px; }
     .link-text { font-size: 12px; color: #999; word-break: break-all; margin-top: 10px; }
     table.details { width: 100%; border-collapse: collapse; margin: 20px 0; }
     table.details td { padding: 10px; border-bottom: 1px solid #eee; }
@@ -90,20 +102,27 @@ const emailStyles = `
   </style>
 `;
 
-const emailHeader = `
+// Email header with proper logo
+const getEmailHeader = (subtitle?: string) => `
   <div class="header">
-    <div class="logo">Risivo</div>
+    <div class="header-text"><span class="risi">RISI</span><span class="vo">VO</span></div>
+    ${subtitle ? `<p style="color: white; margin: 10px 0 0 0; font-size: 14px; opacity: 0.9;">👋 ${subtitle}</p>` : ''}
   </div>
 `;
 
-const emailFooter = `
-  <hr class="divider">
+// Email footer with correct copyright
+const getEmailFooter = () => `
   <div class="footer">
-    <p>This email was sent by Risivo.<br>
-    &copy; ${new Date().getFullYear()} Risivo. All rights reserved.</p>
-    <p><a href="https://risivo.com/privacy-policy">Privacy Policy</a> | <a href="https://risivo.com/terms-of-service">Terms of Service</a></p>
+    <p class="copyright">© ${getCurrentYear()} Risivo. All rights reserved.</p>
+    <p class="disclaimer">This email contains confidential information intended only for the addressee.</p>
+    <div class="footer-links">
+      <a href="https://risivo.com/privacy-policy">Privacy Policy</a> | 
+      <a href="https://risivo.com/terms-of-service">Terms of Service</a>
+    </div>
   </div>
 `;
+
+// Note: All email templates now use buildEmailHtml() for consistent branding
 
 export class EmailService {
   private apiKey: string;
@@ -140,6 +159,31 @@ export class EmailService {
     }
   }
 
+  // Helper to build consistent email HTML
+  private buildEmailHtml(content: string, headerSubtitle?: string): string {
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        ${emailStyles}
+      </head>
+      <body>
+        <div class="email-wrapper">
+          <div class="container">
+            ${getEmailHeader(headerSubtitle)}
+            <div class="content">
+              ${content}
+            </div>
+            ${getEmailFooter()}
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+  }
+
   // ===========================================
   // PASSWORD RESET EMAIL
   // ===========================================
@@ -147,28 +191,18 @@ export class EmailService {
     const { email, firstName, resetToken } = params;
     const resetUrl = `https://risivo.com/reset-password?token=${resetToken}`;
     
-    const html = `
-      <!DOCTYPE html>
-      <html>
-      <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">${emailStyles}</head>
-      <body>
-        <div class="container">
-          ${emailHeader}
-          <h2>Password Reset Request</h2>
-          <p>Hi ${firstName || 'there'},</p>
-          <p>We received a request to reset your password for your Risivo account. Click the button below to reset it:</p>
-          <div style="text-align: center;">
-            <a href="${resetUrl}" class="btn">Reset Password</a>
-          </div>
-          <p style="font-size: 14px; color: #666;">If you didn't request this, you can safely ignore this email. This link will expire in 1 hour.</p>
-          <p class="link-text">If the button doesn't work, copy and paste this link: ${resetUrl}</p>
-          ${emailFooter}
-        </div>
-      </body>
-      </html>
+    const content = `
+      <h2>Password Reset Request</h2>
+      <p>Hi ${firstName || 'there'},</p>
+      <p>We received a request to reset your password for your Risivo account. Click the button below to reset it:</p>
+      <div style="text-align: center;">
+        <a href="${resetUrl}" class="btn">Reset Password</a>
+      </div>
+      <p style="font-size: 14px; color: #666;">If you didn't request this, you can safely ignore this email. This link will expire in 1 hour.</p>
+      <p class="link-text">If the button doesn't work, copy and paste this link: ${resetUrl}</p>
     `;
 
-    await this.sendEmail(email, 'Reset Your Risivo Password', html);
+    await this.sendEmail(email, 'Reset Your Risivo Password', this.buildEmailHtml(content, 'Password Reset'));
   }
 
   // ===========================================
@@ -176,33 +210,23 @@ export class EmailService {
   // ===========================================
   async sendWaitlistVerificationEmail(params: WaitlistVerificationParams): Promise<void> {
     const { email, firstName, verificationToken } = params;
-    const verifyUrl = `https://risivo.com/verify-email?token=${verificationToken}`;
+    const verifyUrl = `https://risivo.com/api/waitlist/verify?token=${verificationToken}`;
     
-    const html = `
-      <!DOCTYPE html>
-      <html>
-      <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">${emailStyles}</head>
-      <body>
-        <div class="container">
-          ${emailHeader}
-          <h2>Verify Your Email Address</h2>
-          <p>Hi ${firstName || 'there'},</p>
-          <p>Thank you for joining the Risivo waitlist! Please verify your email address by clicking the button below:</p>
-          <div style="text-align: center;">
-            <a href="${verifyUrl}" class="btn">Verify Email</a>
-          </div>
-          <div class="info-box">
-            <h4>What happens next?</h4>
-            <p>Once verified, you'll receive your login credentials and can access your waitlist dashboard to track your position and get exclusive updates.</p>
-          </div>
-          <p class="link-text">If the button doesn't work, copy and paste this link: ${verifyUrl}</p>
-          ${emailFooter}
-        </div>
-      </body>
-      </html>
+    const content = `
+      <h2>Verify Your Email Address</h2>
+      <p>Hi ${firstName || 'there'},</p>
+      <p>Thank you for joining the Risivo waitlist! Please verify your email address by clicking the button below:</p>
+      <div style="text-align: center;">
+        <a href="${verifyUrl}" class="btn">Verify Email</a>
+      </div>
+      <div class="info-box">
+        <h4>What happens next?</h4>
+        <p>Once verified, you'll receive your login credentials and can access your waitlist dashboard to track your position and get exclusive updates.</p>
+      </div>
+      <p class="link-text">If the button doesn't work, copy and paste this link:<br>${verifyUrl}</p>
     `;
 
-    await this.sendEmail(email, 'Verify Your Risivo Account', html);
+    await this.sendEmail(email, 'Verify Your Risivo Account', this.buildEmailHtml(content, 'Email Verification'));
   }
 
   // ===========================================
@@ -211,34 +235,24 @@ export class EmailService {
   async sendWaitlistConfirmationEmail(params: WaitlistConfirmationParams): Promise<void> {
     const { email, firstName, lastName, tempPassword, loginUrl } = params;
     
-    const html = `
-      <!DOCTYPE html>
-      <html>
-      <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">${emailStyles}</head>
-      <body>
-        <div class="container">
-          ${emailHeader}
-          <h2>Welcome to Risivo, ${firstName}! 🎉</h2>
-          <p>Your email has been verified and your account is now active! Here are your login credentials:</p>
-          <div class="credentials">
-            <p><strong>Email:</strong> ${email}</p>
-            <p><strong>Temporary Password:</strong> ${tempPassword}</p>
-          </div>
-          <p class="warning">⚠️ Please change your password after your first login for security.</p>
-          <div style="text-align: center;">
-            <a href="${loginUrl}" class="btn">Login to Dashboard</a>
-          </div>
-          <div class="info-box">
-            <h4>What can you do now?</h4>
-            <p>Access your waitlist dashboard to see your position, exclusive updates, and early access features as we prepare for launch.</p>
-          </div>
-          ${emailFooter}
-        </div>
-      </body>
-      </html>
+    const content = `
+      <h2>Welcome to Risivo, ${firstName}! 🎉</h2>
+      <p>Your email has been verified and your account is now active! Here are your login credentials:</p>
+      <div class="credentials">
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Temporary Password:</strong> ${tempPassword}</p>
+      </div>
+      <p class="warning">⚠️ Please change your password after your first login for security.</p>
+      <div style="text-align: center;">
+        <a href="${loginUrl}" class="btn">Login to Dashboard</a>
+      </div>
+      <div class="info-box">
+        <h4>What can you do now?</h4>
+        <p>Access your waitlist dashboard to see your position, exclusive updates, and early access features as we prepare for launch.</p>
+      </div>
     `;
 
-    await this.sendEmail(email, 'Welcome to Risivo - Your Account is Ready!', html);
+    await this.sendEmail(email, 'Welcome to Risivo - Your Account is Ready!', this.buildEmailHtml(content, 'Account Activated'));
   }
 
   // ===========================================
@@ -261,36 +275,26 @@ export class EmailService {
     const { email, firstName, lastName, businessName, tempPassword, waitlistNumber } = params;
     const loginUrl = 'https://risivo.com/waitlist/login';
     
-    const html = `
-      <!DOCTYPE html>
-      <html>
-      <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">${emailStyles}</head>
-      <body>
-        <div class="container">
-          ${emailHeader}
-          <h2>Welcome to the Risivo Waitlist! 🎉</h2>
-          <p>Hi ${firstName},</p>
-          <p>Thank you for joining the Risivo waitlist! Your account has been created and is ready to use.</p>
-          ${waitlistNumber ? `<p style="font-size: 18px; text-align: center; color: #667eea; font-weight: 600;">Your Waitlist Position: #${waitlistNumber}</p>` : ''}
-          <div class="credentials">
-            <p><strong>Email:</strong> ${email}</p>
-            <p><strong>Temporary Password:</strong> ${tempPassword}</p>
-          </div>
-          <p class="warning">⚠️ Please change your password after your first login for security.</p>
-          <div style="text-align: center;">
-            <a href="${loginUrl}" class="btn">Login to Dashboard</a>
-          </div>
-          <div class="info-box">
-            <h4>What's Next?</h4>
-            <p>• Track your waitlist position<br>• Get exclusive early access updates<br>• Be among the first to experience Risivo</p>
-          </div>
-          ${emailFooter}
-        </div>
-      </body>
-      </html>
+    const content = `
+      <h2>Welcome to the Risivo Waitlist! 🎉</h2>
+      <p>Hi ${firstName},</p>
+      <p>Thank you for joining the Risivo waitlist! Your account has been created and is ready to use.</p>
+      ${waitlistNumber ? `<p style="font-size: 18px; text-align: center; color: #667eea; font-weight: 600;">Your Waitlist Position: #${waitlistNumber}</p>` : ''}
+      <div class="credentials">
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Temporary Password:</strong> ${tempPassword}</p>
+      </div>
+      <p class="warning">⚠️ Please change your password after your first login for security.</p>
+      <div style="text-align: center;">
+        <a href="${loginUrl}" class="btn">Login to Dashboard</a>
+      </div>
+      <div class="info-box">
+        <h4>What's Next?</h4>
+        <p>• Track your waitlist position<br>• Get exclusive early access updates<br>• Be among the first to experience Risivo</p>
+      </div>
     `;
 
-    await this.sendEmail(email, 'Welcome to Risivo - You\'re on the List!', html);
+    await this.sendEmail(email, 'Welcome to Risivo - You\'re on the List!', this.buildEmailHtml(content, 'Welcome to the Waitlist'));
   }
 
   // ===========================================
@@ -300,32 +304,22 @@ export class EmailService {
     const { email, firstName, lastName, ndaToken } = params;
     const ndaUrl = `https://risivo.com/investor/sign-nda?token=${ndaToken}`;
     
-    const html = `
-      <!DOCTYPE html>
-      <html>
-      <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">${emailStyles}</head>
-      <body>
-        <div class="container">
-          ${emailHeader}
-          <h2>Welcome, Investor! 📊</h2>
-          <p>Hi ${firstName},</p>
-          <p>Thank you for your interest in investing with Risivo. To access our confidential investor materials, including pitch decks, financial forecasts, and business plans, we require you to review and sign our Non-Disclosure Agreement (NDA).</p>
-          <div style="text-align: center;">
-            <a href="${ndaUrl}" class="btn">Review & Sign NDA</a>
-          </div>
-          <div class="info-box">
-            <h4>What You'll Get Access To:</h4>
-            <p>• Comprehensive Pitch Deck<br>• Financial Forecasts & Projections<br>• Detailed Business Plan<br>• Executive Summary<br>• Exclusive Investor Updates</p>
-          </div>
-          <p style="font-size: 14px; color: #666;">The NDA protects confidential business information and is standard practice for investor relations. Once signed, you'll receive immediate access to all investor materials.</p>
-          <p class="link-text">If the button doesn't work, copy and paste this link: ${ndaUrl}</p>
-          ${emailFooter}
-        </div>
-      </body>
-      </html>
+    const content = `
+      <h2>Welcome, Investor! 📊</h2>
+      <p>Hi ${firstName},</p>
+      <p>Thank you for your interest in investing with Risivo. To access our confidential investor materials, including pitch decks, financial forecasts, and business plans, we require you to review and sign our Non-Disclosure Agreement (NDA).</p>
+      <div style="text-align: center;">
+        <a href="${ndaUrl}" class="btn">Review & Sign NDA</a>
+      </div>
+      <div class="info-box">
+        <h4>What You'll Get Access To:</h4>
+        <p>• Comprehensive Pitch Deck<br>• Financial Forecasts & Projections<br>• Detailed Business Plan<br>• Executive Summary<br>• Exclusive Investor Updates</p>
+      </div>
+      <p style="font-size: 14px; color: #666;">The NDA protects confidential business information and is standard practice for investor relations. Once signed, you'll receive immediate access to all investor materials.</p>
+      <p class="link-text">If the button doesn't work, copy and paste this link: ${ndaUrl}</p>
     `;
 
-    await this.sendEmail(email, 'Risivo Investor Portal - NDA Required', html);
+    await this.sendEmail(email, 'Risivo Investor Portal - NDA Required', this.buildEmailHtml(content, 'Investor Portal'));
   }
 
   // ===========================================
@@ -335,36 +329,26 @@ export class EmailService {
     const { email, firstName, lastName, tempPassword } = params;
     const loginUrl = 'https://risivo.com/updates/investor/login';
     
-    const html = `
-      <!DOCTYPE html>
-      <html>
-      <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">${emailStyles}</head>
-      <body>
-        <div class="container">
-          ${emailHeader}
-          <h2>NDA Signed - Access Granted! 🎉</h2>
-          <p>Hi ${firstName},</p>
-          <p>Thank you for signing the NDA. You now have full access to our investor portal with all confidential materials.</p>
-          <div class="credentials">
-            <p><strong>Email:</strong> ${email}</p>
-            <p><strong>Temporary Password:</strong> ${tempPassword}</p>
-          </div>
-          <p class="warning">⚠️ Please change your password after your first login for security.</p>
-          <div style="text-align: center;">
-            <a href="${loginUrl}" class="btn">Access Investor Portal</a>
-          </div>
-          <div class="info-box">
-            <h4>Available Materials:</h4>
-            <p>• 📊 Pitch Deck<br>• 📈 Financial Forecasts<br>• 📋 Business Plan<br>• 📄 Executive Summary<br>• 🔔 Real-time Investor Updates</p>
-          </div>
-          <p style="font-size: 14px; color: #666;">If you have any questions, please don't hesitate to reach out to our investor relations team.</p>
-          ${emailFooter}
-        </div>
-      </body>
-      </html>
+    const content = `
+      <h2>NDA Signed - Access Granted! 🎉</h2>
+      <p>Hi ${firstName},</p>
+      <p>Thank you for signing the NDA. You now have full access to our investor portal with all confidential materials.</p>
+      <div class="credentials">
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Temporary Password:</strong> ${tempPassword}</p>
+      </div>
+      <p class="warning">⚠️ Please change your password after your first login for security.</p>
+      <div style="text-align: center;">
+        <a href="${loginUrl}" class="btn">Access Investor Portal</a>
+      </div>
+      <div class="info-box">
+        <h4>Available Materials:</h4>
+        <p>• 📊 Pitch Deck<br>• 📈 Financial Forecasts<br>• 📋 Business Plan<br>• 📄 Executive Summary<br>• 🔔 Real-time Investor Updates</p>
+      </div>
+      <p style="font-size: 14px; color: #666;">If you have any questions, please don't hesitate to reach out to our investor relations team.</p>
     `;
 
-    await this.sendEmail(email, 'Risivo Investor Portal - Access Granted', html);
+    await this.sendEmail(email, 'Risivo Investor Portal - Access Granted', this.buildEmailHtml(content, 'Access Granted'));
   }
 
   // ===========================================
@@ -435,26 +419,16 @@ export class EmailService {
         break;
     }
 
-    const html = `
-      <!DOCTYPE html>
-      <html>
-      <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">${emailStyles}</head>
-      <body>
-        <div class="container">
-          ${emailHeader}
-          <h2>${title}</h2>
-          <p>A new activity has been recorded on the Risivo platform:</p>
-          ${details}
-          <div style="text-align: center; margin-top: 24px;">
-            <a href="https://risivo.com/updates/admin/dashboard" class="btn">View in Admin Dashboard</a>
-          </div>
-          ${emailFooter}
-        </div>
-      </body>
-      </html>
+    const content = `
+      <h2>${title}</h2>
+      <p>A new activity has been recorded on the Risivo platform:</p>
+      ${details}
+      <div style="text-align: center; margin-top: 24px;">
+        <a href="https://risivo.com/updates/admin/dashboard" class="btn">View in Admin Dashboard</a>
+      </div>
     `;
 
-    await this.sendEmail(this.adminEmail, subject, html);
+    await this.sendEmail(this.adminEmail, subject, this.buildEmailHtml(content, 'Admin Notification'));
   }
 }
 
