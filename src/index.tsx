@@ -5446,30 +5446,35 @@ app.get("/waitlist/dashboard", (c) => {
           const date = new Date(u.published_at || u.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
           const authorInitial = (u.author_name || 'R')[0].toUpperCase();
           const hasImage = u.featured_image_url;
+          const safeTitle = (u.title || '').replace(/"/g, '&quot;');
           
-          return '<div class="update-card" onclick="openDetail(' + index + ')">' +
-            (hasImage 
-              ? '<img class="update-image" src="' + u.featured_image_url + '" alt="' + u.title + '" onerror="this.outerHTML=\\'<div class=\\\\'update-image-placeholder\\\\'>📰</div>\\'">'
-              : '<div class="update-image-placeholder">📰</div>') +
-            '<div class="update-content">' +
-              '<div class="update-meta">' +
-                '<span class="update-category">' + (u.category || 'Update') + '</span>' +
-                '<span class="update-date">' + date + '</span>' +
-              '</div>' +
-              '<h3 class="update-title">' + u.title + '</h3>' +
-              '<p class="update-excerpt">' + (u.excerpt || stripHtml(u.content || '').substring(0, 150) + '...') + '</p>' +
-              '<div class="update-footer">' +
-                '<div class="update-author">' +
-                  '<div class="update-author-avatar">' + authorInitial + '</div>' +
-                  '<span>' + (u.author_name || 'Risivo Team') + '</span>' +
-                '</div>' +
-                '<div class="update-stats">' +
-                  '<span class="update-stat">👁 ' + (u.views_count || 0) + '</span>' +
-                  '<span class="update-stat">👍 ' + (u.likes_count || 0) + '</span>' +
-                '</div>' +
-              '</div>' +
-            '</div>' +
-          '</div>';
+          let html = '<div class="update-card" onclick="openDetail(' + index + ')">';
+          if (hasImage) {
+            html += '<img class="update-image" src="' + u.featured_image_url + '" alt="' + safeTitle + '" onerror="this.style.display=\\'none\\';this.nextElementSibling.style.display=\\'flex\\';">';
+            html += '<div class="update-image-placeholder" style="display:none;">📰</div>';
+          } else {
+            html += '<div class="update-image-placeholder">📰</div>';
+          }
+          html += '<div class="update-content">';
+          html += '<div class="update-meta">';
+          html += '<span class="update-category">' + (u.category || 'Update') + '</span>';
+          html += '<span class="update-date">' + date + '</span>';
+          html += '</div>';
+          html += '<h3 class="update-title">' + safeTitle + '</h3>';
+          html += '<p class="update-excerpt">' + (u.excerpt || stripHtml(u.content || '').substring(0, 150) + '...') + '</p>';
+          html += '<div class="update-footer">';
+          html += '<div class="update-author">';
+          html += '<div class="update-author-avatar">' + authorInitial + '</div>';
+          html += '<span>' + (u.author_name || 'Risivo Team') + '</span>';
+          html += '</div>';
+          html += '<div class="update-stats">';
+          html += '<span class="update-stat">👁 ' + (u.views_count || 0) + '</span>';
+          html += '<span class="update-stat">👍 ' + (u.likes_count || 0) + '</span>';
+          html += '</div>';
+          html += '</div>';
+          html += '</div>';
+          html += '</div>';
+          return html;
         }).join('');
       } catch (error) {
         console.error('Load updates error:', error);
