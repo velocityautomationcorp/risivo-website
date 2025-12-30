@@ -3605,6 +3605,8 @@ app.get("/", (c) => {
                 border: 2px solid rgba(255, 255, 255, 0.15);
                 transition: all 0.3s ease;
                 text-align: center;
+                display: flex;
+                flex-direction: column;
             }
             .cta-card:hover {
                 transform: translateY(-8px);
@@ -3628,11 +3630,11 @@ app.get("/", (c) => {
                 letter-spacing: -0.5px;
             }
             .cta-card p {
-                font-size: 15px;
-                line-height: 1.6;
-                color: rgba(255, 255, 255, 0.85);
+                font-size: 16px;
+                line-height: 1.7;
+                color: rgba(255, 255, 255, 0.9);
                 margin-bottom: 24px;
-                min-height: 75px;
+                flex: 1;
             }
             .cta-card p strong {
                 color: #FFD700;
