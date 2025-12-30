@@ -628,6 +628,88 @@ export class EmailService {
 
     await this.sendEmail(this.adminEmail, subject, this.buildEmailHtml(content, 'Admin Notification'));
   }
+
+  // ===========================================
+  // ERROR REPORTING - System Bug/Error Alerts
+  // ===========================================
+  async sendErrorReport(params: {
+    errorType: string;
+    errorMessage: string;
+    errorStack?: string;
+    userEmail?: string;
+    userName?: string;
+    userType?: string; // 'admin', 'investor', 'waitlist', 'anonymous'
+    pageUrl?: string;
+    userAgent?: string;
+    ipAddress?: string;
+    additionalInfo?: string;
+  }): Promise<void> {
+    const { 
+      errorType, 
+      errorMessage, 
+      errorStack, 
+      userEmail, 
+      userName,
+      userType,
+      pageUrl, 
+      userAgent, 
+      ipAddress,
+      additionalInfo 
+    } = params;
+
+    const content = `
+      <h2>🚨 System Error Report</h2>
+      <p style="color: #dc2626; font-weight: 600; font-size: 16px;">An error has been detected in the Risivo platform that requires immediate attention.</p>
+      
+      <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 16px; margin: 20px 0;">
+        <h4 style="color: #dc2626; margin: 0 0 8px 0;">Error Type: ${errorType}</h4>
+        <p style="font-family: monospace; background: #fff; padding: 12px; border-radius: 4px; margin: 0; white-space: pre-wrap; word-break: break-all;">${errorMessage}</p>
+      </div>
+      
+      ${errorStack ? `
+      <div style="margin: 20px 0;">
+        <h4 style="margin: 0 0 8px 0;">Stack Trace:</h4>
+        <pre style="background: #1a1a2e; color: #10b981; padding: 12px; border-radius: 8px; overflow-x: auto; font-size: 12px;">${errorStack}</pre>
+      </div>
+      ` : ''}
+      
+      <table class="details">
+        <tr><td style="width: 140px;">User Email</td><td>${userEmail || 'Not logged in / Anonymous'}</td></tr>
+        <tr><td>User Name</td><td>${userName || 'N/A'}</td></tr>
+        <tr><td>User Type</td><td><span style="padding: 4px 8px; border-radius: 4px; background: ${
+          userType === 'admin' ? '#dbeafe' : 
+          userType === 'investor' ? '#dcfce7' : 
+          userType === 'waitlist' ? '#fef3c7' : '#f3f4f6'
+        }; font-weight: 500;">${userType || 'Anonymous'}</span></td></tr>
+        <tr><td>Page URL</td><td style="word-break: break-all;">${pageUrl || 'N/A'}</td></tr>
+        <tr><td>IP Address</td><td>${ipAddress || 'N/A'}</td></tr>
+        <tr><td>User Agent</td><td style="font-size: 12px; word-break: break-all;">${userAgent || 'N/A'}</td></tr>
+        <tr><td>Timestamp</td><td>${new Date().toLocaleString()} UTC</td></tr>
+      </table>
+      
+      ${additionalInfo ? `
+      <div style="margin: 20px 0;">
+        <h4 style="margin: 0 0 8px 0;">Additional Information:</h4>
+        <p style="background: #f9fafb; padding: 12px; border-radius: 8px; border: 1px solid #e5e7eb;">${additionalInfo}</p>
+      </div>
+      ` : ''}
+      
+      <div class="btn-wrapper">
+        <a href="https://risivo.com/updates/admin/dashboard" class="btn">View Admin Dashboard</a>
+      </div>
+      
+      <p style="font-size: 13px; color: #666; margin-top: 24px;">
+        This is an automated error report from the Risivo monitoring system. 
+        Please investigate and resolve this issue promptly.
+      </p>
+    `;
+
+    await this.sendEmail(
+      this.adminEmail, 
+      `🚨 [RISIVO ERROR] ${errorType}: ${errorMessage.substring(0, 50)}...`, 
+      this.buildEmailHtml(content, 'System Alert')
+    );
+  }
 }
 
 // Helper function to generate secure reset token

@@ -16,6 +16,7 @@ import waitlist from "./routes/waitlist";
 import contact from "./routes/contact";
 import newsletter from "./routes/newsletter";
 import uploadRoute from "./routes/upload";
+import errorReporting from "./routes/error-reporting";
 
 type Bindings = {
   WEBHOOK_URL?: string;
@@ -48,6 +49,7 @@ app.route("/api/waitlist", waitlist);         // Waitlist signup
 app.route("/api/contact", contact);           // Contact form
 app.route("/api/newsletter", newsletter);     // Newsletter signup
 app.route("/api/upload", uploadRoute);        // Image upload
+app.route("/api", errorReporting);            // Error reporting system
 
 // ============================================
 // Login Page Routes (HTML Pages)
@@ -992,6 +994,39 @@ app.get("/updates/admin/dashboard", (c) => {
       }
     });
     
+    let adminUser = null;
+    
+    // Global Error Tracking
+    window.onerror = function(message, source, lineno, colno, error) {
+      reportError('JavaScript Error', message, error ? error.stack : null);
+      return false;
+    };
+    
+    window.onunhandledrejection = function(event) {
+      reportError('Unhandled Promise Rejection', event.reason ? event.reason.message || String(event.reason) : 'Unknown', event.reason ? event.reason.stack : null);
+    };
+    
+    function reportError(errorType, errorMessage, errorStack) {
+      try {
+        fetch('/api/report-error', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            errorType,
+            errorMessage: String(errorMessage).substring(0, 1000),
+            errorStack: errorStack ? String(errorStack).substring(0, 2000) : null,
+            userEmail: adminUser ? adminUser.email : 'admin@risivo.com',
+            userName: 'Admin',
+            userType: 'admin',
+            pageUrl: window.location.href,
+            additionalInfo: 'Admin Dashboard'
+          })
+        }).catch(e => console.error('Error reporting failed:', e));
+      } catch (e) {
+        console.error('Error reporting failed:', e);
+      }
+    }
+    
     // Initialize
     async function init() {
       try {
@@ -1003,6 +1038,7 @@ app.get("/updates/admin/dashboard", (c) => {
           return;
         }
         
+        adminUser = meData.admin;
         document.getElementById('adminEmail').textContent = meData.admin.email;
         
         // Load all data
@@ -1020,6 +1056,7 @@ app.get("/updates/admin/dashboard", (c) => {
         
       } catch (error) {
         console.error('Init error:', error);
+        reportError('Admin Init Error', error.message, error.stack);
         window.location.href = '/updates/admin/login';
       }
     }
@@ -3707,6 +3744,37 @@ app.get("/updates/investor/dashboard", (c) => {
   <script>
     let userData = null;
     
+    // Global Error Tracking
+    window.onerror = function(message, source, lineno, colno, error) {
+      reportError('JavaScript Error', message, error ? error.stack : null);
+      return false;
+    };
+    
+    window.onunhandledrejection = function(event) {
+      reportError('Unhandled Promise Rejection', event.reason ? event.reason.message || String(event.reason) : 'Unknown', event.reason ? event.reason.stack : null);
+    };
+    
+    function reportError(errorType, errorMessage, errorStack) {
+      try {
+        fetch('/api/report-error', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            errorType,
+            errorMessage: String(errorMessage).substring(0, 1000),
+            errorStack: errorStack ? String(errorStack).substring(0, 2000) : null,
+            userEmail: userData ? userData.email : null,
+            userName: userData ? (userData.first_name + ' ' + userData.last_name) : null,
+            userType: 'investor',
+            pageUrl: window.location.href,
+            additionalInfo: 'Investor Dashboard'
+          })
+        }).catch(e => console.error('Error reporting failed:', e));
+      } catch (e) {
+        console.error('Error reporting failed:', e);
+      }
+    }
+    
     async function init() {
       try {
         // Get user info
@@ -3857,6 +3925,11 @@ app.get("/updates/investor/dashboard", (c) => {
                 \${date ? \`<span>📅 \${date}</span>\` : ''}
                 \${item.author_name ? \`<span>✍️ \${escapeHtml(item.author_name)}</span>\` : ''}
                 \${hasVideo ? \`<span>🎬 Video</span>\` : ''}
+              </div>
+              <div class="update-stats" style="display:flex;gap:12px;margin-top:8px;font-size:13px;color:#666;">
+                <span>👁️ \${item.views_count || 0}</span>
+                <span>👍 \${item.likes_count || 0}</span>
+                <span>👎 \${item.dislikes_count || 0}</span>
               </div>
             </div>
             \${hasVideo ? '<div class="video-badge">▶ Video</div>' : ''}
@@ -5484,6 +5557,39 @@ app.get("/waitlist/dashboard", (c) => {
   </footer>
   
   <script>
+    let currentUser = null;
+    
+    // Global Error Tracking
+    window.onerror = function(message, source, lineno, colno, error) {
+      reportError('JavaScript Error', message, error ? error.stack : null);
+      return false;
+    };
+    
+    window.onunhandledrejection = function(event) {
+      reportError('Unhandled Promise Rejection', event.reason ? event.reason.message || String(event.reason) : 'Unknown', event.reason ? event.reason.stack : null);
+    };
+    
+    function reportError(errorType, errorMessage, errorStack) {
+      try {
+        fetch('/api/report-error', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            errorType,
+            errorMessage: String(errorMessage).substring(0, 1000),
+            errorStack: errorStack ? String(errorStack).substring(0, 2000) : null,
+            userEmail: currentUser ? currentUser.email : null,
+            userName: currentUser ? (currentUser.first_name + ' ' + currentUser.last_name) : null,
+            userType: 'waitlist',
+            pageUrl: window.location.href,
+            additionalInfo: 'Waitlist Dashboard'
+          })
+        }).catch(e => console.error('Error reporting failed:', e));
+      } catch (e) {
+        console.error('Error reporting failed:', e);
+      }
+    }
+    
     async function init() {
       try {
         const res = await fetch('/api/user/me');
@@ -5495,6 +5601,7 @@ app.get("/waitlist/dashboard", (c) => {
         }
         
         const user = data.user;
+        currentUser = user;
         document.getElementById('userEmail').textContent = user.email;
         document.getElementById('userName').textContent = user.first_name || 'Member';
         document.getElementById('waitlistNumber').textContent = user.waitlist_number ? '#' + user.waitlist_number : 'Waitlist Member';
@@ -5506,6 +5613,7 @@ app.get("/waitlist/dashboard", (c) => {
         loadUpdates();
       } catch (error) {
         console.error('Init error:', error);
+        reportError('Init Error', error.message, error.stack);
         window.location.href = '/waitlist/login';
       }
     }
