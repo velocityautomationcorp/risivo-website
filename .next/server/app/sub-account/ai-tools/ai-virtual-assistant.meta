@@ -1,0 +1,17 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/sub-account/layout,_N_T_/sub-account/ai-tools/layout,_N_T_/sub-account/ai-tools/ai-virtual-assistant/layout,_N_T_/sub-account/ai-tools/ai-virtual-assistant/page,_N_T_/sub-account/ai-tools/ai-virtual-assistant"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/sub-account/ai-tools/ai-virtual-assistant/__PAGE__",
+    "/sub-account/ai-tools/ai-virtual-assistant",
+    "/sub-account/ai-tools",
+    "/sub-account",
+    "/_index",
+    "/_head"
+  ]
+}

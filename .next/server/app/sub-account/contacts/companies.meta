@@ -1,0 +1,17 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/sub-account/layout,_N_T_/sub-account/contacts/layout,_N_T_/sub-account/contacts/companies/layout,_N_T_/sub-account/contacts/companies/page,_N_T_/sub-account/contacts/companies"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/sub-account/contacts/companies/__PAGE__",
+    "/sub-account/contacts/companies",
+    "/sub-account/contacts",
+    "/sub-account",
+    "/_index",
+    "/_head"
+  ]
+}

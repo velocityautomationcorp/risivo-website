@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "functions": {
+    "/api/auth/[...nextauth]": {},
+    "/api/debug/auth-test": {},
+    "/api/debug/reset-admin-password": {},
+    "/api/demo/create": {},
+    "/api/demo/forgot-password": {},
+    "/api/demo/investor-login": {},
+    "/api/demo/login": {},
+    "/api/demo/reset-password": {},
+    "/api/demo/signup": {},
+    "/api/demo/verify": {},
+    "/api/login": {},
+    "/api/logout": {},
+    "/api/user/avatar": {},
+    "/api/user/password": {},
+    "/api/user/profile": {}
+  }
+}

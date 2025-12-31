@@ -1,0 +1,17 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/sub-account/layout,_N_T_/sub-account/addon-store/layout,_N_T_/sub-account/addon-store/updates/layout,_N_T_/sub-account/addon-store/updates/page,_N_T_/sub-account/addon-store/updates"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/sub-account/addon-store/updates/__PAGE__",
+    "/sub-account/addon-store/updates",
+    "/sub-account/addon-store",
+    "/sub-account",
+    "/_index",
+    "/_head"
+  ]
+}

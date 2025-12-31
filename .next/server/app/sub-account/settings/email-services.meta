@@ -1,0 +1,17 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/sub-account/layout,_N_T_/sub-account/settings/layout,_N_T_/sub-account/settings/email-services/layout,_N_T_/sub-account/settings/email-services/page,_N_T_/sub-account/settings/email-services"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/sub-account/settings/email-services/__PAGE__",
+    "/sub-account/settings/email-services",
+    "/sub-account/settings",
+    "/sub-account",
+    "/_index",
+    "/_head"
+  ]
+}

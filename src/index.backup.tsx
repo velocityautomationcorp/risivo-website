@@ -125,7 +125,7 @@ app.post('/api/subscribe', async (c) => {
 
 // Coming Soon Page
 app.get('/', (c) => {
-  const launchDate = new Date('2026-03-01T00:00:00Z').getTime()
+  const launchDate = new Date('2026-04-01T00:00:00Z').getTime() // April 1, 2026
   
   return c.html(`
     <!DOCTYPE html>
@@ -482,9 +482,9 @@ app.get('/', (c) => {
         </div>
         
         <script>
-            // Countdown Timer - March 1st, 2026 at 00:00 UTC
+            // Countdown Timer - April 1st, 2026 at 00:00 UTC
             // Using Date.UTC for better browser compatibility
-            const launchDate = Date.UTC(2026, 2, 1, 0, 0, 0); // Note: Month is 0-indexed (2 = March)
+            const launchDate = Date.UTC(2026, 3, 1, 0, 0, 0); // April 1, 2026 (Month is 0-indexed: 3 = April)
             
             function updateCountdown() {
                 const now = new Date().getTime();

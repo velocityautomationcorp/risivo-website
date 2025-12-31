@@ -1,0 +1,16 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/company/layout,_N_T_/company/blueprints-library/layout,_N_T_/company/blueprints-library/page,_N_T_/company/blueprints-library"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/company/blueprints-library/__PAGE__",
+    "/company/blueprints-library",
+    "/company",
+    "/_index",
+    "/_head"
+  ]
+}

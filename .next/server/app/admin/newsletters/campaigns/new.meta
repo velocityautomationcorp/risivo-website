@@ -1,0 +1,18 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/admin/layout,_N_T_/admin/newsletters/layout,_N_T_/admin/newsletters/campaigns/layout,_N_T_/admin/newsletters/campaigns/new/layout,_N_T_/admin/newsletters/campaigns/new/page,_N_T_/admin/newsletters/campaigns/new"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/admin/newsletters/campaigns/new/__PAGE__",
+    "/admin/newsletters/campaigns/new",
+    "/admin/newsletters/campaigns",
+    "/admin/newsletters",
+    "/admin",
+    "/_index",
+    "/_head"
+  ]
+}

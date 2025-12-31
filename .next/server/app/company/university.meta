@@ -1,0 +1,16 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/company/layout,_N_T_/company/university/layout,_N_T_/company/university/page,_N_T_/company/university"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/company/university/__PAGE__",
+    "/company/university",
+    "/company",
+    "/_index",
+    "/_head"
+  ]
+}

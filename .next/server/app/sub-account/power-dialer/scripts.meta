@@ -1,0 +1,17 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/sub-account/layout,_N_T_/sub-account/power-dialer/layout,_N_T_/sub-account/power-dialer/scripts/layout,_N_T_/sub-account/power-dialer/scripts/page,_N_T_/sub-account/power-dialer/scripts"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/sub-account/power-dialer/scripts/__PAGE__",
+    "/sub-account/power-dialer/scripts",
+    "/sub-account/power-dialer",
+    "/sub-account",
+    "/_index",
+    "/_head"
+  ]
+}

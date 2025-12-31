@@ -1,0 +1,16 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/company/layout,_N_T_/company/mobile-pwa/layout,_N_T_/company/mobile-pwa/page,_N_T_/company/mobile-pwa"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/company/mobile-pwa/__PAGE__",
+    "/company/mobile-pwa",
+    "/company",
+    "/_index",
+    "/_head"
+  ]
+}

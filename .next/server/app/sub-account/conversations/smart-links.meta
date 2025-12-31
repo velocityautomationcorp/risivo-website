@@ -1,0 +1,17 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/sub-account/layout,_N_T_/sub-account/conversations/layout,_N_T_/sub-account/conversations/smart-links/layout,_N_T_/sub-account/conversations/smart-links/page,_N_T_/sub-account/conversations/smart-links"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/sub-account/conversations/smart-links/__PAGE__",
+    "/sub-account/conversations/smart-links",
+    "/sub-account/conversations",
+    "/sub-account",
+    "/_index",
+    "/_head"
+  ]
+}

@@ -1,0 +1,3 @@
+{
+  "/api/email-infrastructure/domains/[domainId]/renew/route": "app/api/email-infrastructure/domains/[domainId]/renew/route.js"
+}

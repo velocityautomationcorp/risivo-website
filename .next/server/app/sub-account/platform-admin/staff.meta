@@ -1,0 +1,17 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/sub-account/layout,_N_T_/sub-account/platform-admin/layout,_N_T_/sub-account/platform-admin/staff/layout,_N_T_/sub-account/platform-admin/staff/page,_N_T_/sub-account/platform-admin/staff"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/sub-account/platform-admin/staff/__PAGE__",
+    "/sub-account/platform-admin/staff",
+    "/sub-account/platform-admin",
+    "/sub-account",
+    "/_index",
+    "/_head"
+  ]
+}

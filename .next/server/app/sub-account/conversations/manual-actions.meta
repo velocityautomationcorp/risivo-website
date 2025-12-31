@@ -1,0 +1,17 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/sub-account/layout,_N_T_/sub-account/conversations/layout,_N_T_/sub-account/conversations/manual-actions/layout,_N_T_/sub-account/conversations/manual-actions/page,_N_T_/sub-account/conversations/manual-actions"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/sub-account/conversations/manual-actions/__PAGE__",
+    "/sub-account/conversations/manual-actions",
+    "/sub-account/conversations",
+    "/sub-account",
+    "/_index",
+    "/_head"
+  ]
+}

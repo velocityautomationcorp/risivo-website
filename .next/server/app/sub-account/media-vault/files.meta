@@ -1,0 +1,17 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/sub-account/layout,_N_T_/sub-account/media-vault/layout,_N_T_/sub-account/media-vault/files/layout,_N_T_/sub-account/media-vault/files/page,_N_T_/sub-account/media-vault/files"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/sub-account/media-vault/files/__PAGE__",
+    "/sub-account/media-vault/files",
+    "/sub-account/media-vault",
+    "/sub-account",
+    "/_index",
+    "/_head"
+  ]
+}

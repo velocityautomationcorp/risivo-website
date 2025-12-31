@@ -4815,7 +4815,7 @@ app.get("/", (c) => {
         </div>
         
         <script>
-            const launchDate = Date.UTC(2026, 2, 1, 0, 0, 0);
+            const launchDate = Date.UTC(2026, 3, 1, 0, 0, 0); // April 1, 2026
             function updateCountdown() {
                 const now = new Date().getTime();
                 const distance = launchDate - now;

@@ -1,0 +1,3 @@
+{
+  "/api/email-infrastructure/email-accounts/[emailId]/warmup/route": "app/api/email-infrastructure/email-accounts/[emailId]/warmup/route.js"
+}

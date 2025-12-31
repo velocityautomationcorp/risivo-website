@@ -1,0 +1,17 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/admin/layout,_N_T_/admin/settings/layout,_N_T_/admin/settings/email-service/layout,_N_T_/admin/settings/email-service/page,_N_T_/admin/settings/email-service"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/admin/settings/email-service/__PAGE__",
+    "/admin/settings/email-service",
+    "/admin/settings",
+    "/admin",
+    "/_index",
+    "/_head"
+  ]
+}

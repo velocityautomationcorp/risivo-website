@@ -1,0 +1,17 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/sub-account/layout,_N_T_/sub-account/reporting/layout,_N_T_/sub-account/reporting/custom/layout,_N_T_/sub-account/reporting/custom/page,_N_T_/sub-account/reporting/custom"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/sub-account/reporting/custom/__PAGE__",
+    "/sub-account/reporting/custom",
+    "/sub-account/reporting",
+    "/sub-account",
+    "/_index",
+    "/_head"
+  ]
+}

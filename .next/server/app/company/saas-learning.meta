@@ -1,0 +1,16 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/company/layout,_N_T_/company/saas-learning/layout,_N_T_/company/saas-learning/page,_N_T_/company/saas-learning"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/company/saas-learning/__PAGE__",
+    "/company/saas-learning",
+    "/company",
+    "/_index",
+    "/_head"
+  ]
+}

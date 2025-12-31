@@ -1,0 +1,5 @@
+1:"$Sreact.fragment"
+2:I[97367,["/_next/static/chunks/ff1a16fafef87110.js","/_next/static/chunks/cf60cc4eb01bbf47.js"],"OutletBoundary"]
+3:"$Sreact.suspense"
+0:{"buildId":"gk1-My7-LaAa1o5mURp_y","rsc":["$","$1","c",{"children":[["$","div",null,{"className":"space-y-6","children":[["$","div",null,{"children":[["$","h1",null,{"className":"text-3xl font-bold text-gray-900","children":"App Store"}],["$","p",null,{"className":"mt-2 text-sm text-gray-600","children":"Browse and install applications"}]]}],["$","div",null,{"className":"bg-white shadow-sm rounded-lg border border-gray-200 p-12 text-center","children":[["$","span",null,{"className":"text-6xl mb-4 block","children":"🛒"}],["$","h2",null,{"className":"text-2xl font-bold text-gray-900 mb-2","children":"App Store"}],["$","p",null,{"className":"text-gray-600","children":"This page is coming soon..."}]]}]]}],null,["$","$L2",null,{"children":["$","$3",null,{"name":"Next.MetadataOutlet","children":"$@4"}]}]]}],"loading":null,"isPartial":false}
+4:null

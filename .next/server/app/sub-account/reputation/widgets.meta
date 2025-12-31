@@ -1,0 +1,17 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/sub-account/layout,_N_T_/sub-account/reputation/layout,_N_T_/sub-account/reputation/widgets/layout,_N_T_/sub-account/reputation/widgets/page,_N_T_/sub-account/reputation/widgets"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/sub-account/reputation/widgets/__PAGE__",
+    "/sub-account/reputation/widgets",
+    "/sub-account/reputation",
+    "/sub-account",
+    "/_index",
+    "/_head"
+  ]
+}

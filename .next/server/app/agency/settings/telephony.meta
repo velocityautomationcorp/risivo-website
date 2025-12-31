@@ -1,0 +1,17 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/agency/layout,_N_T_/agency/settings/layout,_N_T_/agency/settings/telephony/layout,_N_T_/agency/settings/telephony/page,_N_T_/agency/settings/telephony"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/agency/settings/telephony/__PAGE__",
+    "/agency/settings/telephony",
+    "/agency/settings",
+    "/agency",
+    "/_index",
+    "/_head"
+  ]
+}
