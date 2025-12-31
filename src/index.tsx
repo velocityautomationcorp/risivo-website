@@ -4452,7 +4452,8 @@ app.get("/", (c) => {
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-
+        <script src="https://fast.wistia.com/player.js" async></script>
+        <script src="https://fast.wistia.com/embed/7bw62egnqh.js" async type="module"></script>
         <style>
             * { margin: 0; padding: 0; box-sizing: border-box; }
             html {
@@ -4513,10 +4514,11 @@ app.get("/", (c) => {
                 overflow: hidden;
                 box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             }
-            .video-container iframe {
-                width: 100%;
-                aspect-ratio: 16/9;
-                border: none;
+            wistia-player[media-id='7bw62egnqh']:not(:defined) {
+                background: center / contain no-repeat url('https://fast.wistia.com/embed/medias/7bw62egnqh/swatch');
+                display: block;
+                filter: blur(5px);
+                padding-top: 56.25%;
             }
             .countdown {
                 display: flex;
@@ -4743,7 +4745,7 @@ app.get("/", (c) => {
             </p>
             
             <div class="video-container">
-                <iframe src="https://app.heygen.com/embedded-player/5ab3f49bc31f448d8ee0abba62d0467c" title="HeyGen video player" allow="encrypted-media; fullscreen;" allowfullscreen></iframe>
+                <wistia-player media-id="7bw62egnqh" aspect="1.7777777777777777"></wistia-player>
             </div>
             
             <div class="countdown" id="countdown">
